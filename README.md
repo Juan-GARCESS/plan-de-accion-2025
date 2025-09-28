@@ -1,22 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📊 Sistema de Gestión de Informes Trimestrales
 
-## Getting Started
+Sistema completo de gestión de informes trimestrales desarrollado con Next.js 15.5.4, TypeScript y MySQL.
 
-First, run the development server:
+## 🚀 Características
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 👨‍💼 Panel de Administrador
+- **Dashboard Principal**: Visualización de todas las áreas de trabajo
+- **Gestión de Usuarios**: CRUD completo con aprobación de solicitudes
+- **Gestión de Áreas**: Creación y administración de áreas de trabajo
+- **Revisión de Informes**: Visualización de informes por área y trimestre
+- **Estadísticas**: Métricas generales del sistema
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 👤 Panel de Usuario
+- **Dashboard de Trimestres**: Visualización de trimestres disponibles
+- **Planificación**: Creación de metas trimestrales
+- **Carga de Informes**: Upload de archivos con validación
+- **Seguimiento**: Estados de informes (planificando → pendiente → aceptado/rechazado)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ Tecnologías
+
+- **Frontend**: Next.js 15.5.4 + React 19.1.0 + TypeScript
+- **Backend**: API Routes de Next.js
+- **Base de Datos**: MySQL
+- **Autenticación**: Sistema híbrido cookies + JWT
+- **Estilos**: Responsive design con hooks personalizados
+- **Seguridad**: bcrypt, validaciones de roles
+
+## ⚡ Instalación y Uso
+
+1. **Clonar e instalar**
+   ```bash
+   git clone https://github.com/Juan-GARCESS/Plan.git
+   cd Plan
+   npm install
+   ```
+
+2. **Configurar variables de entorno** (crear `.env.local`)
+   ```env
+   DATABASE_URL="mysql://usuario:password@localhost:3306/db_name"
+   JWT_SECRET="tu_jwt_secret_muy_seguro"
+   ```
+
+3. **Ejecutar en desarrollo**
+   ```bash
+   npm run dev
+   ```
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
