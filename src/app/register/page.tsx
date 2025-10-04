@@ -1,247 +1,569 @@
-"use client";
+﻿'use client'
 
-import Link from "next/link";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 export default function RegisterPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [nombre, setNombre] = useState("");
-  const [areaSolicitada, setAreaSolicitada] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const router = useRouter();
-  const { user, loading: authLoading, redirectBasedOnRole } = useAuth();
+  const [formData, setFormData] = useState({
+    nombre: '',
+    email: '',
+    password: '',
+    areaSolicitada: '',
+    terms: false
+  })
+  
+  const [showPassword, setShowPassword] = useState(false)
+  const [errors, setErrors] = useState<{ [key: string]: string }>({})
+  const [loading, setLoading] = useState(false)
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    type: 'success' | 'error' | 'info';
+    title: string;
+    message: string;
+  }>({
+    show: false,
+    type: 'success',
+    title: '',
+    message: ''
+  })
 
-  // Si ya está autenticado, redirigir
+  // Verificar si el usuario ya está autenticado
   useEffect(() => {
-    if (!authLoading && user) {
-      redirectBasedOnRole(user);
-    }
-  }, [user, authLoading, redirectBasedOnRole]);
-
-  // Si está verificando, no mostrar nada para evitar parpadeo
-  if (authLoading) {
-    return null;
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-
-    // Validación frontend
-    if (!email || !password || !nombre || !areaSolicitada) {
-      setError("Todos los campos son requeridos");
-      return;
-    }
-
-    try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password,
-          nombre,
-          area_solicitada: areaSolicitada,
-          rol: "usuario"
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || "Error en el registro");
-        return;
+    const checkAuthStatus = async () => {
+      try {
+        const res = await fetch('/api/me', {
+          method: 'GET',
+          credentials: 'include'
+        })
+        
+        if (res.ok) {
+          const userData = await res.json()
+          if (userData.user) {
+            // Usuario ya autenticado, redirigir según su rol
+            if (userData.user.rol === 'admin') {
+              window.location.replace('/admin/dashboard')
+            } else {
+              window.location.replace('/dashboard')
+            }
+            return
+          }
+        }
+      } catch {
+        console.log('Usuario no autenticado')
+      } finally {
+        setIsCheckingAuth(false)
       }
-
-      setSuccess("Registro exitoso. Redirigiendo al login...");
-      setTimeout(() => router.push("/"), 1000);
-
-    } catch (err) {
-      setError("Error en la conexión al servidor");
-      console.error(err);
     }
-  };
 
-  return (
-    <div 
-      style={{
+    checkAuthStatus()
+  }, [])
+
+  // Establecer título de la página de registro
+  useEffect(() => {
+    document.title = 'Plan de Acción - Registro';
+  }, [])
+
+  // Solo prevenir navegación hacia atrás durante el proceso de notificación de éxito
+  useEffect(() => {
+    if (notification.show && notification.type === 'success') {
+      const handlePopState = () => {
+        window.history.pushState(null, '', window.location.href);
+      };
+      
+      window.history.pushState(null, '', window.location.href);
+      window.addEventListener('popstate', handlePopState);
+      
+      return () => {
+        window.removeEventListener('popstate', handlePopState);
+      };
+    }
+  }, [notification.show, notification.type]);
+
+  // Mostrar loading mientras se verifica la autenticación
+  if (isCheckingAuth) {
+    return (
+      <div style={{
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: '16px'
-      }}
-    >
-      <div 
-        style={{
-          backgroundColor: 'white',
-          borderRadius: '16px',
-          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-          padding: '24px',
-          width: '100%',
-          maxWidth: '400px',
-          border: '1px solid #e5e7eb'
-        }}
-      >
-        {/* Header */}
-        <div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
-          <h1 style={{fontSize: '1.5rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem'}}>
-            Crear cuenta nueva
-          </h1>
-          <p style={{color: '#6b7280', fontSize: '0.875rem'}}>
-            Completa la información para registrarte
-          </p>
-        </div>
-
-        {/* Alertas de error y éxito */}
-            {error && (
-              <div style={{backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', padding: '0.75rem 1rem', borderRadius: '0.5rem', marginBottom: '1.5rem'}}>
-                {error}
-              </div>
-            )}
-            {success && (
-              <div style={{backgroundColor: '#f0f9ff', border: '1px solid #7dd3fc', color: '#0c4a6e', padding: '0.75rem 1rem', borderRadius: '0.5rem', marginBottom: '1.5rem'}}>
-                {success}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
-              {/* Campo Nombre */}
-              <div>
-                <label htmlFor="nombre" style={{display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem'}}>
-                  Nombre completo
-                </label>
-                <input
-                  id="nombre"
-                  type="text"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  required
-                  style={{width: '100%', padding: '0.75rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', backgroundColor: 'white', fontSize: '1rem', outline: 'none'}}
-                  placeholder="Tu nombre completo"
-                />
-              </div>
-
-              {/* Campo Email */}
-              <div>
-                <label htmlFor="email" style={{display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem'}}>
-                  Correo electrónico
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  style={{width: '100%', padding: '0.75rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', backgroundColor: 'white', fontSize: '1rem', outline: 'none'}}
-                  placeholder="tu@email.com"
-                />
-              </div>
-              
-              {/* Campo Contraseña */}
-              <div>
-                <label htmlFor="password" style={{display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem'}}>
-                  Contraseña
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  style={{width: '100%', padding: '0.75rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', backgroundColor: 'white', fontSize: '1rem', outline: 'none'}}
-                />
-              </div>
-
-              {/* Campo Área Solicitada */}
-              <div>
-                <label htmlFor="areaSolicitada" style={{display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem'}}>
-                  Área solicitada
-                </label>
-                <input
-                  id="areaSolicitada"
-                  type="text"
-                  value={areaSolicitada}
-                  onChange={(e) => setAreaSolicitada(e.target.value)}
-                  required
-                  style={{width: '100%', padding: '0.75rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', backgroundColor: 'white', fontSize: '1rem', outline: 'none'}}
-                  placeholder="Finanzas, Marketing, etc."
-                />
-              </div>
-
-              {/* Botón de envío */}
-              <button
-                type="submit"
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  padding: '0.75rem 1.5rem',
-                  fontSize: '1rem',
-                  fontWeight: '500',
-                  color: 'white',
-                  backgroundColor: '#2563eb',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  cursor: 'pointer'
-                }}
-              >
-                Registrarse
-              </button>
-            </form>
-
-            {/* Separador */}
-            <div style={{position: 'relative', margin: '2rem 0'}}>
-              <div style={{position: 'absolute', top: '50%', left: 0, right: 0, height: '1px', backgroundColor: '#d1d5db'}} />
-              <div style={{position: 'relative', textAlign: 'center', fontSize: '0.875rem'}}>
-                <span style={{padding: '0 0.5rem', backgroundColor: 'white', color: '#6b7280'}}>¿Ya tienes cuenta?</span>
-              </div>
-            </div>
-
-            {/* Botón de login */}
-            <Link href="/" style={{display: 'block'}}>
-              <button
-                type="button"
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1.5rem',
-                  fontSize: '1rem',
-                  fontWeight: '500',
-                  color: '#374151',
-                  backgroundColor: 'white',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '0.5rem',
-                  cursor: 'pointer'
-                }}
-              >
-                Iniciar sesión
-              </button>
-            </Link>
-
-        {/* Footer */}
-        <div style={{textAlign: 'center', marginTop: '1.5rem'}}>
-          <p style={{fontSize: '0.75rem', color: '#9ca3af'}}>
-            Al registrarte, aceptas nuestros{" "}
-            <a href="#" style={{color: '#2563eb', textDecoration: 'none'}}>
-              Términos de Servicio
-            </a>{" "}
-            y{" "}
-            <a href="#" style={{color: '#2563eb', textDecoration: 'none'}}>
-              Política de Privacidad
-            </a>
+        background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '20vh'
+        }}>
+          <p style={{ 
+            color: '#9ca3af', 
+            margin: 0, 
+            fontSize: '14px',
+            fontWeight: '400'
+          }}>
+            Cargando
           </p>
         </div>
       </div>
+    )
+  }
+
+  const showNotification = (type: 'success' | 'error' | 'info', title: string, message: string) => {
+    setNotification({
+      show: true,
+      type,
+      title,
+      message
+    })
+  }
+
+  const hideNotification = () => {
+    setNotification(prev => ({ ...prev, show: false }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const newErrors: { [key: string]: string } = {}
+    
+    if (!formData.nombre.trim()) newErrors.nombre = 'El nombre es requerido'
+    if (!formData.email.trim()) newErrors.email = 'El email es requerido'
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Por favor ingresa un email válido'
+    if (!formData.password) newErrors.password = 'La contraseña es requerida'
+    else if (formData.password.length < 6) newErrors.password = 'La contraseña debe tener al menos 6 caracteres'
+    if (!formData.areaSolicitada.trim()) newErrors.areaSolicitada = 'El área es requerida'
+    if (!formData.terms) newErrors.terms = 'Debes aceptar los términos y condiciones'
+    
+    setErrors(newErrors)
+    
+    if (Object.keys(newErrors).length === 0) {
+      setLoading(true)
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+            nombre: formData.nombre,
+            area_solicitada: formData.areaSolicitada,
+            rol: 'usuario'
+          }),
+        })
+
+        const data = await res.json()
+        setLoading(false)
+
+        if (!res.ok) {
+          showNotification('error', 'Error de Registro', data.message || 'Error al crear la cuenta')
+          return
+        }
+
+        showNotification('success', '¡Cuenta Creada!', 'Tu cuenta ha sido creada exitosamente y está pendiente de aprobación. Te notificaremos cuando sea aprobada.')
+        setFormData({ nombre: '', email: '', password: '', areaSolicitada: '', terms: false })
+        
+        // Prevenir navegación hacia atrás durante el proceso de redireccionamiento
+        window.history.replaceState(null, '', '/register')
+        
+        setTimeout(() => {
+          hideNotification()
+          window.location.replace('/')
+        }, 4000)
+      } catch (err) {
+        setLoading(false)
+        showNotification('error', 'Error de Conexión', 'No se pudo conectar con el servidor. Intenta nuevamente.')
+        console.error(err)
+      }
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type } = e.target
+    const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined
+    
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value
+    })
+    
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }))
+    }
+  }
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword)
+  }
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+      padding: '20px',
+      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    }}>
+      {notification.show && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          backdropFilter: 'blur(3px)'
+        }}>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: '20px',
+            padding: '40px',
+            maxWidth: '400px',
+            width: '90%',
+            textAlign: 'center',
+            border: `2px solid ${notification.type === 'success' ? '#22c55e' : notification.type === 'error' ? '#ef4444' : '#3b82f6'}`,
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.2)',
+            animation: 'modalSlideIn 0.3s ease-out'
+          }}>
+            <div style={{
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              background: notification.type === 'success' ? '#22c55e' : notification.type === 'error' ? '#ef4444' : '#3b82f6',
+              margin: '0 auto 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '24px',
+              color: 'white'
+            }}>
+              {notification.type === 'success' ? '✓' : notification.type === 'error' ? '✕' : 'ℹ'}
+            </div>
+            <h3 style={{
+              color: '#000000',
+              fontSize: '1.5rem',
+              fontWeight: '700',
+              margin: '0 0 10px 0'
+            }}>
+              {notification.title}
+            </h3>
+            <p style={{
+              color: '#666666',
+              fontSize: '1rem',
+              lineHeight: '1.5',
+              margin: '0 0 20px 0'
+            }}>
+              {notification.message}
+            </p>
+            <button
+              onClick={hideNotification}
+              style={{
+                background: '#000000',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                padding: '12px 24px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div style={{
+        width: '100%',
+        maxWidth: '420px',
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(0, 0, 0, 0.1)',
+        borderRadius: '24px',
+        padding: '32px',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <h2 style={{
+            color: '#000000',
+            fontSize: '1.75rem',
+            fontWeight: '700',
+            margin: '0 0 6px 0'
+          }}>
+            Crear Cuenta
+          </h2>
+          <p style={{
+            color: '#666666',
+            fontSize: '0.95rem',
+            fontWeight: '400',
+            margin: 0
+          }}>
+            Únete y comienza tu aventura
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '20px' }}>
+            <input
+              type="text"
+              name="nombre"
+              value={formData.nombre}
+              onChange={handleChange}
+              placeholder="Nombre y apellido"
+              style={{
+                width: '100%',
+                padding: '16px',
+                border: `1px solid ${errors.nombre ? '#ef4444' : 'rgba(0, 0, 0, 0.1)'}`,
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontFamily: 'inherit',
+                background: 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(10px)',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                boxSizing: 'border-box'
+              }}
+            />
+            {errors.nombre && (
+              <p style={{
+                color: '#ef4444',
+                fontSize: '12px',
+                margin: '5px 0 0 0'
+              }}>
+                {errors.nombre}
+              </p>
+            )}
+          </div>
+
+          <div style={{ marginBottom: '20px' }}>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Correo Electrónico"
+              style={{
+                width: '100%',
+                padding: '16px',
+                border: `1px solid ${errors.email ? '#ef4444' : 'rgba(0, 0, 0, 0.1)'}`,
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontFamily: 'inherit',
+                background: 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(10px)',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                boxSizing: 'border-box'
+              }}
+            />
+            {errors.email && (
+              <p style={{
+                color: '#ef4444',
+                fontSize: '12px',
+                margin: '5px 0 0 0'
+              }}>
+                {errors.email}
+              </p>
+            )}
+          </div>
+
+          <div style={{ marginBottom: '20px', position: 'relative' }}>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Contraseña"
+              style={{
+                width: '100%',
+                padding: '16px 50px 16px 16px',
+                border: `1px solid ${errors.password ? '#ef4444' : 'rgba(0, 0, 0, 0.1)'}`,
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontFamily: 'inherit',
+                background: 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(10px)',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                boxSizing: 'border-box'
+              }}
+            />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '16px',
+                color: '#666666',
+                padding: '4px'
+              }}
+            >
+              {showPassword ? '👁️' : '👁️‍🗨️'}
+            </button>
+            {errors.password && (
+              <p style={{
+                color: '#ef4444',
+                fontSize: '12px',
+                margin: '5px 0 0 0'
+              }}>
+                {errors.password}
+              </p>
+            )}
+          </div>
+
+          <div style={{ marginBottom: '20px' }}>
+            <input
+              type="text"
+              name="areaSolicitada"
+              value={formData.areaSolicitada}
+              onChange={handleChange}
+              placeholder="Area que solicita"
+              style={{
+                width: '100%',
+                padding: '16px',
+                border: `1px solid ${errors.areaSolicitada ? '#ef4444' : 'rgba(0, 0, 0, 0.1)'}`,
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontFamily: 'inherit',
+                background: 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(10px)',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                boxSizing: 'border-box'
+              }}
+            />
+            {errors.areaSolicitada && (
+              <p style={{
+                color: '#ef4444',
+                fontSize: '12px',
+                margin: '5px 0 0 0'
+              }}>
+                {errors.areaSolicitada}
+              </p>
+            )}
+          </div>
+
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}>
+              <input
+                type="checkbox"
+                name="terms"
+                checked={formData.terms}
+                onChange={handleChange}
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  marginTop: '2px',
+                  cursor: 'pointer'
+                }}
+              />
+              <span style={{
+                color: 'rgba(0, 0, 0, 0.8)',
+                lineHeight: '1.4'
+              }}>
+                Acepto los{' '}
+                <a href="#" style={{
+                  color: '#000000',
+                  textDecoration: 'none',
+                  fontWeight: '500',
+                  borderBottom: '1px solid rgba(0, 0, 0, 0.2)'
+                }}>
+                  Términos de Servicio
+                </a>{' '}
+                y la{' '}
+                <a href="#" style={{
+                  color: '#000000',
+                  textDecoration: 'none',
+                  fontWeight: '500',
+                  borderBottom: '1px solid rgba(0, 0, 0, 0.2)'
+                }}>
+                  Política de Privacidad
+                </a>
+              </span>
+            </label>
+            {errors.terms && (
+              <p style={{
+                color: '#ef4444',
+                fontSize: '12px',
+                margin: '5px 0 0 0'
+              }}>
+                {errors.terms}
+              </p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: '16px',
+              background: loading ? '#666666' : '#000000',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              marginBottom: '20px',
+              fontFamily: 'inherit',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
+          </button>
+        </form>
+
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: 'rgba(0, 0, 0, 0.6)', fontSize: '14px', margin: 0 }}>
+            ¿Ya tienes cuenta?{' '}
+            <Link href="/" style={{
+              color: '#000000',
+              textDecoration: 'none',
+              fontWeight: '500'
+            }}>
+              Ingresa
+            </Link>
+          </p>
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes modalSlideIn {
+          from {
+            opacity: 0;
+            transform: scale(0.9) translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+      `}</style>
     </div>
-  );
+  )
 }

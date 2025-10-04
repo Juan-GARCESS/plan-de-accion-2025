@@ -1,6 +1,61 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+export async function GET(request: NextRequest) {
+  try {
+    // Verificar autenticación
+    const cookie = request.headers.get("cookie");
+    const match = cookie?.match(/userId=(\d+)/);
+    const userId = match ? parseInt(match[1], 10) : null;
+
+    if (!userId) {
+      return NextResponse.json({ message: "No autorizado" }, { status: 401 });
+    }
+
+    // Obtener información del usuario
+    const [user] = await db.query(
+      "SELECT id, area_id, nombre, estado FROM usuarios WHERE id = ? AND rol = 'usuario'",
+      [userId]
+    );
+
+    const userData = user as { id: number; area_id: number; nombre: string; estado: string }[];
+    
+    if (userData.length === 0 || userData[0].estado !== 'activo' || !userData[0].area_id) {
+      return NextResponse.json({ 
+        message: "Usuario no válido, no activo o sin área asignada" 
+      }, { status: 400 });
+    }
+
+    const currentUser = userData[0];
+    const currentYear = new Date().getFullYear();
+
+    // Obtener todas las metas e informes del usuario para el año actual
+    const [informes] = await db.query(
+      `SELECT i.id, i.trimestre, i.año, i.meta_trimestral, i.archivo, i.estado, 
+              i.comentario_admin, i.calificacion, i.fecha_meta_creada, i.fecha_archivo_subido,
+              ce.fecha_inicio, ce.fecha_fin, ce.abierto, ce.habilitado_manualmente,
+              ce.dias_habilitados, ce.fecha_habilitacion_manual
+       FROM informes i
+       LEFT JOIN config_envios ce ON i.trimestre = ce.trimestre AND i.año = ce.año
+       WHERE i.usuario_id = ? AND i.area_id = ? AND i.año = ?
+       ORDER BY i.trimestre`,
+      [userId, currentUser.area_id, currentYear]
+    );
+
+    return NextResponse.json({
+      usuario: currentUser,
+      informes: informes,
+      año_actual: currentYear
+    });
+  } catch (error) {
+    console.error("Error al obtener metas:", error);
+    return NextResponse.json(
+      { message: "Error interno del servidor" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Verificar autenticación usando el mismo sistema que /api/me

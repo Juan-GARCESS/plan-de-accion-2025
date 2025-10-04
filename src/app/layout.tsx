@@ -9,8 +9,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Admin Panel",
-  description: "Panel de administración con Next.js + Tailwind",
+  title: "Plan de Acción",
+  description: "Sistema de gestión de informes y planes de acción",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

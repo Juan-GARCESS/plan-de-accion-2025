@@ -1,42 +1,14 @@
-// src/components/ui/Input.tsx
-import React from 'react';
+﻿import React from 'react';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
-  helpText?: string | React.ReactNode;
+  className?: string;
 }
 
-export const Input: React.FC<InputProps> = ({
-  label,
-  error,
-  helpText,
-  className = '',
-  ...props
-}) => {
-  const inputClasses = [
-    'input',
-    error ? 'input-error' : '',
-    className
-  ].filter(Boolean).join(' ');
-
+export const Input: React.FC<InputProps> = ({ className = '', ...props }) => {
   return (
-    <div className="form-group">
-      {label && (
-        <label className="form-label" htmlFor={props.id}>
-          {label}
-        </label>
-      )}
-      <input
-        className={inputClasses}
-        {...props}
-      />
-      {error && (
-        <p className="form-error">{error}</p>
-      )}
-      {helpText && !error && (
-        <p className="form-help">{helpText}</p>
-      )}
-    </div>
+    <input
+      className={lex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 {className}}
+      {...props}
+    />
   );
 };

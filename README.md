@@ -5,6 +5,7 @@ Sistema completo de gestión de informes trimestrales desarrollado con Next.js 1
 ## 🚀 Características
 
 ### 👨‍💼 Panel de Administrador
+
 - **Dashboard Principal**: Visualización de todas las áreas de trabajo
 - **Gestión de Usuarios**: CRUD completo con aprobación de solicitudes
 - **Gestión de Áreas**: Creación y administración de áreas de trabajo
@@ -12,6 +13,7 @@ Sistema completo de gestión de informes trimestrales desarrollado con Next.js 1
 - **Estadísticas**: Métricas generales del sistema
 
 ### 👤 Panel de Usuario
+
 - **Dashboard de Trimestres**: Visualización de trimestres disponibles
 - **Planificación**: Creación de metas trimestrales
 - **Carga de Informes**: Upload de archivos con validación
@@ -29,6 +31,7 @@ Sistema completo de gestión de informes trimestrales desarrollado con Next.js 1
 ## ⚡ Instalación y Uso
 
 1. **Clonar e instalar**
+
    ```bash
    git clone https://github.com/Juan-GARCESS/Plan.git
    cd Plan
@@ -36,6 +39,7 @@ Sistema completo de gestión de informes trimestrales desarrollado con Next.js 1
    ```
 
 2. **Configurar variables de entorno** (crear `.env.local`)
+
    ```env
    DATABASE_URL="mysql://usuario:password@localhost:3306/db_name"
    JWT_SECRET="tu_jwt_secret_muy_seguro"

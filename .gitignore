@@ -49,3 +49,12 @@ next-env.d.ts
 
 # OS
 Thumbs.db
+
+# Archivos de información/documentación (no necesarios para producción)
+*_INFO.md
+*_COMPLETO.md
+MEJORA_*.md
+NAVEGACION_*.md
+PROMPT_*.md
+TIMEOUT_*.md
+LIMPIEZA_*.md

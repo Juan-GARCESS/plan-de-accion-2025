@@ -12,12 +12,14 @@ export async function GET() {
         CASE WHEN a.nombre_area IS NOT NULL THEN true ELSE false END as activa,
         COALESCE(COUNT(u.id), 0) as usuarios_count
       FROM areas a
-      LEFT JOIN usuarios u ON u.area_id = a.id AND u.estado = 'activo' AND u.rol = 'usuario'
-      WHERE a.nombre_area != 'admin'
+      LEFT JOIN usuarios u ON u.area_id = a.id AND u.estado = 'aprobado' AND u.rol = 'usuario'
+      WHERE a.nombre_area IS NOT NULL 
+        AND a.nombre_area != '' 
+        AND a.nombre_area != 'admin'
       GROUP BY a.id, a.nombre_area, a.descripcion
       ORDER BY a.nombre_area
     `);
-    return NextResponse.json({ areas: rows }, { status: 200 });
+    return NextResponse.json(rows, { status: 200 });
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : String(error);
     console.error("Error listar áreas:", errMsg);
@@ -31,6 +33,11 @@ export async function POST(req: Request) {
 
     if (!nombre_area) {
       return NextResponse.json({ message: "Nombre de área requerido" }, { status: 400 });
+    }
+
+    // Prevenir creación del área "admin"
+    if (nombre_area.toLowerCase().trim() === 'admin') {
+      return NextResponse.json({ message: "No se puede crear un área con el nombre 'admin'" }, { status: 400 });
     }
 
     const [result] = await db.query<ResultSetHeader>(

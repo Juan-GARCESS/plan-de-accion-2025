@@ -33,7 +33,7 @@ CREATE TABLE informes (
     año INT NOT NULL,
     archivo VARCHAR(255) NULL,
     meta_trimestral TEXT NULL,
-    estado ENUM('planificando', 'pendiente', 'aceptado', 'rechazado') DEFAULT 'planificando',
+    estado ENUM('esperando_meta', 'meta_asignada', 'pendiente', 'aceptado', 'rechazado') DEFAULT 'esperando_meta',
     comentario_admin TEXT NULL,
     calificacion INT NULL,
     fecha_meta_creada TIMESTAMP NULL,
@@ -61,7 +61,20 @@ CREATE TABLE config_envios (
     UNIQUE KEY unique_trimestre_año (trimestre, año)
 );
 
--- 5. Tabla de notificaciones (opcional - para futuras funcionalidades)
+-- 5. Tabla de selecciones de trimestre (para usuarios que deciden participar o no)
+CREATE TABLE selecciones_trimestre (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    trimestre INT NOT NULL,
+    año INT NOT NULL,
+    participando BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_user_trimestre_seleccion (usuario_id, trimestre, año),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- 6. Tabla de notificaciones (opcional - para futuras funcionalidades)
 CREATE TABLE notificaciones (
     id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT NOT NULL,
@@ -73,7 +86,7 @@ CREATE TABLE notificaciones (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
--- 6. Datos iniciales
+-- 7. Datos iniciales
 
 -- Crear área admin (solo para el administrador)
 INSERT INTO areas (nombre_area, descripcion) VALUES 
@@ -97,6 +110,8 @@ CREATE INDEX idx_usuarios_estado ON usuarios(estado);
 CREATE INDEX idx_usuarios_area ON usuarios(area_id);
 CREATE INDEX idx_informes_estado ON informes(estado);
 CREATE INDEX idx_informes_trimestre ON informes(trimestre, año);
+CREATE INDEX idx_selecciones_trimestre_usuario ON selecciones_trimestre(usuario_id);
+CREATE INDEX idx_selecciones_trimestre_periodo ON selecciones_trimestre(trimestre, año);
 CREATE INDEX idx_notificaciones_usuario ON notificaciones(usuario_id);
 CREATE INDEX idx_notificaciones_leida ON notificaciones(leida);
 
