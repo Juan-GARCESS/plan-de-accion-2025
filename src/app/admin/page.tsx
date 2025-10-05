@@ -1,4 +1,4 @@
-// src/app/admin/page.tsx
+ï»¿// src/app/admin/page.tsx
 'use client';
 
 import { useEffect } from 'react';
@@ -6,9 +6,10 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminManagement } from '@/hooks/useAdminManagement';
 import { PageLayout } from '@/components/layout/PageLayout';
-import { UsersSectionImproved } from '@/components/admin/UsersSectionImproved';
-import { AreasManagementSectionImproved } from '@/components/admin/AreasManagementSectionImproved';
-import { EjesManagementSectionImproved } from '@/components/admin/EjesManagementSectionImproved';
+import { UsersSection } from '@/components/admin/UsersSection';
+import { AreasManagementSection } from '@/components/admin/AreasManagementSection';
+import { EjesManagementSection } from '@/components/admin/EjesManagementSection';
+import { TrimestreSelections } from '@/components/admin/TrimestreSelections';
 import { SessionTimer } from '@/components/SessionTimer';
 
 export default function AdminPage() {
@@ -29,7 +30,7 @@ export default function AdminPage() {
     deleteArea
   } = useAdminManagement();
 
-  // Prevenir navegación hacia atrás
+  // Prevenir navegaciÃ³n hacia atrÃ¡s
   useEffect(() => {
     if (user && user.rol === 'admin') {
       const cleanup = preventBackNavigation();
@@ -37,10 +38,10 @@ export default function AdminPage() {
     }
   }, [user, preventBackNavigation]);
 
-  // Cambiar título de la página para admin
+  // Cambiar tÃ­tulo de la pÃ¡gina para admin
   useEffect(() => {
     if (user && user.rol === 'admin') {
-      document.title = 'Plan de Acción - Panel de Gestión';
+      document.title = 'Plan de AcciÃ³n - Panel de GestiÃ³n';
     }
   }, [user]);
 
@@ -85,7 +86,7 @@ export default function AdminPage() {
 
   return (
     <div>
-      {/* Timer de sesión */}
+      {/* Timer de sesiÃ³n */}
       <SessionTimer 
         isAuthenticated={!!user} 
         onTimeout={logout}
@@ -127,14 +128,14 @@ export default function AdminPage() {
               onMouseEnter={(e) => e.currentTarget.style.color = '#374151'}
               onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'}
             >
-              ? Volver
+              â† Volver
             </button>
             <div>
               <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#111827' }}>
-                Panel de Gestión
+                Panel de GestiÃ³n
               </h1>
               <p style={{ color: '#6b7280' }}>
-                Gestiona usuarios y áreas del sistema
+                Gestiona usuarios y Ã¡reas del sistema
               </p>
             </div>
           </div>
@@ -151,13 +152,13 @@ export default function AdminPage() {
               cursor: 'pointer'
             }}
           >
-            Cerrar Sesión
+            Cerrar SesiÃ³n
           </button>
         </div>
       </div>
 
       <PageLayout showNavbar={false}>
-        <EjesManagementSectionImproved />
+        <EjesManagementSection />
 
         <hr style={{
           border: 'none',
@@ -166,7 +167,7 @@ export default function AdminPage() {
           margin: '3rem 0'
         }} />
 
-        <UsersSectionImproved
+        <UsersSection
           usuarios={usuarios}
           areas={areas}
           onApprove={approveUser}
@@ -183,6 +184,7 @@ export default function AdminPage() {
           margin: '3rem 0'
         }} />
 
+        <TrimestreSelections />
 
         <hr style={{
           border: 'none',
@@ -191,7 +193,7 @@ export default function AdminPage() {
           margin: '3rem 0'
         }} />
 
-        <AreasManagementSectionImproved
+        <AreasManagementSection
           areas={areas}
           onCreate={createArea}
           onEdit={editArea}
