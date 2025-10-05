@@ -2,71 +2,48 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import type { Area } from '@/types';
 
 interface AdminMainContentProps {
   children?: React.ReactNode;
-  areas?: Area[];
+  areas?: Area[]; // kept for future use if needed
 }
 
-export const AdminMainContent: React.FC<AdminMainContentProps> = ({ children, areas = [] }) => {
+export const AdminMainContent: React.FC<AdminMainContentProps> = ({ children }) => {
   return (
     <div style={containerStyle}>
       {children || (
         <div style={defaultContentStyle}>
+          {/* Encabezado */}
           <div style={welcomeCardStyle}>
-            <h1 style={titleStyle}>Panel de Administración</h1>
+            <h1 style={titleStyle}>Plan de Accion</h1>
             <p style={subtitleStyle}>Bienvenido al sistema de gestión administrativa</p>
           </div>
 
-          <div style={cardsGridStyle}>
-            <div style={cardStyle}>
-              <h3 style={cardTitleStyle}>🎯 Misión</h3>
-              <p style={cardTextStyle}>
-                Proporcionar herramientas de gestión eficientes y transparentes 
-                para el seguimiento de metas y objetivos trimestrales, facilitando 
-                la toma de decisiones estratégicas y el crecimiento organizacional.
+          {/* Misión y Visión */}
+          <div style={twoColGridStyle}>
+            <div style={bwCardStyle}>
+              <h3 style={bwCardTitleStyle}>Misión</h3>
+              <p style={bwCardTextStyle}>
+                Proporcionar herramientas de gestión eficientes y transparentes para el seguimiento de metas
+                y objetivos, facilitando la toma de decisiones estratégicas y el crecimiento organizacional.
               </p>
             </div>
-
-            <div style={cardStyle}>
-              <h3 style={cardTitleStyle}>👁️ Visión</h3>
-              <p style={cardTextStyle}>
-                Ser la plataforma de referencia en gestión administrativa, 
-                promoviendo la excelencia operativa, la colaboración efectiva 
-                y el logro consistente de objetivos institucionales.
+            <div style={bwCardStyle}>
+              <h3 style={bwCardTitleStyle}>Visión</h3>
+              <p style={bwCardTextStyle}>
+                Ser la plataforma de referencia en gestión administrativa, promoviendo la excelencia operativa,
+                la colaboración efectiva y el logro consistente de objetivos institucionales.
               </p>
             </div>
+          </div>
 
-            <div style={cardStyle}>
-              <h3 style={cardTitleStyle}>⚡ Funcionalidades</h3>
-              <ul style={listStyle}>
-                <li>Gestión de áreas y usuarios</li>
-                <li>Asignación de metas trimestrales</li>
-                <li>Seguimiento de participación</li>
-                <li>Reportes y estadísticas</li>
-                <li>Control de acceso administrativo</li>
-              </ul>
-            </div>
-
-            <div style={cardStyle}>
-              <h3 style={cardTitleStyle}>🏢 Áreas Disponibles</h3>
-              {areas.length > 0 ? (
-                <div style={areasListStyle}>
-                  {areas.map((area, index) => (
-                    <div key={area.id} style={areaItemStyle}>
-                      <span style={areaNumberStyle}>{index + 1}.</span>
-                      <div style={areaInfoStyle}>
-                        <strong style={areaNameStyle}>{area.nombre_area}</strong>
-                        <p style={areaDescStyle}>{area.descripcion}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p style={noAreasStyle}>No hay áreas creadas aún</p>
-              )}
-            </div>
+          {/* Botón Plan de acción general */}
+          <div style={ctaWrapperStyle}>
+            <Link href="/admin/plan-accion-general" style={ctaButtonStyle as React.CSSProperties}>
+              Plan de acción general
+            </Link>
           </div>
         </div>
       )}
@@ -79,6 +56,7 @@ const containerStyle: React.CSSProperties = {
   flex: 1,
   padding: '24px',
   backgroundColor: '#ffffff',
+  color: '#111111',
   overflowY: 'auto'
 };
 
@@ -88,110 +66,71 @@ const defaultContentStyle: React.CSSProperties = {
 };
 
 const welcomeCardStyle: React.CSSProperties = {
-  backgroundColor: '#f8f9fa',
+  backgroundColor: '#ffffff',
   padding: '32px',
-  borderRadius: '12px',
+  borderRadius: '16px',
   marginBottom: '32px',
   textAlign: 'center',
-  border: '1px solid #e9ecef'
+  border: '1px solid #e5e7eb',
+  boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
 };
 
 const titleStyle: React.CSSProperties = {
   margin: '0 0 8px 0',
   fontSize: '32px',
-  fontWeight: '700',
-  color: '#343a40'
+  fontWeight: '800',
+  color: '#000000'
 };
 
 const subtitleStyle: React.CSSProperties = {
   margin: '0',
-  fontSize: '18px',
-  color: '#6c757d'
+  fontSize: '16px',
+  color: '#374151'
 };
 
-const cardsGridStyle: React.CSSProperties = {
+const twoColGridStyle: React.CSSProperties = {
   display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-  gap: '24px'
+  gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+  gap: '24px',
+  alignItems: 'stretch',
+  marginBottom: '28px'
 };
 
-const cardStyle: React.CSSProperties = {
+const bwCardStyle: React.CSSProperties = {
   backgroundColor: '#ffffff',
   padding: '24px',
-  borderRadius: '12px',
-  border: '1px solid #e9ecef',
-  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+  borderRadius: '16px',
+  border: '1px solid #e5e7eb',
+  boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
 };
 
-const cardTitleStyle: React.CSSProperties = {
-  margin: '0 0 16px 0',
+const bwCardTitleStyle: React.CSSProperties = {
+  margin: '0 0 12px 0',
   fontSize: '20px',
-  fontWeight: '600',
-  color: '#343a40'
+  fontWeight: '700',
+  color: '#000000'
 };
 
-const cardTextStyle: React.CSSProperties = {
+const bwCardTextStyle: React.CSSProperties = {
   margin: '0',
   fontSize: '14px',
-  lineHeight: '1.6',
-  color: '#495057'
+  lineHeight: '1.7',
+  color: '#111111'
 };
-
-const listStyle: React.CSSProperties = {
-  margin: '0',
-  paddingLeft: '20px',
-  fontSize: '14px',
-  lineHeight: '1.6',
-  color: '#495057'
-};
-
-const areasListStyle: React.CSSProperties = {
+const ctaWrapperStyle: React.CSSProperties = {
   display: 'flex',
-  flexDirection: 'column',
-  gap: '12px',
-  maxHeight: '300px',
-  overflowY: 'auto'
+  justifyContent: 'center',
+  marginTop: '8px'
 };
 
-const areaItemStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'flex-start',
-  gap: '8px',
-  padding: '8px',
-  backgroundColor: '#f8f9fa',
-  borderRadius: '6px',
-  border: '1px solid #e9ecef'
-};
-
-const areaNumberStyle: React.CSSProperties = {
-  fontSize: '14px',
-  fontWeight: '600',
-  color: '#007bff',
-  minWidth: '20px'
-};
-
-const areaInfoStyle: React.CSSProperties = {
-  flex: 1
-};
-
-const areaNameStyle: React.CSSProperties = {
-  fontSize: '14px',
-  color: '#343a40',
-  marginBottom: '4px'
-};
-
-const areaDescStyle: React.CSSProperties = {
-  margin: '0',
-  fontSize: '12px',
-  color: '#6c757d',
-  lineHeight: '1.4'
-};
-
-const noAreasStyle: React.CSSProperties = {
-  margin: '0',
-  fontSize: '14px',
-  color: '#6c757d',
-  fontStyle: 'italic',
-  textAlign: 'center',
-  padding: '20px'
+const ctaButtonStyle: React.CSSProperties = {
+  display: 'inline-block',
+  padding: '14px 22px',
+  backgroundColor: '#000000',
+  color: '#ffffff',
+  border: '2px solid #000000',
+  borderRadius: '10px',
+  fontSize: '15px',
+  fontWeight: 700,
+  textDecoration: 'none'
 };
