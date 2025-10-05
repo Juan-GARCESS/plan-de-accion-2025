@@ -1,13 +1,27 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { AdminDashboardLayout, AreaUsersView } from '@/components/admin';
+import { AdminDashboardLayout, AreaUsersView, GestionAllSections } from '@/components/admin';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdminManagement } from '@/hooks/useAdminManagement';
 import type { Area } from '@/types';
 
 function DashboardPageContent() {
   const { user, loading, preventBackNavigation } = useAuth();
-  const [areas, setAreas] = useState<Area[]>([]);
+  const {
+    usuarios,
+    areas,
+    loading: gestionLoading,
+    approveUser,
+    rejectUser,
+    editUser,
+    deleteUser,
+    generatePassword,
+    createArea,
+    editArea,
+    deleteArea
+  } = useAdminManagement();
+  const [showGestion, setShowGestion] = useState(false);
   const [selectedAreaId, setSelectedAreaId] = useState<number | null>(null);
   const [selectedArea, setSelectedArea] = useState<Area | null>(null);
 
@@ -27,35 +41,29 @@ function DashboardPageContent() {
   }, [user]);
 
   useEffect(() => {
-    if (user) {
-      fetchAreas();
-    }
+    // ya cargamos areas/usuarios con el hook useAdminManagement
   }, [user]);
 
-  const fetchAreas = async () => {
-    try {
-      const response = await fetch('/api/admin/areas');
-      if (response.ok) {
-        const data = await response.json();
-        setAreas(data); // Ahora la API devuelve el array directamente
-      }
-    } catch (error) {
-      console.error('Error fetching areas:', error);
-    }
-  };
-
   const handleAreaSelect = (areaId: number) => {
+    setShowGestion(false);
     const area = areas.find(a => a.id === areaId);
     setSelectedAreaId(areaId);
     setSelectedArea(area || null);
   };
 
   const handleDashboardSelect = () => {
+    setShowGestion(false);
     setSelectedAreaId(null);
     setSelectedArea(null);
   };
 
-  if (loading) {
+  const handleGestionSelect = () => {
+    setShowGestion(true);
+    setSelectedAreaId(null);
+    setSelectedArea(null);
+  };
+
+  if (loading || gestionLoading) {
     return (
       <div style={{ 
         display: 'flex', 
@@ -97,9 +105,24 @@ function DashboardPageContent() {
       selectedAreaId={selectedAreaId}
       onAreaSelect={handleAreaSelect}
       onDashboardSelect={handleDashboardSelect}
+      onGestionSelect={handleGestionSelect}
       userName={user.nombre}
+      isGestionSelected={showGestion}
     >
-      {selectedArea ? (
+      {showGestion ? (
+        <GestionAllSections
+          usuarios={usuarios}
+          areas={areas}
+          onApprove={approveUser}
+          onReject={rejectUser}
+          onEdit={editUser}
+          onDelete={deleteUser}
+          onGeneratePassword={generatePassword}
+          onCreateArea={createArea}
+          onEditArea={editArea}
+          onDeleteArea={deleteArea}
+        />
+      ) : selectedArea ? (
         <AreaUsersView
           areaId={selectedArea.id}
           areaName={selectedArea.nombre_area}

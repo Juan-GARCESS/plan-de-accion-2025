@@ -4,13 +4,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { Bars3Icon } from '@heroicons/react/24/outline';
 
 interface AdminNavbarProps {
   userName?: string;
   userPhotoUrl?: string;
+  showMenuButton?: boolean;
+  onMenuClick?: () => void;
 }
 
-export const AdminNavbar: React.FC<AdminNavbarProps> = ({ userName, userPhotoUrl }) => {
+export const AdminNavbar: React.FC<AdminNavbarProps> = ({ userName, userPhotoUrl, showMenuButton, onMenuClick }) => {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -55,8 +58,19 @@ export const AdminNavbar: React.FC<AdminNavbarProps> = ({ userName, userPhotoUrl
   return (
     <nav style={navbarStyle}>
       <div style={containerStyle}>
-        {/* Título (izquierda) */}
-        <div style={logoSectionStyle}>
+        {/* Menú + Título (izquierda) */}
+        <div style={{ ...logoSectionStyle, flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+          {showMenuButton ? (
+            <button
+              onClick={onMenuClick}
+              aria-label="Abrir menú"
+              style={menuButtonStyle}
+              onMouseEnter={(e)=>{ e.currentTarget.style.backgroundColor='#f3f4f6'; }}
+              onMouseLeave={(e)=>{ e.currentTarget.style.backgroundColor='#ffffff'; }}
+            >
+              <Bars3Icon style={{ width: 20, height: 20, color: '#111827' }} />
+            </button>
+          ) : null}
           <button
             onClick={navigateToDashboard}
             style={titleButtonStyle}
@@ -163,6 +177,19 @@ const userIconButtonStyle: React.CSSProperties = {
   transition: 'background-color 0.15s ease'
 };
 
+const menuButtonStyle: React.CSSProperties = {
+  width: '36px',
+  height: '36px',
+  borderRadius: '8px',
+  backgroundColor: '#ffffff',
+  border: '1px solid #d1d5db',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  transition: 'background-color 0.15s ease'
+};
+
 const userSectionStyle: React.CSSProperties = {
   position: 'relative',
   display: 'flex',
@@ -176,7 +203,7 @@ const dropdownStyle: React.CSSProperties = {
   position: 'absolute',
   right: 0,
   top: '52px',
-  width: '240px',
+  width: 'min(240px, 90vw)',
   backgroundColor: '#ffffff',
   border: 'none',
   borderRadius: '14px',

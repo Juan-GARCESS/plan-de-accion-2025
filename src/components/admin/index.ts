@@ -10,3 +10,4 @@ export { AreaCard } from './AreaCard';
 export { AreaForm } from './AreaForm';
 export { UserCard } from './UserCard';
 export { EjesManagementSection } from './EjesManagementSection';
+export { GestionAllSections } from './GestionAllSections';

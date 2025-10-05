@@ -3,7 +3,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { HomeIcon, WrenchScrewdriverIcon, BuildingOfficeIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, WrenchScrewdriverIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon as SearchSolidIcon } from '@heroicons/react/20/solid';
 import type { Area } from '@/types';
 
 interface AdminSidebarProps {
@@ -12,6 +13,8 @@ interface AdminSidebarProps {
   selectedAreaId?: number | null;
   onDashboardSelect?: () => void;
   userName?: string;
+  onGestionSelect?: () => void;
+  isGestionSelected?: boolean;
 }
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({
@@ -19,10 +22,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   onAreaSelect,
   selectedAreaId,
   onDashboardSelect,
-  userName
+  userName,
+  onGestionSelect,
+  isGestionSelected
 }) => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
+  // Ajuste fino vertical del icono de búsqueda (px). Positivo = abajo, Negativo = arriba
+  const SEARCH_ICON_OFFSET_PX = -5; // ajusta a gusto: -2, -1, 0, 1, 2
   
   // Proteger contra arrays undefined/null y elementos sin nombre_area
   const safeareas = Array.isArray(areas) ? areas : [];
@@ -56,9 +63,9 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
-            backgroundColor: selectedAreaId === null ? '#e5e7eb' : 'transparent',
-            color: selectedAreaId === null ? '#111827' : '#111111',
-            border: selectedAreaId === null ? '1px solid #d1d5db' : '1px solid transparent'
+            backgroundColor: selectedAreaId === null && !isGestionSelected ? '#e5e7eb' : 'transparent',
+            color: selectedAreaId === null && !isGestionSelected ? '#111827' : '#111111',
+            border: selectedAreaId === null && !isGestionSelected ? '1px solid #d1d5db' : '1px solid transparent'
           }}
         >
           <HomeIcon style={iconStyle} />
@@ -67,13 +74,16 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
         {/* Gestión */}
         <button
-          onClick={() => router.push('/admin')}
+          onClick={() => onGestionSelect ? onGestionSelect() : router.push('/admin')}
           style={{
             ...itemStyle,
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
-            marginTop: '8px'
+            marginTop: '8px',
+            backgroundColor: isGestionSelected ? '#e5e7eb' : 'transparent',
+            color: isGestionSelected ? '#111827' : '#111111',
+            border: isGestionSelected ? '1px solid #d1d5db' : '1px solid transparent'
           }}
         >
           <WrenchScrewdriverIcon style={iconStyle} />
@@ -87,7 +97,21 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
         {/* Search */}
         <div style={searchWrapperStyle}>
-          <MagnifyingGlassIcon style={{ ...iconStyle, position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+          <SearchSolidIcon
+            style={{
+              ...iconStyle,
+              position: 'absolute',
+              left: '10px',
+              top: '50%',
+              transform: `translateY(calc(-50% + ${SEARCH_ICON_OFFSET_PX}px))`,
+              color: '#9ca3af',
+              pointerEvents: 'none',
+              display: 'block',
+              width: '16px',
+              height: '16px'
+            }}
+          />
+
           <input
             type="text"
             placeholder="Buscar área..."
@@ -99,19 +123,25 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
         {/* Areas List */}
         <div style={listStyle}>
-          {filteredAreas.map((area) => (
-            <button
-              key={area.id}
-              onClick={() => onAreaSelect?.(area.id)}
-              style={{
-                ...itemStyle,
-                ...(selectedAreaId === area.id ? selectedItemStyle : {})
-              }}
-            >
-              <BuildingOfficeIcon style={iconStyle} />
-              <span>{area.nombre_area}</span>
-            </button>
-          ))}
+          {filteredAreas.map((area) => {
+            const isSelected = selectedAreaId === area.id && !isGestionSelected;
+            return (
+              <button
+                key={area.id}
+                onClick={() => onAreaSelect?.(area.id)}
+                style={{
+                  ...itemStyle,
+                  ...(isSelected ? selectedItemStyle : {}),
+                }}
+                title={area.nombre_area}
+              >
+                <BuildingOfficeIcon style={{ ...iconStyle, width: '16px', height: '16px' }} />
+                <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {area.nombre_area}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -180,7 +210,8 @@ const searchInputStyle: React.CSSProperties = {
   marginBottom: '12px',
   outline: 'none',
   color: '#111111',
-  backgroundColor: '#ffffff'
+  backgroundColor: '#ffffff',
+  height: '40px'
 };
 
 const searchWrapperStyle: React.CSSProperties = {
@@ -220,5 +251,6 @@ const selectedItemStyle: React.CSSProperties = {
 const iconStyle: React.CSSProperties = {
   width: '18px',
   height: '18px',
-  color: 'currentColor'
+  color: 'currentColor',
+  display: 'block'
 };
