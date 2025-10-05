@@ -20,7 +20,7 @@ export const Alert: React.FC<AlertProps> = ({
   };
 
   return (
-    <div className={{baseStyles} {variantStyles[variant]} {className}}>
+    <div className={[baseStyles, variantStyles[variant], className].join(' ')}>
       {children}
     </div>
   );

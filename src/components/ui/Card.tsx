@@ -7,7 +7,7 @@ interface CardProps {
 
 export const Card: React.FC<CardProps> = ({ className = '', children }) => {
   return (
-    <div className={ounded-lg border bg-card text-card-foreground shadow-sm {className}}>
+    <div className={['rounded-lg border bg-card text-card-foreground shadow-sm', className].join(' ')}>
       {children}
     </div>
   );
@@ -15,7 +15,7 @@ export const Card: React.FC<CardProps> = ({ className = '', children }) => {
 
 export const CardHeader: React.FC<CardProps> = ({ className = '', children }) => {
   return (
-    <div className={lex flex-col space-y-1.5 p-6 {className}}>
+    <div className={['flex flex-col space-y-1.5 p-6', className].join(' ')}>
       {children}
     </div>
   );
@@ -23,7 +23,7 @@ export const CardHeader: React.FC<CardProps> = ({ className = '', children }) =>
 
 export const CardTitle: React.FC<CardProps> = ({ className = '', children }) => {
   return (
-    <h3 className={	ext-2xl font-semibold leading-none tracking-tight {className}}>
+    <h3 className={['text-2xl font-semibold leading-none tracking-tight', className].join(' ')}>
       {children}
     </h3>
   );
@@ -31,7 +31,7 @@ export const CardTitle: React.FC<CardProps> = ({ className = '', children }) => 
 
 export const CardDescription: React.FC<CardProps> = ({ className = '', children }) => {
   return (
-    <p className={	ext-sm text-muted-foreground {className}}>
+    <p className={['text-sm text-muted-foreground', className].join(' ')}>
       {children}
     </p>
   );
@@ -39,7 +39,7 @@ export const CardDescription: React.FC<CardProps> = ({ className = '', children 
 
 export const CardContent: React.FC<CardProps> = ({ className = '', children }) => {
   return (
-    <div className={p-6 pt-0 {className}}>
+    <div className={['p-6 pt-0', className].join(' ')}>
       {children}
     </div>
   );
@@ -47,7 +47,7 @@ export const CardContent: React.FC<CardProps> = ({ className = '', children }) =
 
 export const CardFooter: React.FC<CardProps> = ({ className = '', children }) => {
   return (
-    <div className={lex items-center p-6 pt-0 {className}}>
+    <div className={['flex items-center p-6 pt-0', className].join(' ')}>
       {children}
     </div>
   );

@@ -86,11 +86,14 @@ export const TrimestreCard: React.FC<TrimestreCardProps> = ({
           Trimestre {trimestre.trimestre} - {trimestre.año}
         </h3>
         <span style={combineStyles(
-          styles.badge.base,
-          trimestre.informe?.estado === 'aceptado' ? styles.badge.success :
-          trimestre.informe?.estado === 'rechazado' ? styles.badge.danger :
-          trimestre.informe?.estado === 'pendiente' ? styles.badge.warning :
-          styles.badge.info
+          { display: 'inline-flex', alignItems: 'center', padding: '0.25rem 0.5rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 600 },
+          trimestre.informe?.estado === 'aceptado'
+            ? { backgroundColor: '#dcfce7', color: '#166534' }
+            : trimestre.informe?.estado === 'rechazado'
+            ? { backgroundColor: '#fee2e2', color: '#991b1b' }
+            : trimestre.informe?.estado === 'pendiente'
+            ? { backgroundColor: '#fef3c7', color: '#92400e' }
+            : { backgroundColor: '#dbeafe', color: '#1e40af' }
         )}>
           {getStatusText()}
         </span>
@@ -141,7 +144,7 @@ export const TrimestreCard: React.FC<TrimestreCardProps> = ({
           </label>
           <textarea
             style={{
-              ...styles.input,
+              ...styles.input.base,
               minHeight: '100px',
               resize: 'vertical'
             }}
@@ -205,14 +208,14 @@ export const TrimestreCard: React.FC<TrimestreCardProps> = ({
           </label>
           <input
             type="file"
-            style={styles.input}
+            style={styles.input.base}
             onChange={(e) => setArchivo(e.target.files?.[0] || null)}
             accept=".pdf,.doc,.docx,.txt"
           />
           <button
             style={combineStyles(
               styles.button.base,
-              styles.button.success,
+              styles.button.primary,
               { marginTop: '0.5rem', width: '100%' },
               (submitting || !archivo) ? { opacity: 0.5 } : {}
             )}

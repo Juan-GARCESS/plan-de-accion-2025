@@ -9,5 +9,4 @@ export { UsersSection } from './UsersSection';
 export { AreaCard } from './AreaCard';
 export { AreaForm } from './AreaForm';
 export { UserCard } from './UserCard';
-export { TrimestreSelections } from './TrimestreSelections';
 export { EjesManagementSection } from './EjesManagementSection';

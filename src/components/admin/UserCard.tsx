@@ -134,7 +134,7 @@ export const UserCard: React.FC<UserCardProps> = ({
         {user.estado === 'pendiente' && (
           <>
             <select
-              style={styles.input}
+              style={styles.input.base}
               value={selectedAreaId || ''}
               onChange={(e) => setSelectedAreaId(Number(e.target.value))}
             >
@@ -154,7 +154,7 @@ export const UserCard: React.FC<UserCardProps> = ({
               <button
                 style={combineStyles(
                   styles.button.base,
-                  styles.button.success,
+                  styles.button.primary,
                   { flex: 1 },
                   (!selectedAreaId || loading) ? { opacity: 0.5 } : {}
                 )}
@@ -189,8 +189,7 @@ export const UserCard: React.FC<UserCardProps> = ({
               style={combineStyles(
                 styles.button.base,
                 styles.button.primary,
-                styles.button.small,
-                { flex: 1 }
+                { flex: 1, padding: '0.25rem 0.5rem', fontSize: '0.75rem' }
               )}
               onClick={() => onEdit(user)}
             >
@@ -200,8 +199,7 @@ export const UserCard: React.FC<UserCardProps> = ({
               style={combineStyles(
                 styles.button.base,
                 styles.button.secondary,
-                styles.button.small,
-                { flex: 1 }
+                { flex: 1, padding: '0.25rem 0.5rem', fontSize: '0.75rem' }
               )}
               onClick={handleGeneratePassword}
               disabled={loading}
@@ -212,8 +210,7 @@ export const UserCard: React.FC<UserCardProps> = ({
               style={combineStyles(
                 styles.button.base,
                 styles.button.danger,
-                styles.button.small,
-                { flex: 1 }
+                { flex: 1, padding: '0.25rem 0.5rem', fontSize: '0.75rem' }
               )}
               onClick={handleDelete}
               disabled={loading}

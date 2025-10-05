@@ -5,10 +5,11 @@ import type { RowDataPacket, ResultSetHeader } from 'mysql2';
 // GET - Obtener plan de acción para un área
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const areaId = parseInt(params.id);
+    const { id } = await context.params;
+    const areaId = parseInt(id);
 
     // Consulta que obtiene todos los ejes y sub-ejes asignados al área
     // junto con el plan de acción existente

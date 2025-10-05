@@ -6,7 +6,7 @@ import type { RowDataPacket } from 'mysql2';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // 🔐 Verificar autenticación usando cookies
@@ -27,7 +27,8 @@ export async function GET(
       return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
     }
 
-    const areaId = parseInt(params.id, 10);
+  const { id } = await context.params;
+  const areaId = parseInt(id, 10);
 
     // 📊 Obtener usuarios del área con sus selecciones de trimestre y metas
     const [usuarios] = await db.query<RowDataPacket[]>(`

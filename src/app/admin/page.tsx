@@ -6,10 +6,10 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminManagement } from '@/hooks/useAdminManagement';
 import { PageLayout } from '@/components/layout/PageLayout';
-import { UsersSection } from '@/components/admin/UsersSection';
-import { AreasManagementSection } from '@/components/admin/AreasManagementSection';
-import { EjesManagementSection } from '@/components/admin/EjesManagementSection';
-import { TrimestreSelections } from '@/components/admin/TrimestreSelections';
+// Versión renovada con paleta blanco/negro/gris y UX mejorada
+import { UsersSectionImproved } from '@/components/admin/UsersSectionImproved';
+import { AreasManagementSectionImproved } from '@/components/admin/AreasManagementSectionImproved';
+import { EjesManagementSectionImproved } from '@/components/admin/EjesManagementSectionImproved';
 import { SessionTimer } from '@/components/SessionTimer';
 
 export default function AdminPage() {
@@ -158,16 +158,8 @@ export default function AdminPage() {
       </div>
 
       <PageLayout showNavbar={false}>
-        <EjesManagementSection />
-
-        <hr style={{
-          border: 'none',
-          height: '1px',
-          backgroundColor: '#e5e7eb',
-          margin: '3rem 0'
-        }} />
-
-        <UsersSection
+        {/* Orden restaurado: Usuarios -> Áreas -> Ejes y Sub-ejes */}
+        <UsersSectionImproved
           usuarios={usuarios}
           areas={areas}
           onApprove={approveUser}
@@ -184,7 +176,12 @@ export default function AdminPage() {
           margin: '3rem 0'
         }} />
 
-        <TrimestreSelections />
+        <AreasManagementSectionImproved
+          areas={areas}
+          onCreate={createArea}
+          onEdit={editArea}
+          onDelete={deleteArea}
+        />
 
         <hr style={{
           border: 'none',
@@ -193,12 +190,8 @@ export default function AdminPage() {
           margin: '3rem 0'
         }} />
 
-        <AreasManagementSection
-          areas={areas}
-          onCreate={createArea}
-          onEdit={editArea}
-          onDelete={deleteArea}
-        />
+        <EjesManagementSectionImproved />
+        {/* Sección TrimestreSelections removida según la versión renovada */}
       </PageLayout>
     </div>
   );

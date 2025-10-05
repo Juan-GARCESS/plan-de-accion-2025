@@ -1,6 +1,6 @@
 // src/components/ui/UserAvatar.tsx
 import React from 'react';
-import { styles, combineStyles } from '@/styles/components';
+import { combineStyles } from '@/styles/components';
 import type { Usuario } from '@/types';
 
 interface UserAvatarProps {
@@ -19,9 +19,19 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   };
 
   const containerStyle = combineStyles(
-    styles.avatar.container,
+    {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: '9999px',
+      backgroundColor: '#f3f4f6',
+      color: '#374151',
+      fontWeight: 600,
+    },
     sizeMap[size],
-    user.rol === 'admin' ? styles.avatar.admin : styles.avatar.user
+    user.rol === 'admin'
+      ? { backgroundColor: '#fef3c7', color: '#92400e', border: '1px solid #fde68a' }
+      : { backgroundColor: '#e5e7eb', color: '#374151', border: '1px solid #d1d5db' }
   );
 
   return (

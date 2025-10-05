@@ -38,7 +38,7 @@ export const useAdminNotifications = () => {
 
   const markAsRead = async (id: number) => {
     try {
-      await fetch(/api/admin/notificaciones/{id}/read, {
+      await fetch(`/api/admin/notificaciones/${id}/read`, {
         method: 'PATCH'
       });
       
