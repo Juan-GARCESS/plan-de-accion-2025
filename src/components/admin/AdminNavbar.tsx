@@ -30,10 +30,6 @@ export const AdminNavbar: React.FC<AdminNavbarProps> = ({ userName, userPhotoUrl
     }
   };
 
-  const navigateToManagement = () => {
-    router.push('/admin');
-    setMenuOpen(false);
-  };
 
   const navigateToDashboard = () => {
     router.push('/admin/dashboard');
@@ -106,9 +102,6 @@ export const AdminNavbar: React.FC<AdminNavbarProps> = ({ userName, userPhotoUrl
               <div style={dropdownItemsContainerStyle}>
                 <button role="menuitem" style={dropdownItemStyle} onMouseEnter={(e)=>e.currentTarget.style.backgroundColor='#f3f4f6'} onMouseLeave={(e)=>e.currentTarget.style.backgroundColor='#ffffff'} onClick={navigateToProfile}>
                   Mi perfil
-                </button>
-                <button role="menuitem" style={dropdownItemStyle} onMouseEnter={(e)=>e.currentTarget.style.backgroundColor='#f3f4f6'} onMouseLeave={(e)=>e.currentTarget.style.backgroundColor='#ffffff'} onClick={navigateToManagement}>
-                  Gestión
                 </button>
                 <button role="menuitem" style={dropdownItemStyle} onMouseEnter={(e)=>e.currentTarget.style.backgroundColor='#f3f4f6'} onMouseLeave={(e)=>e.currentTarget.style.backgroundColor='#ffffff'} onClick={handleLogout}>
                   Cerrar sesión
