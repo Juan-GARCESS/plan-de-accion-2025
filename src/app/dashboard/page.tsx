@@ -246,7 +246,7 @@ export default function DashboardPage() {
         }}>
           <button
             onClick={() => {
-              console.log('Navegar a Plan de Acción');
+              router.push('/dashboard/plan-accion');
             }}
             style={{
               background: '#000000',
