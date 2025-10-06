@@ -16,11 +16,11 @@ export async function GET(
     const query = `
       SELECT 
         pa.id,
-        pa.area_id,
-        pa.eje_id,
-        pa.sub_eje_id,
-        e.nombre_eje as eje_nombre,
-        se.nombre_sub_eje as sub_eje_nombre,
+        ae.area_id AS area_id,
+        e.id AS eje_id,
+        se.id AS sub_eje_id,
+        e.nombre_eje AS eje_nombre,
+        se.nombre_sub_eje AS sub_eje_nombre,
         pa.meta,
         pa.indicador,
         pa.accion,

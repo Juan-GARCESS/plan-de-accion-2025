@@ -56,10 +56,10 @@ export const PlanAccionTable: React.FC<PlanAccionTableProps> = ({
     // Determinar permisos de edición
     let canEdit = false;
     
-    if (field === 'meta' || field === 'indicador' || field === 'accion') {
-      canEdit = isAdmin; // Solo admin puede editar estos campos
-    } else if (field === 'presupuesto') {
-      canEdit = !isAdmin; // Solo usuarios normales pueden editar presupuesto
+    if (field === 'meta' || field === 'indicador') {
+      canEdit = isAdmin; // Solo admin puede editar meta e indicador
+    } else if (field === 'accion' || field === 'presupuesto') {
+      canEdit = !isAdmin; // Solo usuarios normales pueden editar acción y presupuesto
     }
     
     if (!canEdit) return;
@@ -134,7 +134,7 @@ export const PlanAccionTable: React.FC<PlanAccionTableProps> = ({
       canEdit = isAdmin;
       emptyMessage = 'Doble clic para editar';
     } else if (field === 'accion') {
-      canEdit = true; // Tanto admin como usuario pueden editar
+      canEdit = !isAdmin; // Solo usuarios normales pueden editar acción
       emptyMessage = isAdmin 
         ? 'El usuario de esta área aún no ha ingresado información' 
         : 'Doble clic para editar';

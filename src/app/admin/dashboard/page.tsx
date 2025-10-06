@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { AdminDashboardLayout, AreaUsersView, GestionAllSections } from '@/components/admin';
+import { AdminDashboardLayout, GestionAllSections } from '@/components/admin';
+import { PlanAccionTable } from '@/components/admin/PlanAccionTable';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminManagement } from '@/hooks/useAdminManagement';
 import type { Area } from '@/types';
@@ -123,9 +124,10 @@ function DashboardPageContent() {
           onDeleteArea={deleteArea}
         />
       ) : selectedArea ? (
-        <AreaUsersView
+        <PlanAccionTable
           areaId={selectedArea.id}
           areaName={selectedArea.nombre_area}
+          isAdmin={user.rol === 'admin'}
         />
       ) : null}
     </AdminDashboardLayout>
