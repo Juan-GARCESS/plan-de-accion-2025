@@ -6,10 +6,11 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { PlanAccionTable } from '@/components/admin/PlanAccionTable';
 import { createCardStyle, colors, spacing } from '@/lib/styleUtils';
+import { UserDashboardLayout } from '@/components/user/UserDashboardLayout';
 
 export default function UserPlanAccionPage() {
   const router = useRouter();
-  const { user, loading: authLoading, preventBackNavigation, logout } = useAuth();
+  const { user, loading: authLoading, preventBackNavigation } = useAuth();
   const [areaId, setAreaId] = useState<number | null>(null);
   const [areaName, setAreaName] = useState<string>('');
 
@@ -46,9 +47,10 @@ export default function UserPlanAccionPage() {
         const res = await fetch('/api/me');
         if (res.ok) {
           const me = await res.json();
-          setAreaId(me.area_id);
-          setAreaName(me.area || 'Mi área');
-          document.title = `Plan de Acción - ${me.area || ''}`;
+          const id = me?.usuario?.area_id ?? null;
+          setAreaId(id);
+          setAreaName(me?.area || 'Mi área');
+          document.title = `Plan de Acción - ${me?.area || ''}`;
         }
       } catch (e) {
         console.error('Error cargando /api/me:', e);
@@ -61,16 +63,18 @@ export default function UserPlanAccionPage() {
 
   if (authLoading || areaId === null) {
     return (
-      <div style={createCardStyle('padded')}>
-        <p style={{ textAlign: 'center', color: colors.gray[500] }}>
-          Cargando plan de acción...
-        </p>
-      </div>
+      <UserDashboardLayout userName={user?.nombre} onBackHome={() => router.push('/dashboard')}>
+        <div style={createCardStyle('padded')}>
+          <p style={{ textAlign: 'center', color: colors.gray[500] }}>
+            Cargando plan de acción...
+          </p>
+        </div>
+      </UserDashboardLayout>
     );
   }
 
   return (
-    <div style={createCardStyle('base')}>
+    <UserDashboardLayout userName={user?.nombre} onBackHome={() => router.push('/dashboard')}>
       <div style={{ padding: spacing.lg, borderBottom: `1px solid ${colors.gray[300]}` }}>
         <h2 style={{ margin: 0, color: colors.gray[800], fontSize: '24px', fontWeight: 'bold' }}>
           Plan de Acción - {areaName}
@@ -82,6 +86,6 @@ export default function UserPlanAccionPage() {
       <div style={{ padding: spacing.lg }}>
         <PlanAccionTable areaId={areaId} areaName={areaName} isAdmin={false} />
       </div>
-    </div>
+    </UserDashboardLayout>
   );
 }

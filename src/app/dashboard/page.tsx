@@ -1,15 +1,16 @@
 ﻿// src/app/dashboard/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { SessionTimer } from '@/components/SessionTimer';
+import { UserDashboardLayout } from '@/components/user/UserDashboardLayout';
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading: authLoading, preventBackNavigation, logout } = useAuth();
-  const [areaNombre, setAreaNombre] = useState('Sin área asignada');
+  // area display is now in content cards; no separate header
 
   // Proteger la ruta - solo usuarios normales con área asignada
   useEffect(() => {
@@ -37,28 +38,7 @@ export default function DashboardPage() {
     }
   }, [user, authLoading, router, preventBackNavigation]);
 
-  // Cargar información del área del usuario
-  useEffect(() => {
-    const cargarInfoUsuario = async () => {
-      if (user) {
-        try {
-          const meResponse = await fetch('/api/me');
-          if (meResponse.ok) {
-            const meData = await meResponse.json();
-            const areaNombre = meData.area || 'Sin área asignada';
-            setAreaNombre(areaNombre);
-            document.title = `Plan de Acción - ${areaNombre}`;
-          }
-        } catch (error) {
-          console.error('Error cargando información del usuario:', error);
-        }
-      }
-    };
-
-    if (user && user.rol !== 'admin') {
-      cargarInfoUsuario();
-    }
-  }, [user]);
+  // Opcional: setear título si se desea, usando /api/me
 
   if (authLoading) {
     return (
@@ -87,186 +67,32 @@ export default function DashboardPage() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      padding: '0'
-    }}>
+    <UserDashboardLayout userName={user.nombre} onBackHome={() => { /* already at home */ }}>
       {/* Timer de sesión */}
-      <SessionTimer 
-        isAuthenticated={!!user} 
-        onTimeout={logout}
-        timeoutMinutes={5}
-      />
-      
-      <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
-        padding: '20px 40px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)'
-      }}>
-        <div>
-          <h1 style={{
-            fontSize: '1.5rem',
-            fontWeight: '700',
-            color: '#000000',
-            margin: '0 0 4px 0'
-          }}>
-            Bienvenido al Plan de acción de {areaNombre}
-          </h1>
-          <p style={{
-            fontSize: '1rem',
-            color: '#666666',
-            margin: 0,
-            fontWeight: '400'
-          }}>
-            ({user.nombre})
-          </p>
-        </div>
-        
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '16px'
-        }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            background: '#000000',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontSize: '18px',
-            fontWeight: '600'
-          }}>
-            
-          </div>
-          
-          <button
-            onClick={logout}
-            style={{
-              background: 'rgba(0, 0, 0, 0.1)',
-              border: '1px solid rgba(0, 0, 0, 0.2)',
-              borderRadius: '8px',
-              padding: '8px 16px',
-              color: '#000000',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}
-          >
-            Cerrar Sesión
-          </button>
-        </div>
-      </div>
+      <SessionTimer isAuthenticated={!!user} onTimeout={logout} timeoutMinutes={5} />
 
-      <div style={{
-        padding: '40px',
-        maxWidth: '1200px',
-        margin: '0 auto'
-      }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '40px',
-          marginBottom: '60px'
-        }}>
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(20px)',
-            border: '2px solid #000000',
-            borderRadius: '16px',
-            padding: '32px',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-          }}>
-            <h2 style={{
-              fontSize: '1.75rem',
-              fontWeight: '700',
-              color: '#000000',
-              textAlign: 'center',
-              marginBottom: '24px',
-              borderBottom: '2px solid #000000',
-              paddingBottom: '12px'
-            }}>
-              Misión
-            </h2>
-            <p style={{
-              fontSize: '1rem',
-              lineHeight: '1.6',
-              color: '#333333',
-              textAlign: 'justify',
-              margin: 0
-            }}>
+      <div style={{ padding: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 24 }}>
+            <h2 style={{ marginTop: 0, borderBottom: '1px solid #e5e7eb', paddingBottom: 12 }}>Misión</h2>
+            <p style={{ margin: 0, color: '#374151', lineHeight: 1.6 }}>
               Somos una Institución multi-campus de propiedad social, educamos personas con las competencias para responder a las dinámicas del mundo, contribuimos a la construcción y difusión del conocimiento, apoyamos el desarrollo competitivo del país a través de sus organizaciones y buscamos el mejoramiento de la calidad de vida de las comunidades, influidos por la economía solidaria que nos dio origen.
             </p>
           </div>
-
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(20px)',
-            border: '2px solid #000000',
-            borderRadius: '16px',
-            padding: '32px',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-          }}>
-            <h2 style={{
-              fontSize: '1.75rem',
-              fontWeight: '700',
-              color: '#000000',
-              textAlign: 'center',
-              marginBottom: '24px',
-              borderBottom: '2px solid #000000',
-              paddingBottom: '12px'
-            }}>
-              Visión
-            </h2>
-            <p style={{
-              fontSize: '1rem',
-              lineHeight: '1.6',
-              color: '#333333',
-              textAlign: 'justify',
-              margin: 0
-            }}>
+          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 24 }}>
+            <h2 style={{ marginTop: 0, borderBottom: '1px solid #e5e7eb', paddingBottom: 12 }}>Visión</h2>
+            <p style={{ margin: 0, color: '#374151', lineHeight: 1.6 }}>
               Para 2025, la Universidad Cooperativa de Colombia será una institución sostenible que aprende continuamente para transformarse de acuerdo con las exigencias del contexto, reflejándose en: Una educación y un aprendizaje a lo largo de la vida soportado en nuestro modelo educativo con una oferta educativa pertinente, en diferentes modalidades. Una gestión inclusiva que integre entornos individuales, físicos y digitales con nuevos desarrollos tecnológicos. Una cultura innovadora que responda a las demandas del contexto, a la generación de conocimiento colectivo y experiencias compartidas.
             </p>
           </div>
         </div>
 
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center'
-        }}>
-          <button
-            onClick={() => {
-              router.push('/dashboard/plan-accion');
-            }}
-            style={{
-              background: '#000000',
-              color: 'white',
-              border: '2px solid #000000',
-              borderRadius: '16px',
-              padding: '20px 60px',
-              fontSize: '1.25rem',
-              fontWeight: '700',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
-            }}
-          >
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <button onClick={() => router.push('/dashboard/plan-accion')} style={{ background: '#111827', color: '#fff', border: '1px solid #111827', borderRadius: 12, padding: '14px 28px', fontWeight: 700, cursor: 'pointer' }}>
             Plan de Acción
           </button>
         </div>
       </div>
-    </div>
+    </UserDashboardLayout>
   );
 }
