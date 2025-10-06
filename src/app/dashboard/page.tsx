@@ -67,7 +67,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <UserDashboardLayout userName={user.nombre} onBackHome={() => { /* already at home */ }}>
+    <UserDashboardLayout userName={user.nombre} areaName={undefined}>
       {/* Timer de sesión */}
       <SessionTimer isAuthenticated={!!user} onTimeout={logout} timeoutMinutes={5} />
 

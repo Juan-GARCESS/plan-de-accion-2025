@@ -2,7 +2,6 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import type { Area } from '@/types';
 
 interface AdminMainContentProps {
@@ -39,12 +38,7 @@ export const AdminMainContent: React.FC<AdminMainContentProps> = ({ children }) 
             </div>
           </div>
 
-          {/* Botón Plan de acción general */}
-          <div style={ctaWrapperStyle}>
-            <Link href="/admin/plan-accion-general" style={ctaButtonStyle as React.CSSProperties}>
-              Plan de acción general
-            </Link>
-          </div>
+          {/* CTA removido: Plan de acción general (no utilizado) */}
         </div>
       )}
     </div>
@@ -117,20 +111,4 @@ const bwCardTextStyle: React.CSSProperties = {
   lineHeight: '1.7',
   color: '#111111'
 };
-const ctaWrapperStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'center',
-  marginTop: '8px'
-};
-
-const ctaButtonStyle: React.CSSProperties = {
-  display: 'inline-block',
-  padding: '14px 22px',
-  backgroundColor: '#000000',
-  color: '#ffffff',
-  border: '2px solid #000000',
-  borderRadius: '10px',
-  fontSize: '15px',
-  fontWeight: 700,
-  textDecoration: 'none'
-};
+// (CTA styles removed)

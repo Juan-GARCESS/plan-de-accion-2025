@@ -255,19 +255,6 @@ export const AreasManagementSectionImproved: React.FC<AreasManagementSectionProp
                   <td style={tableCellStyle}>
                     <div style={buttonGroupStyle}>
                       <button
-                        onClick={() => window.open(`/admin/areas/${area.id}/plan-accion`, '_blank')}
-                        style={{
-                          ...createButtonStyle('primary', 'small'),
-                          backgroundColor: colors.primary,
-                          color: 'white',
-                          fontSize: '0.75rem',
-                          padding: `${spacing.xs} ${spacing.sm}`,
-                          marginRight: spacing.xs,
-                        }}
-                      >
-                        Plan de Acción
-                      </button>
-                      <button
                         onClick={() => handleEdit(area)}
                         style={editButtonStyle}
                       >

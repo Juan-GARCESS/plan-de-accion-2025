@@ -63,7 +63,7 @@ export default function UserPlanAccionPage() {
 
   if (authLoading || areaId === null) {
     return (
-      <UserDashboardLayout userName={user?.nombre} onBackHome={() => router.push('/dashboard')}>
+      <UserDashboardLayout userName={user?.nombre} areaName={areaName} onBackHome={() => router.push('/dashboard')}>
         <div style={createCardStyle('padded')}>
           <p style={{ textAlign: 'center', color: colors.gray[500] }}>
             Cargando plan de acción...
@@ -74,7 +74,7 @@ export default function UserPlanAccionPage() {
   }
 
   return (
-    <UserDashboardLayout userName={user?.nombre} onBackHome={() => router.push('/dashboard')}>
+    <UserDashboardLayout userName={user?.nombre} areaName={areaName} onBackHome={() => router.push('/dashboard')}>
       <div style={{ padding: spacing.lg, borderBottom: `1px solid ${colors.gray[300]}` }}>
         <h2 style={{ margin: 0, color: colors.gray[800], fontSize: '24px', fontWeight: 'bold' }}>
           Plan de Acción - {areaName}
