@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Obtener información del usuario
-    const [user] = await db.query(
+    const userResult = await db.query(
       "SELECT id, area_id, nombre, estado FROM usuarios WHERE id = ? AND rol = 'usuario'",
       [userId]
     );
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     const currentYear = currentDate.getFullYear();
 
     // Obtener configuración de trimestres
-    const [config] = await db.query(
+    const configResult = await db.query(
       "SELECT * FROM config_envios WHERE año = ? ORDER BY trimestre",
       [currentYear]
     );
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     }[];
 
     // Obtener informes existentes del usuario
-    const [informes] = await db.query(
+    const informesResult = await db.query(
       "SELECT * FROM informes WHERE usuario_id = ? AND año = ?",
       [userId, currentYear]
     );
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Obtener información del usuario
-    const [user] = await db.query(
+    const userResult = await db.query(
       "SELECT id, area_id, nombre, estado FROM usuarios WHERE id = ? AND rol = 'usuario'",
       [userId]
     );
@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar que el trimestre está disponible para configuración
-    const [config] = await db.query(
+    const configResult = await db.query(
       "SELECT * FROM config_envios WHERE año = ? AND trimestre = ?",
       [currentYear, trimestre]
     );
@@ -230,7 +230,7 @@ export async function POST(request: NextRequest) {
     if (participara) {
       // Crear informe si el usuario dice que participará
       // Verificar si ya existe un informe para este trimestre
-      const [existingReport] = await db.query(
+      const existingReportResult = await db.query(
         "SELECT id FROM informes WHERE usuario_id = ? AND area_id = ? AND trimestre = ? AND año = ?",
         [userId, currentUser.area_id, trimestre, currentYear]
       );

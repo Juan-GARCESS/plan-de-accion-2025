@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 
 export async function GET() {
   try {
-    const [subEjes] = await db.execute(
+    const subEjesResult = await db.query(
       `SELECT se.id, se.nombre_sub_eje, se.descripcion, se.fecha_creacion, se.eje_id,
               e.nombre_eje
        FROM sub_ejes se

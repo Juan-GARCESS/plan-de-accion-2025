@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import type { RowDataPacket } from "mysql2";
 
 // API para obtener usuarios de un área específica con información de participación en trimestres
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

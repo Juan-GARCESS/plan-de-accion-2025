@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 export async function PATCH(request: NextRequest) {
   try {
     // Obtener usuarios activos sin área asignada
-    const [usuariosSinArea] = await db.execute(
+    const usuariosSinAreaResult = await db.query(
       "SELECT id, nombre, area_solicitada FROM usuarios WHERE estado = 'activo' AND area_id IS NULL"
     );
 
@@ -20,7 +20,7 @@ export async function PATCH(request: NextRequest) {
     for (const usuario of usuarios) {
       if (usuario.area_solicitada) {
         // Buscar área que coincida con la solicitada
-        const [area] = await db.execute(
+        const areaResult = await db.query(
           "SELECT id FROM areas WHERE LOWER(nombre_area) = LOWER(?)",
           [usuario.area_solicitada.trim()]
         );

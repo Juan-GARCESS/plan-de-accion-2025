@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 🔍 Verificar que el usuario es admin
-    const [adminCheck] = await db.query<RowDataPacket[]>(`
+    const adminCheckResult = await db.query(`
       SELECT rol FROM usuarios WHERE id = ?
     `, [adminId]);
 
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     const año = new Date().getFullYear();
 
     // 🔍 Verificar que el usuario existe y aceptó participar en este trimestre
-    const [userCheck] = await db.query<RowDataPacket[]>(`
+    const userCheckResult = await db.query(`
       SELECT u.nombre, u.email, st.participando
       FROM usuarios u
       LEFT JOIN selecciones_trimestre st ON u.id = st.usuario_id 
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 📝 Verificar si ya existe una meta para este usuario/trimestre
-    const [existingMeta] = await db.query<RowDataPacket[]>(`
+    const existingMetaResult = await db.query(`
       SELECT id FROM metas_trimestrales 
       WHERE usuario_id = ? AND trimestre = ? AND año = ?
     `, [userId, trimestre, año]);

@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 📅 Obtener selecciones actuales del usuario para todos los trimestres del año actual
-    const [selecciones] = await db.query<SeleccionTrimestre[]>(`
+    const seleccionesResult = await db.query(`
       SELECT trimestre, participando 
       FROM selecciones_trimestre 
       WHERE usuario_id = ? AND año = YEAR(NOW())

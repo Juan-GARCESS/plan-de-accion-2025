@@ -12,9 +12,7 @@ export async function GET(req: Request) {
     }
 
     // Verificar que es admin
-    const [admin] = await db.query<(RowDataPacket & {
-      rol: string;
-    })[]>(
+    const adminResult = await db.query(
       "SELECT rol FROM usuarios WHERE id = ? AND estado = 'activo'",
       [userId]
     );
@@ -27,18 +25,7 @@ export async function GET(req: Request) {
     const currentYear = currentDate.getFullYear();
 
     // Obtener estadísticas de trimestres
-    const [estadisticas] = await db.query<(RowDataPacket & {
-      trimestre: number;
-      año: number;
-      fecha_inicio: string;
-      fecha_fin: string;
-      total_usuarios: number;
-      metas_creadas: number;
-      informes_subidos: number;
-      informes_pendientes: number;
-      informes_aceptados: number;
-      informes_rechazados: number;
-    })[]>(`
+    const estadisticasResult = await db.query(`
       SELECT 
         ce.trimestre,
         ce.año,

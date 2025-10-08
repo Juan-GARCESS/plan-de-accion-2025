@@ -12,9 +12,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Verificar que es admin
-    const [admin] = await db.query<(RowDataPacket & {
-      rol: string;
-    })[]>(
+    const adminResult = await db.query(
       "SELECT rol FROM usuarios WHERE id = ? AND estado = 'activo'",
       [adminUserId]
     );
@@ -24,7 +22,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Obtener todas las selecciones de trimestres de usuarios activos
-    const [selecciones] = await db.query<RowDataPacket[]>(`
+    const seleccionesResult = await db.query(`
       SELECT 
         us.id as usuario_id,
         us.nombre as usuario_nombre,
@@ -80,7 +78,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Obtener estadísticas generales
-    const [estadisticas] = await db.query<RowDataPacket[]>(`
+    const estadisticasResult = await db.query(`
       SELECT 
         st.trimestre,
         COUNT(*) as total_selecciones,

@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const [subEjes] = await db.execute(
+    const subEjesResult = await db.query(
       `SELECT se.id, se.nombre_sub_eje, se.descripcion, se.fecha_creacion,
               e.nombre_eje
        FROM sub_ejes se
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar que el eje existe
-    const [existingEje] = await db.execute(
+    const existingEjeResult = await db.query(
       'SELECT id FROM ejes WHERE id = ? AND activo = 1',
       [eje_id]
     );
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar si el sub-eje ya existe para este eje
-    const [existingSubEje] = await db.execute(
+    const existingSubEjeResult = await db.query(
       'SELECT id FROM sub_ejes WHERE eje_id = ? AND nombre_sub_eje = ? AND activo = 1',
       [eje_id, nombre_sub_eje.trim()]
     );
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Crear el nuevo sub-eje
-    const [result] = await db.execute(
+    const resultResult = await db.query(
       'INSERT INTO sub_ejes (eje_id, nombre_sub_eje, descripcion) VALUES (?, ?, ?)',
       [eje_id, nombre_sub_eje.trim(), descripcion || null]
     );
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     const insertId = (result as { insertId: number }).insertId;
 
     // Obtener el sub-eje creado con información del eje
-    const [nuevoSubEje] = await db.execute(
+    const nuevoSubEjeResult = await db.query(
       `SELECT se.*, e.nombre_eje 
        FROM sub_ejes se 
        JOIN ejes e ON se.eje_id = e.id 
@@ -114,7 +114,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verificar que el sub-eje existe
-    const [existingSubEje] = await db.execute(
+    const existingSubEjeResult = await db.query(
       'SELECT id FROM sub_ejes WHERE id = ? AND activo = 1',
       [id]
     );
@@ -127,7 +127,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verificar que el eje existe
-    const [existingEje] = await db.execute(
+    const existingEjeResult = await db.query(
       'SELECT id FROM ejes WHERE id = ? AND activo = 1',
       [eje_id]
     );
@@ -140,7 +140,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verificar si ya existe otro sub-eje con el mismo nombre para este eje
-    const [duplicateSubEje] = await db.execute(
+    const duplicateSubEjeResult = await db.query(
       'SELECT id FROM sub_ejes WHERE eje_id = ? AND nombre_sub_eje = ? AND id != ? AND activo = 1',
       [eje_id, nombre_sub_eje.trim(), id]
     );
@@ -184,7 +184,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Verificar que el sub-eje existe
-    const [existingSubEje] = await db.execute(
+    const existingSubEjeResult = await db.query(
       'SELECT id FROM sub_ejes WHERE id = ? AND activo = 1',
       [id]
     );

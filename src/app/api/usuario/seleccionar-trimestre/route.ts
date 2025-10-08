@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     console.log('API recibió:', { trimestre, participando, año, userId });
 
     // 🔍 Verificar si ya existe una selección para este trimestre
-    const [existingSelection] = await db.query<RowDataPacket[]>(`
+    const existingSelectionResult = await db.query(`
       SELECT id FROM selecciones_trimestre 
       WHERE usuario_id = ? AND trimestre = ? AND año = ?
     `, [userId, trimestre, año]);

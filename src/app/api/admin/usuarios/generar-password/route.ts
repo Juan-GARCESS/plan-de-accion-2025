@@ -23,9 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar que es admin
-    const [admin] = await db.query<(RowDataPacket & {
-      rol: string;
-    })[]>(
+    const adminResult = await db.query(
       "SELECT rol FROM usuarios WHERE id = ? AND estado = 'activo'",
       [adminUserId]
     );
@@ -44,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar que el usuario existe
-    const [user] = await db.query<RowDataPacket[]>(
+    const userResult = await db.query(
       "SELECT id, nombre, email FROM usuarios WHERE id = ?",
       [user_id]
     );

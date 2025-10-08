@@ -9,7 +9,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Nombre de área requerido" }, { status: 400 });
     }
 
-    const [result] = await db.query<ResultSetHeader>(
+    const resultResult = await db.query(
       "INSERT INTO areas (nombre_area, descripcion) VALUES (?, ?)",
       [nombre_area, descripcion || null]
     );
