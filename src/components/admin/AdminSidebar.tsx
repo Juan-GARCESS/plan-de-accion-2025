@@ -1,7 +1,8 @@
 ﻿'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { HomeIcon, WrenchScrewdriverIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon as SearchSolidIcon } from '@heroicons/react/20/solid';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import type { Area } from '@/types';
 
@@ -24,7 +25,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   onGestionSelect,
   isGestionSelected
 }) => {
-  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   
   const safeAreas = Array.isArray(areas) ? areas : [];
@@ -34,15 +34,44 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   );
 
   return (
-    <div className="fixed top-0 left-0 z-50 h-screen w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 lg:static shadow-lg">
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '240px',
+      height: '100vh',
+      background: 'white',
+      borderRight: '1px solid #e5e7eb',
+      display: 'flex',
+      flexDirection: 'column',
+      zIndex: 1000,
+      boxShadow: '2px 0 8px rgba(0, 0, 0, 0.05)'
+    }}>
       {/* Header */}
-      <div className="h-16 flex items-center justify-center border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
+      <div style={{
+        padding: '20px 16px',
+        borderBottom: '1px solid #e5e7eb',
+        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
+      }}>
         <button
           onClick={onDashboardSelect}
-          className="w-full h-full flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          style={{
+            width: '100%',
+            textAlign: 'left',
+            border: 'none',
+            background: 'none',
+            cursor: 'pointer',
+            padding: 0
+          }}
           title="Ir al inicio"
         >
-          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+          <h2 style={{
+            fontSize: '16px',
+            fontWeight: '700',
+            color: '#1e293b',
+            margin: 0,
+            lineHeight: '1.4'
+          }}>
             Panel de Administración
           </h2>
         </button>
@@ -50,103 +79,216 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
       {/* User Info */}
       {userName && (
-        <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-          <p className="text-xs text-slate-500 dark:text-slate-400">Bienvenido,</p>
-          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{userName}</p>
+        <div style={{
+          padding: '12px 16px',
+          borderBottom: '1px solid #e5e7eb',
+          background: '#f8fafc'
+        }}>
+          <p style={{
+            fontSize: '11px',
+            color: '#64748b',
+            margin: '0 0 4px 0',
+            fontWeight: '400'
+          }}>
+            Bienvenido,
+          </p>
+          <p style={{
+            fontSize: '13px',
+            fontWeight: '600',
+            color: '#1e293b',
+            margin: 0
+          }}>
+            {userName}
+          </p>
         </div>
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto p-4" style={{ height: 'calc(100vh - 16rem)' }}>
+      <nav style={{
+        flex: 1,
+        overflowY: 'auto',
+        padding: '16px'
+      }}>
         {/* Inicio Button */}
         <button
           onClick={onDashboardSelect}
-          className={`w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg transition-all ${
-            !isGestionSelected && selectedAreaId === null
-              ? 'bg-slate-800 dark:bg-slate-700 text-white shadow-md'
-              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-          }`}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '10px 12px',
+            marginBottom: '8px',
+            border: 'none',
+            borderRadius: '8px',
+            background: !isGestionSelected && selectedAreaId === null ? '#1e293b' : 'transparent',
+            color: !isGestionSelected && selectedAreaId === null ? 'white' : '#475569',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            if (!(!isGestionSelected && selectedAreaId === null)) {
+              e.currentTarget.style.background = '#f1f5f9';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!(!isGestionSelected && selectedAreaId === null)) {
+              e.currentTarget.style.background = 'transparent';
+            }
+          }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
-          <span className="text-sm font-medium">Inicio</span>
+          <HomeIcon style={{ width: '18px', height: '18px' }} />
+          <span>Inicio</span>
         </button>
 
         {/* Gestión Button */}
         <button
           onClick={onGestionSelect}
-          className={`w-full flex items-center gap-3 px-4 py-3 mb-4 rounded-lg transition-all ${
-            isGestionSelected
-              ? 'bg-slate-800 dark:bg-slate-700 text-white shadow-md'
-              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-          }`}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '10px 12px',
+            marginBottom: '20px',
+            border: 'none',
+            borderRadius: '8px',
+            background: isGestionSelected ? '#1e293b' : 'transparent',
+            color: isGestionSelected ? 'white' : '#475569',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            if (!isGestionSelected) {
+              e.currentTarget.style.background = '#f1f5f9';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isGestionSelected) {
+              e.currentTarget.style.background = 'transparent';
+            }
+          }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <span className="text-sm font-medium">Gestión</span>
+          <WrenchScrewdriverIcon style={{ width: '18px', height: '18px' }} />
+          <span>Gestión</span>
         </button>
 
         {/* ÁREAS Section */}
-        <div className="mb-4">
-          <h3 className="px-2 mb-2 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+        <div style={{ marginBottom: '16px' }}>
+          <h3 style={{
+            fontSize: '11px',
+            fontWeight: '600',
+            color: '#64748b',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            margin: '0 0 12px 8px'
+          }}>
             ÁREAS
           </h3>
           
           {/* Search Box */}
-          <div className="relative mb-3">
-            <svg 
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+          <div style={{
+            position: 'relative',
+            marginBottom: '12px'
+          }}>
+            <SearchSolidIcon style={{
+              position: 'absolute',
+              left: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: '16px',
+              height: '16px',
+              color: '#94a3b8'
+            }} />
             <input
               type="text"
               placeholder="Buscar área..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-600 text-slate-900 dark:text-slate-100 placeholder-slate-400"
+              style={{
+                width: '100%',
+                padding: '8px 12px 8px 36px',
+                fontSize: '13px',
+                border: '1px solid #e2e8f0',
+                borderRadius: '6px',
+                background: '#f8fafc',
+                color: '#1e293b',
+                outline: 'none',
+                transition: 'all 0.2s ease'
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#cbd5e1';
+                e.currentTarget.style.background = 'white';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#e2e8f0';
+                e.currentTarget.style.background = '#f8fafc';
+              }}
             />
           </div>
 
           {/* Areas List */}
-          <div className="space-y-1">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {filteredAreas.map((area) => (
               <button
                 key={area.id}
                 onClick={() => onAreaSelect?.(area.id)}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all text-left ${
-                  selectedAreaId === area.id
-                    ? 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '8px 12px',
+                  border: 'none',
+                  borderRadius: '6px',
+                  background: selectedAreaId === area.id ? '#e2e8f0' : 'transparent',
+                  color: selectedAreaId === area.id ? '#1e293b' : '#475569',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontWeight: selectedAreaId === area.id ? '500' : '400',
+                  textAlign: 'left',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedAreaId !== area.id) {
+                    e.currentTarget.style.background = '#f1f5f9';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedAreaId !== area.id) {
+                    e.currentTarget.style.background = 'transparent';
+                  }
+                }}
               >
-                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-                <span className="text-sm truncate">{area.nombre_area}</span>
+                <BuildingOfficeIcon style={{ 
+                  width: '16px', 
+                  height: '16px',
+                  flexShrink: 0 
+                }} />
+                <span style={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {area.nombre_area}
+                </span>
               </button>
             ))}
           </div>
         </div>
       </nav>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-        <div className="flex items-center gap-2 mb-3">
-          <ThemeToggle />
-        </div>
-        <button
-          onClick={() => router.push('/api/logout')}
-          className="w-full px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
-        >
-          Cerrar Sesión
-        </button>
+      {/* Footer - Solo ThemeToggle */}
+      <div style={{
+        padding: '16px',
+        borderTop: '1px solid #e5e7eb',
+        background: '#f8fafc'
+      }}>
+        <ThemeToggle />
       </div>
     </div>
   );
