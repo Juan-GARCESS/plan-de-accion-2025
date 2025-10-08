@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 import { 
   createCardStyle, 
   createButtonStyle, 
@@ -240,26 +241,88 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
         updateData.password = editForm.password;
       }
       
-      await onEdit(editingUser.id, updateData);
-      setEditingUser(null);
-      setEditForm({ nombre: '', email: '', password: '', area_id: 0 });
+      try {
+        await onEdit(editingUser.id, updateData);
+        toast.success('¡Usuario actualizado!', {
+          description: `Los datos de ${editForm.nombre} se guardaron correctamente.`
+        });
+        setEditingUser(null);
+        setEditForm({ nombre: '', email: '', password: '', area_id: 0 });
+      } catch (error) {
+        toast.error('Error al actualizar usuario', {
+          description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+        });
+      }
     }
   };
 
   const handleApprove = async (userId: number) => {
     const areaId = approvalAreaId[userId];
     if (!areaId || areaId === 0) {
-      alert('Por favor selecciona un área para el usuario');
+      toast.warning('Selecciona un área', {
+        description: 'Debes asignar un área antes de aprobar al usuario.'
+      });
       return;
     }
-    await onApprove(userId, areaId);
-    setApprovalAreaId(prev => ({ ...prev, [userId]: 0 }));
+    try {
+      await onApprove(userId, areaId);
+      const user = usuarios.find(u => u.id === userId);
+      toast.success('¡Usuario aprobado!', {
+        description: `${user?.nombre || 'El usuario'} ha sido aprobado y notificado.`
+      });
+      setApprovalAreaId(prev => ({ ...prev, [userId]: 0 }));
+    } catch (error) {
+      toast.error('Error al aprobar usuario', {
+        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+      });
+    }
+  };
+
+  const handleReject = async (userId: number) => {
+    const user = usuarios.find(u => u.id === userId);
+    if (!confirm(`¿Rechazar la solicitud de ${user?.nombre}?`)) return;
+    
+    try {
+      await onReject(userId);
+      toast.success('Solicitud rechazada', {
+        description: `${user?.nombre} ha sido notificado del rechazo.`
+      });
+    } catch (error) {
+      toast.error('Error al rechazar usuario', {
+        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+      });
+    }
+  };
+
+  const handleDelete = async (userId: number) => {
+    const user = usuarios.find(u => u.id === userId);
+    if (!confirm(`¿Eliminar a ${user?.nombre}? Esta acción no se puede deshacer.`)) return;
+    
+    try {
+      await onDelete(userId);
+      toast.success('Usuario eliminado', {
+        description: `${user?.nombre} ha sido eliminado del sistema.`
+      });
+    } catch (error) {
+      toast.error('Error al eliminar usuario', {
+        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+      });
+    }
   };
 
   const handleGeneratePassword = async (userId: number) => {
-    const password = await onGeneratePassword(userId);
-    setGeneratedPassword(password);
-    setTimeout(() => setGeneratedPassword(''), 3000);
+    try {
+      const password = await onGeneratePassword(userId);
+      setGeneratedPassword(password);
+      toast.success('¡Contraseña generada!', {
+        description: `Nueva contraseña: ${password} (cópiala ahora, se ocultará en 3 segundos)`
+      });
+      setTimeout(() => setGeneratedPassword(''), 3000);
+    } catch (error) {
+      toast.error('Error al generar contraseña', {
+        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+      });
+    }
   };
 
   // =============== RENDER ===============
@@ -341,7 +404,7 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
                           Aprobar
                         </button>
                         <button
-                          onClick={() => onReject(usuario.id)}
+                          onClick={() => handleReject(usuario.id)}
                           style={rejectButtonStyle}
                         >
                           Rechazar
@@ -441,7 +504,7 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
                               Nueva Clave
                             </button>
                             <button
-                              onClick={() => onDelete(usuario.id)}
+                              onClick={() => handleDelete(usuario.id)}
                               style={deleteButtonStyle}
                             >
                               Eliminar

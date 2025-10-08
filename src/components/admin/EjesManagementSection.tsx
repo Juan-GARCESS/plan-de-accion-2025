@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 interface Eje {
   id: number;
@@ -105,15 +106,21 @@ export function EjesManagementSection() {
         setEjeForm({ nombre_eje: '', descripcion: '' });
         setShowEjeForm(false);
         cargarEjes();
-        cargarTodosLosSubEjes(); // Recargar sub-ejes
-        alert('Eje creado exitosamente');
+        cargarTodosLosSubEjes();
+        toast.success('¡Eje creado!', {
+          description: `${ejeForm.nombre_eje} ha sido agregado exitosamente.`
+        });
       } else {
         const error = await response.json();
-        alert(`Error: ${error.error}`);
+        toast.error('Error al crear eje', {
+          description: error.error || 'Intenta nuevamente.'
+        });
       }
     } catch (error) {
       console.error('Error creando eje:', error);
-      alert('Error al crear el eje');
+      toast.error('Error al crear eje', {
+        description: 'No se pudo completar la operación.'
+      });
     }
   };
 
@@ -130,16 +137,22 @@ export function EjesManagementSection() {
       if (response.ok) {
         setSubEjeForm({ eje_id: 0, nombre_sub_eje: '', descripcion: '' });
         setShowSubEjeForm(false);
-        cargarEjes(); // Actualizar conteo de sub-ejes
-        cargarTodosLosSubEjes(); // Recargar todos los sub-ejes
-        alert('Sub-eje creado exitosamente');
+        cargarEjes();
+        cargarTodosLosSubEjes();
+        toast.success('¡Sub-eje creado!', {
+          description: `${subEjeForm.nombre_sub_eje} ha sido agregado exitosamente.`
+        });
       } else {
         const error = await response.json();
-        alert(`Error: ${error.error}`);
+        toast.error('Error al crear sub-eje', {
+          description: error.error || 'Intenta nuevamente.'
+        });
       }
     } catch (error) {
       console.error('Error creando sub-eje:', error);
-      alert('Error al crear el sub-eje');
+      toast.error('Error al crear sub-eje', {
+        description: 'No se pudo completar la operación.'
+      });
     }
   };
 
@@ -155,14 +168,20 @@ export function EjesManagementSection() {
       if (response.ok) {
         setAsignacionForm({ area_id: 0, eje_id: 0 });
         setShowAsignacionForm(false);
-        alert('Eje asignado exitosamente al área');
+        toast.success('¡Eje asignado!', {
+          description: 'El eje ha sido asignado al área correctamente.'
+        });
       } else {
         const error = await response.json();
-        alert(`Error: ${error.error}`);
+        toast.error('Error al asignar eje', {
+          description: error.error || 'Intenta nuevamente.'
+        });
       }
     } catch (error) {
       console.error('Error asignando eje:', error);
-      alert('Error al asignar el eje');
+      toast.error('Error al asignar eje', {
+        description: 'No se pudo completar la operación.'
+      });
     }
   };
 
@@ -190,19 +209,26 @@ export function EjesManagementSection() {
         setEditEjeForm({ id: 0, nombre_eje: '', descripcion: '' });
         cargarEjes();
         cargarTodosLosSubEjes();
-        alert('Eje actualizado exitosamente');
+        toast.success('¡Eje actualizado!', {
+          description: 'Los cambios se guardaron correctamente.'
+        });
       } else {
         const error = await response.json();
-        alert(`Error: ${error.error}`);
+        toast.error('Error al actualizar eje', {
+          description: error.error || 'Intenta nuevamente.'
+        });
       }
     } catch (error) {
       console.error('Error actualizando eje:', error);
-      alert('Error al actualizar el eje');
+      toast.error('Error al actualizar eje', {
+        description: 'No se pudo completar la operación.'
+      });
     }
   };
 
   const eliminarEje = async (ejeId: number) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este eje? Esta acción no se puede deshacer.')) {
+    const eje = ejes.find(e => e.id === ejeId);
+    if (!confirm(`¿Eliminar "${eje?.nombre_eje}"? Esta acción no se puede deshacer.`)) {
       return;
     }
 
@@ -214,14 +240,20 @@ export function EjesManagementSection() {
       if (response.ok) {
         cargarEjes();
         cargarTodosLosSubEjes();
-        alert('Eje eliminado exitosamente');
+        toast.success('Eje eliminado', {
+          description: 'El eje ha sido eliminado del sistema.'
+        });
       } else {
         const error = await response.json();
-        alert(`Error: ${error.error}`);
+        toast.error('Error al eliminar eje', {
+          description: error.error || 'Intenta nuevamente.'
+        });
       }
     } catch (error) {
       console.error('Error eliminando eje:', error);
-      alert('Error al eliminar el eje');
+      toast.error('Error al eliminar eje', {
+        description: 'No se pudo completar la operación.'
+      });
     }
   };
 
@@ -250,19 +282,26 @@ export function EjesManagementSection() {
         setEditSubEjeForm({ id: 0, eje_id: 0, nombre_sub_eje: '', descripcion: '' });
         cargarEjes();
         cargarTodosLosSubEjes();
-        alert('Sub-eje actualizado exitosamente');
+        toast.success('¡Sub-eje actualizado!', {
+          description: 'Los cambios se guardaron correctamente.'
+        });
       } else {
         const error = await response.json();
-        alert(`Error: ${error.error}`);
+        toast.error('Error al actualizar sub-eje', {
+          description: error.error || 'Intenta nuevamente.'
+        });
       }
     } catch (error) {
       console.error('Error actualizando sub-eje:', error);
-      alert('Error al actualizar el sub-eje');
+      toast.error('Error al actualizar sub-eje', {
+        description: 'No se pudo completar la operación.'
+      });
     }
   };
 
   const eliminarSubEje = async (subEjeId: number) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este sub-eje? Esta acción no se puede deshacer.')) {
+    const subEje = subEjes.find(s => s.id === subEjeId);
+    if (!confirm(`¿Eliminar "${subEje?.nombre_sub_eje}"? Esta acción no se puede deshacer.`)) {
       return;
     }
 
@@ -274,14 +313,20 @@ export function EjesManagementSection() {
       if (response.ok) {
         cargarEjes();
         cargarTodosLosSubEjes();
-        alert('Sub-eje eliminado exitosamente');
+        toast.success('Sub-eje eliminado', {
+          description: 'El sub-eje ha sido eliminado del sistema.'
+        });
       } else {
         const error = await response.json();
-        alert(`Error: ${error.error}`);
+        toast.error('Error al eliminar sub-eje', {
+          description: error.error || 'Intenta nuevamente.'
+        });
       }
     } catch (error) {
       console.error('Error eliminando sub-eje:', error);
-      alert('Error al eliminar el sub-eje');
+      toast.error('Error al eliminar sub-eje', {
+        description: 'No se pudo completar la operación.'
+      });
     }
   };
 

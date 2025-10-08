@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 import { 
   createCardStyle, 
   createButtonStyle, 
@@ -168,9 +169,18 @@ export const AreasManagementSectionImproved: React.FC<AreasManagementSectionProp
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onCreate(createForm);
-    setCreateForm({ nombre: '', descripcion: '' });
-    setShowCreateForm(false);
+    try {
+      await onCreate(createForm);
+      toast.success('¡Área creada exitosamente!', {
+        description: `${createForm.nombre} ha sido agregada al sistema.`
+      });
+      setCreateForm({ nombre: '', descripcion: '' });
+      setShowCreateForm(false);
+    } catch (error) {
+      toast.error('Error al crear área', {
+        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+      });
+    }
   };
 
   const handleEdit = (area: Area) => {
@@ -184,16 +194,35 @@ export const AreasManagementSectionImproved: React.FC<AreasManagementSectionProp
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingArea) return;
-    await onEdit(editingArea.id, editForm);
-    setEditingArea(null);
-    setEditForm({ nombre: '', descripcion: '' });
+    try {
+      await onEdit(editingArea.id, editForm);
+      toast.success('¡Área actualizada!', {
+        description: `Los cambios en ${editForm.nombre} se guardaron correctamente.`
+      });
+      setEditingArea(null);
+      setEditForm({ nombre: '', descripcion: '' });
+    } catch (error) {
+      toast.error('Error al actualizar área', {
+        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+      });
+    }
   };
 
   const handleDelete = async (areaId: number) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta área? Esta acción no se puede deshacer.')) {
+    const area = areas.find(a => a.id === areaId);
+    if (!confirm(`¿Estás seguro de que quieres eliminar "${area?.nombre_area}"? Esta acción no se puede deshacer.`)) {
       return;
     }
-    await onDelete(areaId);
+    try {
+      await onDelete(areaId);
+      toast.success('Área eliminada', {
+        description: 'El área ha sido eliminada del sistema.'
+      });
+    } catch (error) {
+      toast.error('Error al eliminar área', {
+        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+      });
+    }
   };
 
   // =============== RENDER ===============
