@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { db } from "@/lib/db";
-import type { RowDataPacket } from "mysql2";
 
 // Función para generar contraseña aleatoria
 function generateRandomPassword(length: number = 8): string {

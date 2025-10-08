@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import type { RowDataPacket } from "mysql2";
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,14 +12,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar que es admin
-    const [admin] = await db.query<(RowDataPacket & {
-      rol: string;
-    })[]>(
-      "SELECT rol FROM usuarios WHERE id = ? AND estado = 'activo'",
+    const adminResult = await db.query(
+      "SELECT rol FROM usuarios WHERE id = $1 AND estado = 'activo'",
       [adminUserId]
     );
 
-    if (!admin || admin.length === 0 || admin[0].rol !== 'admin') {
+    if (!adminResult.rows || adminResult.rows.length === 0 || adminResult.rows[0].rol !== 'admin') {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
@@ -34,28 +31,28 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar que el usuario existe y está pendiente
-    const [user] = await db.query<RowDataPacket[]>(
-      "SELECT id, estado FROM usuarios WHERE id = ?",
+    const userResult = await db.query(
+      "SELECT id, estado FROM usuarios WHERE id = $1",
       [user_id]
     );
 
-    if (!user || user.length === 0) {
+    if (!userResult.rows || userResult.rows.length === 0) {
       return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
     }
 
     // Verificar que el área existe
-    const [area] = await db.query<RowDataPacket[]>(
-      "SELECT id FROM areas WHERE id = ?",
+    const areaResult = await db.query(
+      "SELECT id FROM areas WHERE id = $1",
       [area_id]
     );
 
-    if (!area || area.length === 0) {
+    if (!areaResult.rows || areaResult.rows.length === 0) {
       return NextResponse.json({ error: "Área no encontrada" }, { status: 404 });
     }
 
     // Actualizar estado a 'activo' y asignar el área
-    await db.execute(
-      "UPDATE usuarios SET estado = 'activo', area_id = ?, updated_at = NOW() WHERE id = ?",
+    await db.query(
+      "UPDATE usuarios SET estado = 'activo', area_id = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2",
       [area_id, user_id]
     );
 

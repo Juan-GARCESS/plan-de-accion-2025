@@ -13,38 +13,36 @@ export async function GET(request: NextRequest) {
     }
 
     // Obtener información del usuario
-    const [user] = await db.query(
-      "SELECT id, area_id, nombre, estado FROM usuarios WHERE id = ? AND rol = 'usuario'",
+    const userResult = await db.query(
+      "SELECT id, area_id, nombre, estado FROM usuarios WHERE id = $1 AND rol = 'usuario'",
       [userId]
     );
-
-    const userData = user as { id: number; area_id: number; nombre: string; estado: string }[];
     
-    if (userData.length === 0 || userData[0].estado !== 'activo' || !userData[0].area_id) {
+    if (!userResult.rows || userResult.rows.length === 0 || userResult.rows[0].estado !== 'activo' || !userResult.rows[0].area_id) {
       return NextResponse.json({ 
         message: "Usuario no válido, no activo o sin área asignada" 
       }, { status: 400 });
     }
 
-    const currentUser = userData[0];
+    const currentUser = userResult.rows[0];
     const currentYear = new Date().getFullYear();
 
     // Obtener todas las metas e informes del usuario para el año actual
-    const [informes] = await db.query(
+    const informesResult = await db.query(
       `SELECT i.id, i.trimestre, i.año, i.meta_trimestral, i.archivo, i.estado, 
               i.comentario_admin, i.calificacion, i.fecha_meta_creada, i.fecha_archivo_subido,
               ce.fecha_inicio, ce.fecha_fin, ce.abierto, ce.habilitado_manualmente,
               ce.dias_habilitados, ce.fecha_habilitacion_manual
        FROM informes i
        LEFT JOIN config_envios ce ON i.trimestre = ce.trimestre AND i.año = ce.año
-       WHERE i.usuario_id = ? AND i.area_id = ? AND i.año = ?
+       WHERE i.usuario_id = $1 AND i.area_id = $2 AND i.año = $3
        ORDER BY i.trimestre`,
       [userId, currentUser.area_id, currentYear]
     );
 
     return NextResponse.json({
       usuario: currentUser,
-      informes: informes,
+      informes: informesResult.rows,
       año_actual: currentYear
     });
   } catch (error) {
@@ -76,39 +74,36 @@ export async function POST(request: NextRequest) {
     }
 
     // Obtener información del usuario
-    const [user] = await db.query(
-      "SELECT area_id FROM usuarios WHERE id = ? AND rol = 'usuario'",
+    const userResult = await db.query(
+      "SELECT area_id FROM usuarios WHERE id = $1 AND rol = 'usuario'",
       [userId]
     );
 
-    const userData = user as { area_id: number }[];
-    if (userData.length === 0 || !userData[0].area_id) {
+    if (!userResult.rows || userResult.rows.length === 0 || !userResult.rows[0].area_id) {
       return NextResponse.json(
         { message: "Usuario no válido o sin área asignada" },
         { status: 400 }
       );
     }
 
-    const areaId = userData[0].area_id;
+    const areaId = userResult.rows[0].area_id;
 
     // Verificar si ya existe un informe para este trimestre
-    const [existing] = await db.query(
-      "SELECT id FROM informes WHERE usuario_id = ? AND area_id = ? AND trimestre = ? AND año = ?",
+    const existingResult = await db.query(
+      "SELECT id FROM informes WHERE usuario_id = $1 AND area_id = $2 AND trimestre = $3 AND año = $4",
       [userId, areaId, trimestre, año]
     );
 
-    const existingData = existing as { id: number }[];
-
-    if (existingData.length > 0) {
+    if (existingResult.rows && existingResult.rows.length > 0) {
       // Actualizar meta existente
       await db.query(
-        "UPDATE informes SET meta_trimestral = ?, fecha_meta_creada = NOW(), updated_at = NOW() WHERE id = ?",
-        [meta_trimestral, existingData[0].id]
+        "UPDATE informes SET meta_trimestral = $1, fecha_meta_creada = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = $2",
+        [meta_trimestral, existingResult.rows[0].id]
       );
     } else {
       // Crear nuevo informe con meta
       await db.query(
-        "INSERT INTO informes (usuario_id, area_id, trimestre, año, meta_trimestral, fecha_meta_creada, estado, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), 'planificando', NOW(), NOW())",
+        "INSERT INTO informes (usuario_id, area_id, trimestre, año, meta_trimestral, fecha_meta_creada, estado, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, 'planificando', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
         [userId, areaId, trimestre, año, meta_trimestral]
       );
     }

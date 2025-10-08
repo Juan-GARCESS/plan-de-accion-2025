@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import type { RowDataPacket, ResultSetHeader } from "mysql2";
 
 // API para asignar metas a usuarios que participan en trimestres
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string; userId: string }> }) {

@@ -9,26 +9,26 @@ export async function GET(request: NextRequest) {
 
     if (!areaId) {
       // Obtener todas las asignaciones
-      const [asignaciones] = await db.execute(
+      const asignacionesResult = await db.query(
         `SELECT ae.*, a.nombre_area, e.nombre_eje, e.descripcion as eje_descripcion
          FROM area_ejes ae
          JOIN areas a ON ae.area_id = a.id
          JOIN ejes e ON ae.eje_id = e.id
-         WHERE ae.activo = 1
+         WHERE ae.activo = true
          ORDER BY a.nombre_area, e.nombre_eje`
       );
-      return NextResponse.json(asignaciones);
+      return NextResponse.json(asignacionesResult.rows);
     } else {
       // Obtener ejes asignados a un área específica
-      const [ejesAsignados] = await db.execute(
+      const ejesAsignadosResult = await db.query(
         `SELECT e.id, e.nombre_eje, e.descripcion, ae.fecha_asignacion
          FROM area_ejes ae
          JOIN ejes e ON ae.eje_id = e.id
-         WHERE ae.area_id = ? AND ae.activo = 1
+         WHERE ae.area_id = $1 AND ae.activo = true
          ORDER BY e.nombre_eje`,
         [areaId]
       );
-      return NextResponse.json(ejesAsignados);
+      return NextResponse.json(ejesAsignadosResult.rows);
     }
   } catch (error) {
     console.error('Error fetching asignaciones:', error);
@@ -51,12 +51,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar que el área existe
-    const [existingArea] = await db.execute(
-      'SELECT id FROM areas WHERE id = ?',
+    const existingAreaResult = await db.query(
+      'SELECT id FROM areas WHERE id = $1',
       [area_id]
     );
 
-    if ((existingArea as unknown[]).length === 0) {
+    if (!existingAreaResult.rows || existingAreaResult.rows.length === 0) {
       return NextResponse.json(
         { error: 'El área especificada no existe' },
         { status: 400 }
@@ -64,12 +64,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar que el eje existe
-    const [existingEje] = await db.execute(
-      'SELECT id FROM ejes WHERE id = ? AND activo = 1',
+    const existingEjeResult = await db.query(
+      'SELECT id FROM ejes WHERE id = $1 AND activo = true',
       [eje_id]
     );
 
-    if ((existingEje as unknown[]).length === 0) {
+    if (!existingEjeResult.rows || existingEjeResult.rows.length === 0) {
       return NextResponse.json(
         { error: 'El eje especificado no existe' },
         { status: 400 }
@@ -77,12 +77,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar si ya está asignado
-    const [existingAsignacion] = await db.execute(
-      'SELECT id FROM area_ejes WHERE area_id = ? AND eje_id = ?',
+    const existingAsignacionResult = await db.query(
+      'SELECT id FROM area_ejes WHERE area_id = $1 AND eje_id = $2',
       [area_id, eje_id]
     );
 
-    if ((existingAsignacion as unknown[]).length > 0) {
+    if (existingAsignacionResult.rows && existingAsignacionResult.rows.length > 0) {
       return NextResponse.json(
         { error: 'Este eje ya está asignado a esta área' },
         { status: 400 }
@@ -90,21 +90,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Crear la asignación
-    await db.execute(
-      'INSERT INTO area_ejes (area_id, eje_id) VALUES (?, ?)',
+    await db.query(
+      'INSERT INTO area_ejes (area_id, eje_id) VALUES ($1, $2)',
       [area_id, eje_id]
     );
 
     // Obtener todos los sub-ejes del eje asignado
-    const [subEjes] = await db.execute(
-      'SELECT id FROM sub_ejes WHERE eje_id = ? AND activo = 1',
+    const subEjesResult = await db.query(
+      'SELECT id FROM sub_ejes WHERE eje_id = $1 AND activo = true',
       [eje_id]
     );
 
     // Crear registros en plan_accion para cada sub-eje
-    for (const subEje of (subEjes as { id: number }[])) {
-      await db.execute(
-        'INSERT IGNORE INTO plan_accion (area_id, eje_id, sub_eje_id) VALUES (?, ?, ?)',
+    for (const subEje of subEjesResult.rows) {
+      await db.query(
+        'INSERT INTO plan_accion (area_id, eje_id, sub_eje_id) VALUES ($1, $2, $3) ON CONFLICT (area_id, eje_id, sub_eje_id) DO NOTHING',
         [area_id, eje_id, subEje.id]
       );
     }
@@ -136,14 +136,14 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Eliminar la asignación
-    await db.execute(
-      'UPDATE area_ejes SET activo = 0 WHERE area_id = ? AND eje_id = ?',
+    await db.query(
+      'UPDATE area_ejes SET activo = false WHERE area_id = $1 AND eje_id = $2',
       [areaId, ejeId]
     );
 
     // Eliminar los registros de plan_accion relacionados
-    await db.execute(
-      'UPDATE plan_accion SET activo = 0 WHERE area_id = ? AND eje_id = ?',
+    await db.query(
+      'UPDATE plan_accion SET activo = false WHERE area_id = $1 AND eje_id = $2',
       [areaId, ejeId]
     );
 

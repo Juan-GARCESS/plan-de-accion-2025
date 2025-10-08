@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import type { RowDataPacket } from "mysql2";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -14,14 +13,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Verificar que es admin
-    const [admin] = await db.query<(RowDataPacket & {
-      rol: string;
-    })[]>(
-      "SELECT rol FROM usuarios WHERE id = ? AND estado = 'activo'",
+    const adminResult = await db.query(
+      "SELECT rol FROM usuarios WHERE id = $1 AND estado = 'activo'",
       [userId]
     );
 
-    if (!admin || admin.length === 0 || admin[0].rol !== 'admin') {
+    if (!adminResult.rows || adminResult.rows.length === 0 || adminResult.rows[0].rol !== 'admin') {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
@@ -30,37 +27,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const currentYear = currentDate.getFullYear();
 
     // Obtener configuración de trimestres
-    const [config] = await db.query<(RowDataPacket & {
-      id: number;
-      trimestre: number;
-      año: number;
-      fecha_inicio: string;
-      fecha_fin: string;
-      abierto: boolean;
-      habilitado_manualmente: boolean;
-      dias_habilitados: number | null;
-      fecha_habilitacion_manual: string | null;
-    })[]>(
-      "SELECT * FROM config_envios WHERE año = ? ORDER BY trimestre",
+    const configResult = await db.query(
+      "SELECT * FROM config_envios WHERE año = $1 ORDER BY trimestre",
       [currentYear]
     );
 
     // Obtener informes de usuarios de esta área
-    const [informes] = await db.query<(RowDataPacket & {
-      id: number;
-      usuario_id: number;
-      usuario_nombre: string;
-      usuario_email: string;
-      trimestre: number;
-      año: number;
-      archivo: string | null;
-      meta_trimestral: string | null;
-      estado: 'planificando' | 'pendiente' | 'aceptado' | 'rechazado';
-      comentario_admin: string | null;
-      calificacion: number | null;
-      fecha_meta_creada: string | null;
-      fecha_archivo_subido: string | null;
-    })[]>(`
+    const informesResult = await db.query(`
       SELECT 
         i.id,
         i.usuario_id,
@@ -77,9 +50,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         i.fecha_archivo_subido
       FROM informes i
       JOIN usuarios u ON u.id = i.usuario_id
-      WHERE i.area_id = ? AND i.año = ? AND u.estado = 'activo'
+      WHERE i.area_id = $1 AND i.año = $2 AND u.estado = 'activo'
       ORDER BY i.trimestre, u.nombre
     `, [areaId, currentYear]);
+
+    const config = configResult.rows;
+    const informes = informesResult.rows;
 
     // Crear respuesta con estado de cada trimestre
     const trimestres = config.map(trimestre => {

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import type { RowDataPacket } from "mysql2";
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,14 +12,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar que es admin
-    const [admin] = await db.query<(RowDataPacket & {
-      rol: string;
-    })[]>(
-      "SELECT rol FROM usuarios WHERE id = ? AND estado = 'activo'",
+    const adminResult = await db.query(
+      "SELECT rol FROM usuarios WHERE id = $1 AND estado = 'activo'",
       [adminUserId]
     );
 
-    if (!admin || admin.length === 0 || admin[0].rol !== 'admin') {
+    if (!adminResult.rows || adminResult.rows.length === 0 || adminResult.rows[0].rol !== 'admin') {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
@@ -31,17 +28,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar que el usuario existe
-    const [user] = await db.query<RowDataPacket[]>(
-      "SELECT id FROM usuarios WHERE id = ?",
+    const userResult = await db.query(
+      "SELECT id FROM usuarios WHERE id = $1",
       [user_id]
     );
 
-    if (!user || user.length === 0) {
+    if (!userResult.rows || userResult.rows.length === 0) {
       return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
     }
 
-    await db.execute(
-      "UPDATE usuarios SET estado = 'rechazado', updated_at = NOW() WHERE id = ?", 
+    await db.query(
+      "UPDATE usuarios SET estado = 'rechazado', updated_at = CURRENT_TIMESTAMP WHERE id = $1", 
       [user_id]
     );
     

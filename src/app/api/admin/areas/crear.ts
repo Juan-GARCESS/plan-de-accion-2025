@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import type { ResultSetHeader } from "mysql2";
 
 export async function POST(req: Request) {
   try {

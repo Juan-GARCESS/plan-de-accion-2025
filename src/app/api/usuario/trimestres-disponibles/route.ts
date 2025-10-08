@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import type { RowDataPacket } from 'mysql2';
+
 
 interface SeleccionTrimestre extends RowDataPacket {
   trimestre: number;

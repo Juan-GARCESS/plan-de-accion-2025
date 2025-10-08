@@ -14,21 +14,19 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Verificar si es el área "admin" y protegerla
-    const [areaInfo] = await db.execute(
-      "SELECT nombre_area FROM areas WHERE id = ?",
+    const areaInfoResult = await db.query(
+      "SELECT nombre_area FROM areas WHERE id = $1",
       [areaId]
     );
 
-    const areaData = areaInfo as { nombre_area: string }[];
-
-    if (areaData.length === 0) {
+    if (areaInfoResult.rows.length === 0) {
       return NextResponse.json(
         { error: "Área no encontrada" },
         { status: 404 }
       );
     }
 
-    if (areaData[0].nombre_area.toLowerCase() === 'admin') {
+    if (areaInfoResult.rows[0].nombre_area.toLowerCase() === 'admin') {
       return NextResponse.json(
         { error: "No se puede eliminar el área 'admin'" },
         { status: 403 }
@@ -36,37 +34,37 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Verificar si hay usuarios asignados a esta área
-    const [usersInArea] = await db.execute(
-      "SELECT COUNT(*) as count FROM usuarios WHERE area_id = ?",
+    const usersInAreaResult = await db.query(
+      "SELECT COUNT(*) as count FROM usuarios WHERE area_id = $1",
       [areaId]
     );
 
-    const userCount = usersInArea as { count: number }[];
+    const userCount = parseInt(usersInAreaResult.rows[0].count, 10);
 
-    if (userCount[0].count > 0) {
+    if (userCount > 0) {
       return NextResponse.json(
-        { error: `No se puede eliminar el área porque tiene ${userCount[0].count} usuario(s) asignado(s)` },
+        { error: `No se puede eliminar el área porque tiene ${userCount} usuario(s) asignado(s)` },
         { status: 400 }
       );
     }
 
     // Verificar si hay informes asociados a esta área
-    const [informesInArea] = await db.execute(
-      "SELECT COUNT(*) as count FROM informes WHERE area_id = ?",
+    const informesInAreaResult = await db.query(
+      "SELECT COUNT(*) as count FROM informes WHERE area_id = $1",
       [areaId]
     );
 
-    const informeCount = informesInArea as { count: number }[];
+    const informeCount = parseInt(informesInAreaResult.rows[0].count, 10);
 
-    if (informeCount[0].count > 0) {
+    if (informeCount > 0) {
       return NextResponse.json(
-        { error: `No se puede eliminar el área porque tiene ${informeCount[0].count} informe(s) asociado(s)` },
+        { error: `No se puede eliminar el área porque tiene ${informeCount} informe(s) asociado(s)` },
         { status: 400 }
       );
     }
 
     // Eliminar el área
-    await db.execute("DELETE FROM areas WHERE id = ?", [areaId]);
+    await db.query("DELETE FROM areas WHERE id = $1", [areaId]);
 
     return NextResponse.json({ message: "Área eliminada correctamente" });
   } catch (error) {
