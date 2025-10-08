@@ -430,25 +430,21 @@ function LoginForm() {
               fontSize: '16px',
               fontWeight: '600',
               cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: 'background-color 0.2s ease',
               position: 'relative',
               overflow: 'hidden',
-              transform: 'translateY(0)',
-              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
               width: '100%',
               marginBottom: '20px',
               fontFamily: 'inherit'
             }}
             onMouseEnter={(e) => {
               if (!loading) {
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.3)'
+                e.currentTarget.style.backgroundColor = '#1e293b'
               }
             }}
             onMouseLeave={(e) => {
               if (!loading) {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)'
+                e.currentTarget.style.backgroundColor = '#334155'
               }
             }}
           >
