@@ -8,11 +8,11 @@ export async function GET() {
               e.nombre_eje
        FROM sub_ejes se
        JOIN ejes e ON se.eje_id = e.id
-       WHERE se.activo = 1
+       WHERE se.activo = true
        ORDER BY e.nombre_eje ASC, se.fecha_creacion DESC`
     );
 
-    return NextResponse.json(subEjes);
+    return NextResponse.json(subEjesResult.rows);
   } catch (error) {
     console.error('Error fetching all sub-ejes:', error);
     return NextResponse.json(

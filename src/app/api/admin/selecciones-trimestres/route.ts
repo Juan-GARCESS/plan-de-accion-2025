@@ -1,3 +1,5 @@
+// API para gestionar ejes - GET (listar) y POST (crear)
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
@@ -13,11 +15,11 @@ export async function GET(request: NextRequest) {
 
     // Verificar que es admin
     const adminResult = await db.query(
-      "SELECT rol FROM usuarios WHERE id = ? AND estado = 'activo'",
+      "SELECT rol FROM usuarios WHERE id = $1 AND estado = 'activo'",
       [adminUserId]
     );
 
-    if (!admin || admin.length === 0 || admin[0].rol !== 'admin') {
+    if (!adminResult.rows || adminResult.rows.length === 0 || adminResult.rows[0].rol !== 'admin') {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
@@ -37,7 +39,7 @@ export async function GET(request: NextRequest) {
       JOIN usuarios us ON st.usuario_id = us.id
       LEFT JOIN areas a ON us.area_id = a.id
       WHERE us.estado = 'activo'
-        AND st.año = YEAR(NOW())
+        AND st.año = EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
       ORDER BY 
         a.nombre_area ASC,
         us.nombre ASC,
@@ -58,7 +60,7 @@ export async function GET(request: NextRequest) {
     
     const seleccionesPorArea: { [key: string]: SeleccionTrimestre[] } = {};
     
-    selecciones.forEach((seleccion) => {
+    seleccionesResult.rows.forEach((seleccion: any) => {
       const areaNombre = seleccion.area_nombre || 'Sin área asignada';
       
       if (!seleccionesPorArea[areaNombre]) {
@@ -87,14 +89,14 @@ export async function GET(request: NextRequest) {
       FROM selecciones_trimestre st
       JOIN usuarios us ON st.usuario_id = us.id
       WHERE us.estado = 'activo'
-        AND st.año = YEAR(NOW())
+        AND st.año = EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
       GROUP BY st.trimestre
       ORDER BY st.trimestre
     `);
 
     return NextResponse.json({
       selecciones_por_area: seleccionesPorArea,
-      estadisticas: estadisticas.map(stat => ({
+      estadisticas: estadisticasResult.rows.map((stat: any) => ({
         trimestre: stat.trimestre,
         total_selecciones: stat.total_selecciones,
         participando: stat.participando,

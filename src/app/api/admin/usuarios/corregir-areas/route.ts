@@ -8,7 +8,7 @@ export async function PATCH(request: NextRequest) {
       "SELECT id, nombre, area_solicitada FROM usuarios WHERE estado = 'activo' AND area_id IS NULL"
     );
 
-    const usuarios = usuariosSinArea as { id: number; nombre: string; area_solicitada: string }[];
+    const usuarios = usuariosSinAreaResult.rows as { id: number; nombre: string; area_solicitada: string }[];
     
     if (usuarios.length === 0) {
       return NextResponse.json({ message: "No hay usuarios activos sin área asignada" });
@@ -21,16 +21,16 @@ export async function PATCH(request: NextRequest) {
       if (usuario.area_solicitada) {
         // Buscar área que coincida con la solicitada
         const areaResult = await db.query(
-          "SELECT id FROM areas WHERE LOWER(nombre_area) = LOWER(?)",
+          "SELECT id FROM areas WHERE LOWER(nombre_area) = LOWER($1)",
           [usuario.area_solicitada.trim()]
         );
         
-        const areaData = area as { id: number }[];
+        const areaData = areaResult.rows as { id: number }[];
         
         if (areaData.length > 0) {
           // Asignar el área encontrada
-          await db.execute(
-            "UPDATE usuarios SET area_id = ? WHERE id = ?",
+          await db.query(
+            "UPDATE usuarios SET area_id = $1 WHERE id = $2",
             [areaData[0].id, usuario.id]
           );
           corregidos++;

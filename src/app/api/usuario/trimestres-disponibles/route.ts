@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
 
-interface SeleccionTrimestre extends RowDataPacket {
+interface SeleccionTrimestre {
   trimestre: number;
   participando: boolean;
 }
@@ -24,9 +24,11 @@ export async function GET(request: NextRequest) {
     const seleccionesResult = await db.query(`
       SELECT trimestre, participando 
       FROM selecciones_trimestre 
-      WHERE usuario_id = ? AND año = YEAR(NOW())
+      WHERE usuario_id = $1 AND año = EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
       ORDER BY trimestre
     `, [userId]);
+
+    const selecciones = seleccionesResult.rows as SeleccionTrimestre[];
 
     // Crear array con los 4 trimestres del año
     const trimestresData = [1, 2, 3, 4].map(trimestre => {

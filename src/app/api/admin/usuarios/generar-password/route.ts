@@ -24,11 +24,11 @@ export async function POST(request: NextRequest) {
 
     // Verificar que es admin
     const adminResult = await db.query(
-      "SELECT rol FROM usuarios WHERE id = ? AND estado = 'activo'",
+      "SELECT rol FROM usuarios WHERE id = $1 AND estado = 'activo'",
       [adminUserId]
     );
 
-    if (!admin || admin.length === 0 || admin[0].rol !== 'admin') {
+    if (!adminResult.rows || adminResult.rows.length === 0 || adminResult.rows[0].rol !== 'admin') {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
@@ -43,11 +43,11 @@ export async function POST(request: NextRequest) {
 
     // Verificar que el usuario existe
     const userResult = await db.query(
-      "SELECT id, nombre, email FROM usuarios WHERE id = ?",
+      "SELECT id, nombre, email FROM usuarios WHERE id = $1",
       [user_id]
     );
 
-    if (!user || user.length === 0) {
+    if (!userResult.rows || userResult.rows.length === 0) {
       return NextResponse.json(
         { error: "Usuario no encontrado" },
         { status: 404 }
@@ -59,15 +59,15 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Actualizar la contraseña en la base de datos
-    await db.execute(
-      "UPDATE usuarios SET password = ?, updated_at = NOW() WHERE id = ?",
+    await db.query(
+      "UPDATE usuarios SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2",
       [hashedPassword, user_id]
     );
 
     return NextResponse.json({ 
       message: "Contraseña generada correctamente",
       password: newPassword,
-      user: user[0]
+      user: userResult.rows[0]
     });
   } catch (error) {
     console.error("Error al generar contraseña:", error);

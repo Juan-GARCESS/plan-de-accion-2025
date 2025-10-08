@@ -9,12 +9,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Nombre de área requerido" }, { status: 400 });
     }
 
-    const resultResult = await db.query(
-      "INSERT INTO areas (nombre_area, descripcion) VALUES (?, ?)",
+    const result = await db.query(
+      "INSERT INTO areas (nombre_area, descripcion) VALUES ($1, $2) RETURNING id",
       [nombre_area, descripcion || null]
     );
 
-    return NextResponse.json({ message: "Área creada", areaId: result.insertId }, { status: 201 });
+    return NextResponse.json({ message: "Área creada", areaId: result.rows[0].id }, { status: 201 });
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : String(error);
     console.error("Error crear área:", error);

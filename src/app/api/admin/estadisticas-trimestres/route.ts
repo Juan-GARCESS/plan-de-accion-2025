@@ -13,11 +13,11 @@ export async function GET(req: Request) {
 
     // Verificar que es admin
     const adminResult = await db.query(
-      "SELECT rol FROM usuarios WHERE id = ? AND estado = 'activo'",
+      "SELECT rol FROM usuarios WHERE id = $1 AND estado = 'activo'",
       [userId]
     );
 
-    if (!admin || admin.length === 0 || admin[0].rol !== 'admin') {
+    if (!adminResult.rows || adminResult.rows.length === 0 || adminResult.rows[0].rol !== 'admin') {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
@@ -40,13 +40,13 @@ export async function GET(req: Request) {
       FROM config_envios ce
       LEFT JOIN usuarios u ON u.rol = 'usuario' AND u.estado = 'activo' AND u.area_id IS NOT NULL
       LEFT JOIN informes i ON i.usuario_id = u.id AND i.trimestre = ce.trimestre AND i.año = ce.año
-      WHERE ce.año = ?
+      WHERE ce.año = $1
       GROUP BY ce.trimestre, ce.año, ce.fecha_inicio, ce.fecha_fin
       ORDER BY ce.trimestre
     `, [currentYear]);
 
     return NextResponse.json({ 
-      estadisticas: estadisticas || []
+      estadisticas: estadisticasResult.rows || []
     });
   } catch (err) {
     console.error("Error al obtener estadísticas:", err);

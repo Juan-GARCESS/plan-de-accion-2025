@@ -1,3 +1,5 @@
+// src/app/api/usuario/trimestres/route.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
@@ -14,11 +16,11 @@ export async function GET(request: NextRequest) {
 
     // Obtener información del usuario
     const userResult = await db.query(
-      "SELECT id, area_id, nombre, estado FROM usuarios WHERE id = ? AND rol = 'usuario'",
+      "SELECT id, area_id, nombre, estado FROM usuarios WHERE id = $1 AND rol = 'usuario'",
       [userId]
     );
 
-    const userData = user as { id: number; area_id: number; nombre: string; estado: string }[];
+    const userData = userResult.rows as { id: number; area_id: number; nombre: string; estado: string }[];
     
     if (userData.length === 0 || userData[0].estado !== 'activo' || !userData[0].area_id) {
       return NextResponse.json({ 
@@ -32,11 +34,11 @@ export async function GET(request: NextRequest) {
 
     // Obtener configuración de trimestres
     const configResult = await db.query(
-      "SELECT * FROM config_envios WHERE año = ? ORDER BY trimestre",
+      "SELECT * FROM config_envios WHERE año = $1 ORDER BY trimestre",
       [currentYear]
     );
 
-    const configData = config as {
+    const configData = configResult.rows as {
       id: number;
       trimestre: number;
       año: number;
@@ -50,11 +52,11 @@ export async function GET(request: NextRequest) {
 
     // Obtener informes existentes del usuario
     const informesResult = await db.query(
-      "SELECT * FROM informes WHERE usuario_id = ? AND año = ?",
+      "SELECT * FROM informes WHERE usuario_id = $1 AND año = $2",
       [userId, currentYear]
     );
 
-    const informesData = informes as {
+    const informesData = informesResult.rows as {
       id: number;
       usuario_id: number;
       area_id: number;
@@ -142,11 +144,11 @@ export async function POST(request: NextRequest) {
 
     // Obtener información del usuario
     const userResult = await db.query(
-      "SELECT id, area_id, nombre, estado FROM usuarios WHERE id = ? AND rol = 'usuario'",
+      "SELECT id, area_id, nombre, estado FROM usuarios WHERE id = $1 AND rol = 'usuario'",
       [userId]
     );
 
-    const userData = user as { id: number; area_id: number; nombre: string; estado: string }[];
+    const userData = userResult.rows as { id: number; area_id: number; nombre: string; estado: string }[];
     
     if (userData.length === 0 || userData[0].estado !== 'activo' || !userData[0].area_id) {
       return NextResponse.json({ 
@@ -176,11 +178,11 @@ export async function POST(request: NextRequest) {
 
     // Verificar que el trimestre está disponible para configuración
     const configResult = await db.query(
-      "SELECT * FROM config_envios WHERE año = ? AND trimestre = ?",
+      "SELECT * FROM config_envios WHERE año = $1 AND trimestre = $2",
       [currentYear, trimestre]
     );
 
-    const configData = config as {
+    const configData = configResult.rows as {
       id: number;
       trimestre: number;
       año: number;
@@ -231,30 +233,30 @@ export async function POST(request: NextRequest) {
       // Crear informe si el usuario dice que participará
       // Verificar si ya existe un informe para este trimestre
       const existingReportResult = await db.query(
-        "SELECT id FROM informes WHERE usuario_id = ? AND area_id = ? AND trimestre = ? AND año = ?",
+        "SELECT id FROM informes WHERE usuario_id = $1 AND area_id = $2 AND trimestre = $3 AND año = $4",
         [userId, currentUser.area_id, trimestre, currentYear]
       );
 
-      const existingData = existingReport as { id: number }[];
+      const existingData = existingReportResult.rows as { id: number }[];
 
       if (existingData.length === 0) {
         // Crear nuevo informe
         await db.query(
           `INSERT INTO informes (usuario_id, area_id, trimestre, año, meta_trimestral, estado) 
-           VALUES (?, ?, ?, ?, '', 'esperando_meta')`,
+           VALUES ($1, $2, $3, $4, '', 'esperando_meta')`,
           [userId, currentUser.area_id, trimestre, currentYear]
         );
       } else {
         // Actualizar estado si existe
         await db.query(
-          "UPDATE informes SET estado = 'esperando_meta' WHERE id = ?",
+          "UPDATE informes SET estado = 'esperando_meta' WHERE id = $1",
           [existingData[0].id]
         );
       }
     } else {
       // Eliminar informe si el usuario dice que no participará
       await db.query(
-        "DELETE FROM informes WHERE usuario_id = ? AND area_id = ? AND trimestre = ? AND año = ?",
+        "DELETE FROM informes WHERE usuario_id = $1 AND area_id = $2 AND trimestre = $3 AND año = $4",
         [userId, currentUser.area_id, trimestre, currentYear]
       );
     }

@@ -2,7 +2,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import type { RowDataPacket } from 'mysql2';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export async function GET(
   request: NextRequest,
@@ -19,11 +20,11 @@ export async function GET(
     }
 
     // 🔍 Verificar que el usuario es admin
-    const [adminCheck] = await db.query<RowDataPacket[]>(`
-      SELECT rol FROM usuarios WHERE id = ?
+    const adminCheckResult = await db.query(`
+      SELECT rol FROM usuarios WHERE id = $1
     `, [userId]);
 
-    if (adminCheck.length === 0 || adminCheck[0].rol !== 'admin') {
+    if (adminCheckResult.rows.length === 0 || adminCheckResult.rows[0].rol !== 'admin') {
       return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
     }
 
@@ -31,7 +32,7 @@ export async function GET(
   const areaId = parseInt(id, 10);
 
     // 📊 Obtener usuarios del área con sus selecciones de trimestre y metas
-    const [usuarios] = await db.query<RowDataPacket[]>(`
+    const usuariosResult = await db.query(`
       SELECT 
         u.id,
         u.nombre,
@@ -48,15 +49,15 @@ export async function GET(
         MAX(CASE WHEN m.trimestre = 3 THEN m.meta_texto END) as meta3,
         MAX(CASE WHEN m.trimestre = 4 THEN m.meta_texto END) as meta4
       FROM usuarios u
-      LEFT JOIN selecciones_trimestre st ON u.id = st.usuario_id AND st.año = YEAR(NOW())
-      LEFT JOIN metas_trimestrales m ON u.id = m.usuario_id AND m.año = YEAR(NOW())
-      WHERE u.area_id = ? AND u.estado = 'activo' AND u.rol = 'usuario'
+      LEFT JOIN selecciones_trimestre st ON u.id = st.usuario_id AND st.año = EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
+      LEFT JOIN metas_trimestrales m ON u.id = m.usuario_id AND m.año = EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
+      WHERE u.area_id = $1 AND u.estado = 'activo' AND u.rol = 'usuario'
       GROUP BY u.id, u.nombre, u.email, u.area_id
       ORDER BY u.nombre
     `, [areaId]);
 
-    // Convertir valores TINYINT a boolean para las selecciones de trimestre
-    const usuariosFormateados = usuarios.map(user => ({
+    // Convertir valores booleanos para las selecciones de trimestre
+    const usuariosFormateados = usuariosResult.rows.map((user: any) => ({
       ...user,
       trimestre1: !!user.trimestre1,
       trimestre2: !!user.trimestre2,

@@ -8,13 +8,13 @@ export async function GET() {
       `SELECT e.id, e.nombre_eje, e.descripcion, e.fecha_creacion,
               COUNT(se.id) as total_sub_ejes
        FROM ejes e 
-       LEFT JOIN sub_ejes se ON e.id = se.eje_id AND se.activo = 1
-       WHERE e.activo = 1 
+       LEFT JOIN sub_ejes se ON e.id = se.eje_id AND se.activo = true
+       WHERE e.activo = true 
        GROUP BY e.id, e.nombre_eje, e.descripcion, e.fecha_creacion
        ORDER BY e.fecha_creacion DESC`
     );
 
-    return NextResponse.json(ejes);
+    return NextResponse.json(ejesResult.rows);
   } catch (error) {
     console.error('Error fetching ejes:', error);
     return NextResponse.json(
@@ -37,11 +37,11 @@ export async function POST(request: NextRequest) {
 
     // Verificar si el eje ya existe
     const existingEjeResult = await db.query(
-      'SELECT id FROM ejes WHERE nombre_eje = ? AND activo = 1',
+      'SELECT id FROM ejes WHERE nombre_eje = $1 AND activo = true',
       [nombre_eje.trim()]
     );
 
-    if ((existingEje as unknown[]).length > 0) {
+    if (existingEjeResult.rows.length > 0) {
       return NextResponse.json(
         { error: 'Ya existe un eje con ese nombre' },
         { status: 400 }
@@ -49,20 +49,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Crear el nuevo eje
-    const resultResult = await db.query(
-      'INSERT INTO ejes (nombre_eje, descripcion) VALUES (?, ?)',
+    const result = await db.query(
+      'INSERT INTO ejes (nombre_eje, descripcion) VALUES ($1, $2) RETURNING id',
       [nombre_eje.trim(), descripcion || null]
     );
 
     // Obtener el eje creado
     const nuevoEjeResult = await db.query(
-      'SELECT * FROM ejes WHERE id = ?',
-      [(result as { insertId: number }).insertId]
+      'SELECT * FROM ejes WHERE id = $1',
+      [result.rows[0].id]
     );
 
     return NextResponse.json({
       message: 'Eje creado exitosamente',
-      eje: (nuevoEje as unknown[])[0]
+      eje: nuevoEjeResult.rows[0]
     }, { status: 201 });
 
   } catch (error) {
@@ -87,11 +87,11 @@ export async function PUT(request: NextRequest) {
 
     // Verificar que el eje existe
     const existingEjeResult = await db.query(
-      'SELECT id FROM ejes WHERE id = ? AND activo = 1',
+      'SELECT id FROM ejes WHERE id = $1 AND activo = true',
       [id]
     );
 
-    if ((existingEje as unknown[]).length === 0) {
+    if (existingEjeResult.rows.length === 0) {
       return NextResponse.json(
         { error: 'El eje especificado no existe' },
         { status: 404 }
@@ -100,11 +100,11 @@ export async function PUT(request: NextRequest) {
 
     // Verificar si ya existe otro eje con el mismo nombre
     const duplicateEjeResult = await db.query(
-      'SELECT id FROM ejes WHERE nombre_eje = ? AND id != ? AND activo = 1',
+      'SELECT id FROM ejes WHERE nombre_eje = $1 AND id != $2 AND activo = true',
       [nombre_eje.trim(), id]
     );
 
-    if ((duplicateEje as unknown[]).length > 0) {
+    if (duplicateEjeResult.rows.length > 0) {
       return NextResponse.json(
         { error: 'Ya existe un eje con ese nombre' },
         { status: 400 }
@@ -112,8 +112,8 @@ export async function PUT(request: NextRequest) {
     }
 
     // Actualizar el eje
-    await db.execute(
-      'UPDATE ejes SET nombre_eje = ?, descripcion = ? WHERE id = ?',
+    await db.query(
+      'UPDATE ejes SET nombre_eje = $1, descripcion = $2 WHERE id = $3',
       [nombre_eje.trim(), descripcion || null, id]
     );
 
@@ -144,11 +144,11 @@ export async function DELETE(request: NextRequest) {
 
     // Verificar que el eje existe
     const existingEjeResult = await db.query(
-      'SELECT id FROM ejes WHERE id = ? AND activo = 1',
+      'SELECT id FROM ejes WHERE id = $1 AND activo = true',
       [id]
     );
 
-    if ((existingEje as unknown[]).length === 0) {
+    if (existingEjeResult.rows.length === 0) {
       return NextResponse.json(
         { error: 'El eje especificado no existe' },
         { status: 404 }
@@ -157,11 +157,11 @@ export async function DELETE(request: NextRequest) {
 
     // Verificar si tiene sub-ejes activos
     const subEjesResult = await db.query(
-      'SELECT id FROM sub_ejes WHERE eje_id = ? AND activo = 1',
+      'SELECT id FROM sub_ejes WHERE eje_id = $1 AND activo = true',
       [id]
     );
 
-    if ((subEjes as unknown[]).length > 0) {
+    if (subEjesResult.rows.length > 0) {
       return NextResponse.json(
         { error: 'No se puede eliminar el eje porque tiene sub-ejes asociados' },
         { status: 400 }
@@ -170,11 +170,11 @@ export async function DELETE(request: NextRequest) {
 
     // Verificar si está asignado a áreas
     const areaEjesResult = await db.query(
-      'SELECT id FROM area_ejes WHERE eje_id = ?',
+      'SELECT id FROM area_ejes WHERE eje_id = $1',
       [id]
     );
 
-    if ((areaEjes as unknown[]).length > 0) {
+    if (areaEjesResult.rows.length > 0) {
       return NextResponse.json(
         { error: 'No se puede eliminar el eje porque está asignado a áreas' },
         { status: 400 }
@@ -182,8 +182,8 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Eliminar (marcar como inactivo)
-    await db.execute(
-      'UPDATE ejes SET activo = 0 WHERE id = ?',
+    await db.query(
+      'UPDATE ejes SET activo = false WHERE id = $1',
       [id]
     );
 
