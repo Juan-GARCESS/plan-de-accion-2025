@@ -1,18 +1,5 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import type { RowDataPacket } from "mysql2";
-
-interface UsuarioRow extends RowDataPacket {
-  id: number;
-  nombre: string;
-  email: string;
-  estado: string;
-  area_id: number | null;
-}
-
-interface AreaRow extends RowDataPacket {
-  nombre: string;
-}
 
 export async function GET(req: Request) {
   try {
@@ -29,24 +16,24 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: "No autenticado" }, { status: 401 });
     }
 
-    const [rows] = await db.query<UsuarioRow[]>(
-      "SELECT id, nombre, email, estado, area_id FROM usuarios WHERE id = ?",
+    const result = await db.query(
+      "SELECT id, nombre, email, estado, area_id FROM usuarios WHERE id = $1",
       [userId]
     );
 
-    if (rows.length === 0) {
+    if (result.rows.length === 0) {
       return NextResponse.json({ message: "Usuario no encontrado" }, { status: 404 });
     }
 
-    const usuario = rows[0];
+    const usuario = result.rows[0];
 
     let area: string | null = null;
     if (usuario.area_id) {
-      const [areas] = await db.query<AreaRow[]>(
-        "SELECT nombre FROM areas WHERE id = ?",
+      const areaResult = await db.query(
+        "SELECT nombre_area FROM areas WHERE id = $1",
         [usuario.area_id]
       );
-      area = areas?.[0]?.nombre ?? null;
+      area = areaResult.rows?.[0]?.nombre_area ?? null;
     }
 
     return NextResponse.json(

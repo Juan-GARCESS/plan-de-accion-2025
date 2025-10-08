@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { PlanAccionTable } from '@/components/admin/PlanAccionTable';
 import { createCardStyle, colors, spacing } from '@/lib/styleUtils';
 import { UserDashboardLayout } from '@/components/user/UserDashboardLayout';
+import { EjeSeguimientoMatrix } from '@/components/seguimiento/EjeSeguimientoMatrix';
 
 export default function UserPlanAccionPage() {
   const router = useRouter();
@@ -85,6 +86,7 @@ export default function UserPlanAccionPage() {
       </div>
       <div style={{ padding: spacing.lg }}>
         <PlanAccionTable areaId={areaId} areaName={areaName} isAdmin={false} />
+        <EjeSeguimientoMatrix areaId={areaId} editable={true} />
       </div>
     </UserDashboardLayout>
   );

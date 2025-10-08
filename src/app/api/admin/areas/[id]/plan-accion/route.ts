@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import type { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 // GET - Obtener plan de acción para un área
 export async function GET(
@@ -33,44 +32,34 @@ export async function GET(
         pa.eje_id = e.id AND 
         pa.sub_eje_id = se.id
       )
-      WHERE ae.area_id = ? 
-        AND ae.activo = 1 
-        AND e.activo = 1 
-        AND se.activo = 1
+      WHERE ae.area_id = $1
+        AND ae.activo = true
+        AND e.activo = true
+        AND se.activo = true
       ORDER BY e.nombre_eje, se.nombre_sub_eje
     `;
 
-    const [result] = await db.query<Array<{
-      id: number | null;
-      area_id: number;
-      eje_id: number;
-      sub_eje_id: number;
-      eje_nombre: string;
-      sub_eje_nombre: string;
-      meta: string | null;
-      indicador: string | null;
-      accion: string | null;
-      presupuesto: number | null;
-    }> & RowDataPacket[]>(query, [areaId]);
+    const result = await db.query(query, [areaId]);
 
     // Si hay filas sin plan_accion (id es null), crear registros
     const dataWithIds = [];
-    for (const row of result) {
+    for (const row of result.rows) {
       if (!row.id) {
         // Crear registro en plan_accion
         const insertQuery = `
           INSERT INTO plan_accion (area_id, eje_id, sub_eje_id, meta, indicador, accion, presupuesto)
-          VALUES (?, ?, ?, NULL, NULL, NULL, NULL)
+          VALUES ($1, $2, $3, NULL, NULL, NULL, NULL)
+          RETURNING id
         `;
         
-        const [insertResult] = await db.query<ResultSetHeader>(insertQuery, [
+        const insertResult = await db.query(insertQuery, [
           areaId,
           row.eje_id,
           row.sub_eje_id
         ]);
 
         dataWithIds.push({
-          id: insertResult.insertId,
+          id: insertResult.rows[0].id,
           area_id: areaId,
           eje_id: row.eje_id,
           sub_eje_id: row.sub_eje_id,
@@ -117,8 +106,8 @@ export async function PUT(request: NextRequest) {
     // Construir la consulta de actualización
     const query = `
       UPDATE plan_accion 
-      SET ${field} = ?, fecha_actualizacion = NOW()
-      WHERE id = ?
+      SET ${field} = $1, fecha_actualizacion = CURRENT_TIMESTAMP
+      WHERE id = $2
     `;
 
     await db.query(query, [value, id]);

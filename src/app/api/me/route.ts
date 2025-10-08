@@ -1,7 +1,6 @@
 // src/app/api/me/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import type { RowDataPacket } from "mysql2";
 
 export async function GET(req: Request) {
   try {
@@ -11,32 +10,25 @@ export async function GET(req: Request) {
 
     if (!userId) return NextResponse.json({ error: "No logueado" }, { status: 401 });
 
-    const [usuarios] = await db.query<(RowDataPacket & {
-      id: number;
-      nombre: string;
-      email: string;
-      area_id: number | null;
-      estado: string;
-      rol: string;
-    })[]>(
-      "SELECT id, nombre, email, estado, area_id, rol FROM usuarios WHERE id = ?",
+    const result = await db.query(
+      "SELECT id, nombre, email, estado, area_id, rol FROM usuarios WHERE id = $1",
       [userId]
     );
 
-    if (!usuarios || usuarios.length === 0 || usuarios[0].estado !== "activo") {
+    if (!result.rows || result.rows.length === 0 || result.rows[0].estado !== "activo") {
       return NextResponse.json({ error: "Usuario no activo" }, { status: 401 });
     }
 
-    const usuario = usuarios[0];
+    const usuario = result.rows[0];
 
     // Traer nombre del área si existe
     let area: string | null = null;
     if (usuario.area_id) {
-      const [areas] = await db.query<(RowDataPacket & { nombre_area: string })[]>(
-        "SELECT nombre_area FROM areas WHERE id = ?",
+      const areaResult = await db.query(
+        "SELECT nombre_area FROM areas WHERE id = $1",
         [usuario.area_id]
       );
-      area = areas[0]?.nombre_area ?? null;
+      area = areaResult.rows[0]?.nombre_area ?? null;
     }
 
     return NextResponse.json({ usuario, area });

@@ -85,7 +85,9 @@ export const PlanAccionTable: React.FC<PlanAccionTableProps> = ({
         body: JSON.stringify({
           id: editingCell.id,
           field: editingCell.field,
-          value: editingCell.field === 'presupuesto' ? parseFloat(editValue) || null : editValue || null
+          value: editingCell.field === 'presupuesto'
+            ? (Number(String(editValue).replace(/[^0-9.]/g, '')) || null)
+            : (editValue || null)
         }),
       });
 
@@ -93,7 +95,9 @@ export const PlanAccionTable: React.FC<PlanAccionTableProps> = ({
         // Actualizar datos localmente
         setData(prev => prev.map(item => 
           item.id === editingCell.id 
-            ? { ...item, [editingCell.field]: editingCell.field === 'presupuesto' ? parseFloat(editValue) || null : editValue || null }
+      ? { ...item, [editingCell.field]: editingCell.field === 'presupuesto'
+        ? (Number(String(editValue).replace(/[^0-9.]/g, '')) || null)
+        : (editValue || null) }
             : item
         ));
       } else {
@@ -132,7 +136,9 @@ export const PlanAccionTable: React.FC<PlanAccionTableProps> = ({
     
     if (field === 'meta' || field === 'indicador') {
       canEdit = isAdmin;
-      emptyMessage = 'Doble clic para editar';
+      emptyMessage = isAdmin
+        ? 'Doble clic para editar'
+        : 'El administrador no ha agregado información';
     } else if (field === 'accion') {
       canEdit = !isAdmin; // Solo usuarios normales pueden editar acción
       emptyMessage = isAdmin 
@@ -171,7 +177,10 @@ export const PlanAccionTable: React.FC<PlanAccionTableProps> = ({
         return (
           <input
             ref={editInputRef as React.RefObject<HTMLInputElement>}
-            type={field === 'presupuesto' ? 'number' : 'text'}
+            // Usar input de texto para evitar flechas de incremento en presupuesto
+            type={field === 'presupuesto' ? 'text' : 'text'}
+            inputMode={field === 'presupuesto' ? 'numeric' : undefined}
+            pattern={field === 'presupuesto' ? '[0-9]*' : undefined}
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
             onBlur={saveEdit}
@@ -188,9 +197,11 @@ export const PlanAccionTable: React.FC<PlanAccionTableProps> = ({
       }
     }
 
-    const displayValue = value ? 
-      (field === 'presupuesto' ? `$${Number(value).toLocaleString()}` : value) : 
-      emptyMessage;
+    const displayValue = value != null && value !== '' ? 
+      (field === 'presupuesto'
+        ? `$${Number(String(value).replace(/[^0-9.]/g, '') || '0').toLocaleString()}`
+        : value)
+      : emptyMessage;
 
     return (
       <div

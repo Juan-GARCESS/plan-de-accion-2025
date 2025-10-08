@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
-import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 export async function POST(req: Request) {
   try {
@@ -14,11 +13,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const [rows] = await db.query<RowDataPacket[]>(
-      "SELECT id FROM usuarios WHERE email = ?",
+    const result = await db.query(
+      "SELECT id FROM usuarios WHERE email = $1",
       [email]
     );
-    if (rows.length > 0) {
+    if (result.rows.length > 0) {
       return NextResponse.json(
         { message: "El usuario ya existe" },
         { status: 409 }
@@ -27,13 +26,13 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const [result] = await db.query<ResultSetHeader>(
-      "INSERT INTO usuarios (email, password, nombre, area_solicitada, rol, estado) VALUES (?, ?, ?, ?, 'usuario', 'pendiente')",
+    const insertResult = await db.query(
+      "INSERT INTO usuarios (email, password, nombre, area_solicitada, rol, estado) VALUES ($1, $2, $3, $4, 'usuario', 'pendiente') RETURNING id",
       [email, hashedPassword, nombre, area_solicitada]
     );
 
     return NextResponse.json(
-      { message: "Usuario registrado, esperando aprobación del admin", userId: result.insertId },
+      { message: "Usuario registrado, esperando aprobación del admin", userId: insertResult.rows[0].id },
       { status: 201 }
     );
   } catch (error) {

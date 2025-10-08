@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
-import type { RowDataPacket } from "mysql2";
 
 export async function POST(req: Request) {
   try {
@@ -14,16 +13,16 @@ export async function POST(req: Request) {
       );
     }
 
-    const [rows] = await db.query<RowDataPacket[]>(
-      "SELECT id, email, password, rol, estado, area_id, area_solicitada, nombre FROM usuarios WHERE email = ?",
+    const result = await db.query(
+      "SELECT id, email, password, rol, estado, area_id, area_solicitada, nombre FROM usuarios WHERE email = $1",
       [email]
     );
 
-    if (rows.length === 0) {
+    if (result.rows.length === 0) {
       return NextResponse.json({ message: "Usuario no encontrado" }, { status: 404 });
     }
 
-    const user = rows[0];
+    const user = result.rows[0];
 
     if (user.estado === "pendiente") {
       return NextResponse.json({ message: "Cuenta pendiente de aprobación" }, { status: 403 });
