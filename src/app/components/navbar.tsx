@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useResponsive } from "@/hooks/useResponsive";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export default function Navbar() {
   const router = useRouter();
@@ -62,11 +63,14 @@ export default function Navbar() {
           flexDirection: isMobile ? 'column' : 'row'
         }}>
           <span style={{
-            color: '#6b7280',
-            fontSize: '0.875rem'
+            color: '#111827',
+            fontSize: '0.875rem',
+            fontWeight: '500'
           }}>
             👋 {user.nombre}
           </span>
+          
+          <ThemeToggle />
           
           {user.rol === 'admin' && (
             <button
