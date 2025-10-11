@@ -62,10 +62,18 @@ export const TrimestreTable: React.FC<TrimestreTableProps> = ({
         if (!res.ok) throw new Error('Error al verificar trimestre');
         const data = await res.json();
         
+        console.log('📊 Datos del plan de acción:', data.data);
+        
         // Verificar si AL MENOS UNA fila tiene el trimestre marcado
         const trimestreKey = `t${trimestreId}` as 't1' | 't2' | 't3' | 't4';
-        const algunoMarcado = data.data?.some((row: any) => row[trimestreKey] === true);
+        console.log(`🔍 Buscando columna: ${trimestreKey}`);
         
+        const algunoMarcado = data.data?.some((row: any) => {
+          console.log(`Fila ID ${row.id}: ${trimestreKey} = ${row[trimestreKey]}`);
+          return row[trimestreKey] === true;
+        });
+        
+        console.log(`✅ Resultado: trimestre habilitado = ${algunoMarcado}`);
         setTrimestreHabilitado(algunoMarcado || false);
       } catch (error) {
         console.error('Error al verificar trimestre:', error);
@@ -157,10 +165,10 @@ export const TrimestreTable: React.FC<TrimestreTableProps> = ({
         textAlign: 'center'
       }}>
         <span style={{ fontSize: '3rem', marginBottom: 16, display: 'block' }}>🔒</span>
-        <h3 style={{ margin: 0, marginBottom: 8, color: colors.gray[800] }}>
+        <h3 style={{ margin: '0 0 8px 0', color: colors.gray[800] }}>
           Trimestre no habilitado
         </h3>
-        <p style={{ margin: 0, color: colors.gray[600], fontSize: '0.875rem', marginBottom: 16 }}>
+        <p style={{ margin: '0 0 16px 0', color: colors.gray[600], fontSize: '0.875rem' }}>
           Debes marcar el checkbox de este trimestre (T{trimestreId}) en tu Plan de Acción para poder enviar evidencias.
         </p>
         <button
