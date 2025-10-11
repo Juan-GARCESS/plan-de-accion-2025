@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     // Obtener información del usuario y área
     const userInfoResult = await db.query(
-      "SELECT u.email, u.nombre, a.nombre as area_nombre FROM usuarios u JOIN areas a ON a.id = $1 WHERE u.id = $2",
+      "SELECT u.email, u.nombre, a.nombre_area as area_nombre FROM usuarios u JOIN areas a ON a.id = $1 WHERE u.id = $2",
       [area_id, user_id]
     );
 

@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         um.id,
         um.plan_accion_id as meta_id,
         u.nombre as usuario_nombre,
-        a.nombre as area_nombre,
+        a.nombre_area as area_nombre,
         um.trimestre,
         pa.meta,
         pa.indicador,
