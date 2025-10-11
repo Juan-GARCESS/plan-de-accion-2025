@@ -19,6 +19,8 @@ import type { Usuario, Area } from '@/types';
 interface UsersSectionProps {
   usuarios: Usuario[];
   areas: Area[];
+  onApprove: (userId: number, areaId: number) => Promise<void>;
+  onReject: (userId: number) => Promise<void>;
   onEdit: (userId: number, userData: { nombre: string; email: string; password?: string; area_id?: number }) => Promise<void>;
   onDelete: (userId: number) => Promise<void>;
   onGeneratePassword: (userId: number) => Promise<string>;
@@ -27,6 +29,8 @@ interface UsersSectionProps {
 export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
   usuarios,
   areas,
+  onApprove,
+  onReject,
   onEdit,
   onDelete,
   onGeneratePassword,
@@ -38,8 +42,10 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
     password: '',
     area_id: 0
   });
+  const [approvalAreaId, setApprovalAreaId] = useState<{[key: number]: number}>({});
   const [generatedPassword, setGeneratedPassword] = useState<string>('');
   
+  const usuariosPendientes = usuarios.filter(u => u.estado === 'pendiente');
   const usuariosAprobados = usuarios.filter(u => u.estado === 'activo');
   
   // Separar admin y otros usuarios, admin siempre primero
@@ -146,6 +152,18 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
     minWidth: '60px',
   };
 
+  const approveButtonStyle = {
+    ...actionButtonStyle,
+    backgroundColor: colors.gray[800],
+    color: 'white',
+  };
+
+  const rejectButtonStyle = {
+    ...actionButtonStyle,
+    backgroundColor: colors.gray[500],
+    color: 'white',
+  };
+
   const editButtonStyle = {
     ...actionButtonStyle,
     backgroundColor: colors.gray[700],
@@ -238,6 +256,44 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
     }
   };
 
+  const handleApprove = async (userId: number) => {
+    const areaId = approvalAreaId[userId];
+    if (!areaId || areaId === 0) {
+      toast.warning('Selecciona un área', {
+        description: 'Debes asignar un área antes de aprobar al usuario.'
+      });
+      return;
+    }
+    try {
+      await onApprove(userId, areaId);
+      const user = usuarios.find(u => u.id === userId);
+      toast.success('¡Usuario aprobado!', {
+        description: `${user?.nombre || 'El usuario'} ha sido aprobado y notificado.`
+      });
+      setApprovalAreaId(prev => ({ ...prev, [userId]: 0 }));
+    } catch (error) {
+      toast.error('Error al aprobar usuario', {
+        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+      });
+    }
+  };
+
+  const handleReject = async (userId: number) => {
+    const user = usuarios.find(u => u.id === userId);
+    if (!confirm(`¿Rechazar la solicitud de ${user?.nombre}?`)) return;
+    
+    try {
+      await onReject(userId);
+      toast.success('Solicitud rechazada', {
+        description: `${user?.nombre} ha sido notificado del rechazo.`
+      });
+    } catch (error) {
+      toast.error('Error al rechazar usuario', {
+        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+      });
+    }
+  };
+
   const handleDelete = async (userId: number) => {
     const user = usuarios.find(u => u.id === userId);
     if (!confirm(`¿Eliminar a ${user?.nombre}? Esta acción no se puede deshacer.`)) return;
@@ -274,6 +330,94 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
   return (
     <div style={containerStyle}>
       <h2 style={headerStyle}>Gestión de Usuarios</h2>
+      
+      {/* Usuarios Pendientes */}
+      <div style={{ marginBottom: spacing.xl }}>
+        <h3 style={sectionHeaderStyle}>
+          Usuarios Pendientes de Aprobación ({usuariosPendientes.length})
+        </h3>
+        
+        {usuariosPendientes.length === 0 ? (
+          <div style={{
+            ...createCardStyle('padded'),
+            textAlign: 'center',
+            color: colors.gray[500]
+          }}>
+            No hay usuarios pendientes de aprobación
+          </div>
+        ) : (
+          <div style={tableContainerStyle}>
+            <table style={tableStyle}>
+              <thead style={tableHeaderStyle}>
+                <tr>
+                  <th style={tableHeaderCellStyle}>Usuario</th>
+                  <th style={tableHeaderCellStyle}>Email</th>
+                  <th style={tableHeaderCellStyle}>Fecha Registro</th>
+                  <th style={tableHeaderCellStyle}>Área Asignada</th>
+                  <th style={tableHeaderCellStyle}>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {usuariosPendientes.map((usuario) => (
+                  <tr key={usuario.id} style={tableRowStyle}>
+                    <td style={tableCellStyle}>
+                      <div style={{ fontWeight: '600', color: colors.gray[900] }}>
+                        {usuario.nombre}
+                      </div>
+                    </td>
+                    <td style={tableCellStyle}>
+                      <div style={{ color: colors.gray[600] }}>
+                        {usuario.email}
+                      </div>
+                    </td>
+                    <td style={tableCellStyle}>
+                      <div style={{ ...stylePresets.text.small, color: colors.gray[500] }}>
+                        {new Date().toLocaleDateString('es-ES')}
+                      </div>
+                    </td>
+                    <td style={{ 
+                      ...tableCellStyle,
+                      position: 'relative'
+                    }}>
+                      <SearchableSelect
+                        options={areas.map(area => ({
+                          value: area.id,
+                          label: area.nombre_area
+                        }))}
+                        value={approvalAreaId[usuario.id] || 0}
+                        onChange={(areaId) => setApprovalAreaId(prev => ({
+                          ...prev,
+                          [usuario.id]: areaId
+                        }))}
+                        placeholder="Seleccionar área"
+                        style={{
+                          fontSize: '0.75rem',
+                        }}
+                      />
+                    </td>
+                    <td style={tableCellStyle}>
+                      <div style={buttonGroupStyle}>
+                        <button
+                          onClick={() => handleApprove(usuario.id)}
+                          style={approveButtonStyle}
+                        >
+                          Aprobar
+                        </button>
+                        <button
+                          onClick={() => handleReject(usuario.id)}
+                          style={rejectButtonStyle}
+                        >
+                          Rechazar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {/* Usuarios Aprobados */}
       <div>
