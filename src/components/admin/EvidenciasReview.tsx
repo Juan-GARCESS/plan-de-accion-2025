@@ -80,10 +80,10 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          meta_id: selectedEvidencia.meta_id,
+          meta_id: selectedEvidencia.id,
           calificacion: aprobar ? calificacion : 0,
           comentario: comentario || null,
-          estado: aprobar ? 'aprobada' : 'rechazada'
+          estado: aprobar ? 'aprobado' : 'rechazado'
         })
       });
 
@@ -101,7 +101,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
               ...e,
               calificacion: aprobar ? calificacion : 0,
               comentario_admin: comentario || null,
-              estado_calificacion: aprobar ? 'aprobada' : 'rechazada'
+              estado_calificacion: aprobar ? 'aprobado' : 'rechazado'
             }
           : e
       ));
@@ -135,8 +135,8 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
   };
 
   const evidenciasFiltradas = evidencias.filter(e => {
-    if (filter === 'pendientes') return !e.estado_calificacion;
-    if (filter === 'calificadas') return e.estado_calificacion;
+    if (filter === 'pendientes') return e.estado_calificacion === 'pendiente' || !e.estado_calificacion;
+    if (filter === 'calificadas') return e.estado_calificacion === 'aprobado' || e.estado_calificacion === 'rechazado';
     return true;
   });
 
@@ -173,8 +173,8 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
             }}
           >
             {f} ({evidencias.filter(e => {
-              if (f === 'pendientes') return !e.estado_calificacion;
-              if (f === 'calificadas') return e.estado_calificacion;
+              if (f === 'pendientes') return e.estado_calificacion === 'pendiente' || !e.estado_calificacion;
+              if (f === 'calificadas') return e.estado_calificacion === 'aprobado' || e.estado_calificacion === 'rechazado';
               return true;
             }).length})
           </button>
@@ -237,20 +237,20 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                   </div>
                 </div>
                 
-                {evidencia.estado_calificacion && (
+                {evidencia.estado_calificacion && evidencia.estado_calificacion !== 'pendiente' && (
                   <span style={{
                     padding: '4px 12px',
-                    backgroundColor: evidencia.estado_calificacion === 'aprobada' 
+                    backgroundColor: evidencia.estado_calificacion === 'aprobado' 
                       ? '#d1fae5' 
                       : '#fecaca',
-                    color: evidencia.estado_calificacion === 'aprobada' 
+                    color: evidencia.estado_calificacion === 'aprobado' 
                       ? '#065f46' 
                       : '#991b1b',
                     borderRadius: 12,
                     fontSize: '0.7rem',
                     fontWeight: '600'
                   }}>
-                    {evidencia.estado_calificacion === 'aprobada' ? '✓' : '✗'} {evidencia.calificacion}%
+                    {evidencia.estado_calificacion === 'aprobado' ? '✓' : '✗'} {evidencia.calificacion}%
                   </span>
                 )}
               </div>
@@ -292,7 +292,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                   👁️ Ver
                 </button>
                 
-                {!evidencia.estado_calificacion && (
+                {(evidencia.estado_calificacion === 'pendiente' || !evidencia.estado_calificacion) && (
                   <button
                     onClick={() => {
                       setSelectedEvidencia(evidencia);
