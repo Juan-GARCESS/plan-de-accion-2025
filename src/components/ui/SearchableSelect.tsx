@@ -184,7 +184,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const noOptionsStyle: React.CSSProperties = {
     padding: `${spacing.md}`,
     textAlign: 'center',
-    color: colors.gray[500],
+    color: '#111827',
     fontSize: '0.875rem',
     fontStyle: 'italic'
   };
@@ -215,6 +215,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                 key={option.value}
                 style={{
                   ...optionStyle,
+                  color: '#111827',
                   ...(option.value === value ? selectedOptionStyle : {})
                 }}
                 onMouseEnter={(e) => {

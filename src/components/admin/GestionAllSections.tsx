@@ -2,6 +2,7 @@
 'use client';
 
 import React from 'react';
+import { PendingUsersCard } from '@/components/admin/PendingUsersCard';
 import { UsersSectionImproved } from '@/components/admin/UsersSectionImproved';
 import { AreasManagementSectionImproved } from '@/components/admin/AreasManagementSectionImproved';
 import { EjesManagementSectionImproved } from '@/components/admin/EjesManagementSectionImproved';
@@ -36,6 +37,14 @@ export const GestionAllSections: React.FC<GestionAllSectionsProps> = ({
 }) => {
   return (
     <div>
+      {/* Tarjeta destacada de usuarios pendientes */}
+      <PendingUsersCard
+        usuarios={usuarios}
+        areas={areas}
+        onApprove={onApprove}
+        onReject={onReject}
+      />
+
       <UsersSectionImproved
         usuarios={usuarios}
         areas={areas}

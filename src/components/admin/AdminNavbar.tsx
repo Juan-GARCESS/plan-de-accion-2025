@@ -5,7 +5,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Bars3Icon } from '@heroicons/react/24/outline';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 interface AdminNavbarProps {
   userName?: string;
@@ -84,7 +83,6 @@ export const AdminNavbar: React.FC<AdminNavbarProps> = ({ userName, userPhotoUrl
         {/* Usuario (derecha) */}
         <div style={userSectionStyle} ref={menuRef}>
           {userName && <span style={userNameTopStyle}>{userName}</span>}
-          <ThemeToggle />
           <button
             onClick={() => setMenuOpen((v) => !v)}
             style={userIconButtonStyle}
