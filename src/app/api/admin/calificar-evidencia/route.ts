@@ -34,33 +34,34 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Obtener información del usuario y meta
-    const metaInfo = await db.query(`
+    // Obtener información del usuario y la evidencia
+    const evidenciaInfo = await db.query(`
       SELECT 
         um.id,
-        um.meta,
+        pa.meta,
         um.trimestre,
         u.id as usuario_id,
         u.nombre as usuario_nombre,
         u.email as usuario_email
       FROM usuario_metas um
       JOIN usuarios u ON um.usuario_id = u.id
+      JOIN plan_accion pa ON um.plan_accion_id = pa.id
       WHERE um.id = $1
     `, [meta_id]);
 
-    if (metaInfo.rows.length === 0) {
-      return NextResponse.json({ error: "Meta no encontrada" }, { status: 404 });
+    if (evidenciaInfo.rows.length === 0) {
+      return NextResponse.json({ error: "Evidencia no encontrada" }, { status: 404 });
     }
 
-    const meta = metaInfo.rows[0];
+    const evidencia = evidenciaInfo.rows[0];
 
     // Actualizar calificación en usuario_metas
     await db.query(`
       UPDATE usuario_metas 
       SET 
         calificacion = $1,
-        estado_calificacion = $2,
-        comentario_admin = $3,
+        estado = $2,
+        observaciones = $3,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $4
     `, [calificacion, estado, comentario || null, meta_id]);
@@ -71,20 +72,20 @@ export async function POST(request: NextRequest) {
       
       await resend.emails.send({
         from: 'Plan de Acción <onboarding@resend.dev>',
-        to: meta.usuario_email,
-        subject: `${esAprobada ? '✓' : '✗'} Calificación de evidencia - Trimestre ${meta.trimestre}`,
+        to: evidencia.usuario_email,
+        subject: `${esAprobada ? '✓' : '✗'} Calificación de evidencia - Trimestre ${evidencia.trimestre}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
             <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-              <h1 style="color: #1f2937; margin-bottom: 20px;">Hola ${meta.usuario_nombre}</h1>
+              <h1 style="color: #1f2937; margin-bottom: 20px;">Hola ${evidencia.usuario_nombre}</h1>
               
               <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
-                Tu evidencia del <strong>Trimestre ${meta.trimestre}</strong> ha sido calificada.
+                Tu evidencia del <strong>Trimestre ${evidencia.trimestre}</strong> ha sido calificada.
               </p>
               
               <div style="background-color: ${esAprobada ? '#ecfdf5' : '#fef2f2'}; border-left: 4px solid ${esAprobada ? '#10b981' : '#ef4444'}; padding: 15px; margin: 20px 0; border-radius: 4px;">
                 <p style="color: ${esAprobada ? '#065f46' : '#991b1b'}; margin: 0; font-size: 14px;">
-                  <strong>Meta:</strong> ${meta.meta}
+                  <strong>Meta:</strong> ${evidencia.meta}
                 </p>
                 <p style="color: ${esAprobada ? '#065f46' : '#991b1b'}; margin: 8px 0 0 0; font-size: 20px; font-weight: 700;">
                   Calificación: ${calificacion}%
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
               ` : ''}
               
               <div style="margin: 30px 0; text-align: center;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/dashboard" 
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard" 
                    style="background-color: #3b82f6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600;">
                   Ver Dashboard
                 </a>
@@ -119,7 +120,7 @@ export async function POST(request: NextRequest) {
       await db.query(
         `INSERT INTO emails_enviados (usuario_id, tipo, asunto, estado) 
          VALUES ($1, 'calificacion', 'Evidencia calificada', 'enviado')`,
-        [meta.usuario_id]
+        [evidencia.usuario_id]
       );
     } catch (emailError) {
       console.error("Error al enviar email:", emailError);
