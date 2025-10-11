@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
 
     // Obtener plan de acción del área con las evidencias del usuario
     // Solo las metas que tienen marcado el trimestre específico
+    const trimestreColumn = `t${trimestre}`;
+    
     const result = await db.query(
       `SELECT 
         pa.id,
@@ -54,14 +56,7 @@ export async function GET(request: NextRequest) {
         AND um.usuario_id = $1 
         AND um.trimestre = $2
       WHERE pa.area_id = $3
-        AND (
-          CASE 
-            WHEN $2 = 1 THEN pa.t1 = TRUE
-            WHEN $2 = 2 THEN pa.t2 = TRUE
-            WHEN $2 = 3 THEN pa.t3 = TRUE
-            WHEN $2 = 4 THEN pa.t4 = TRUE
-          END
-        )
+        AND pa.${trimestreColumn} = TRUE
       ORDER BY e.nombre_eje, se.nombre_sub_eje`,
       [userId, trimestre, areaId]
     );
