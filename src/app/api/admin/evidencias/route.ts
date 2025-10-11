@@ -30,10 +30,8 @@ export async function GET(request: NextRequest) {
     // Construir query con filtros opcionales
     let query = `
       SELECT 
-        e.id,
-        e.meta_id,
-        e.nombre_archivo,
-        e.created_at as fecha_subida,
+        um.id,
+        um.id as meta_id,
         u.nombre as usuario_nombre,
         a.nombre_area as area_nombre,
         um.trimestre,
@@ -44,12 +42,12 @@ export async function GET(request: NextRequest) {
         um.evidencia_url,
         um.calificacion,
         um.estado_calificacion,
-        um.comentario_admin
-      FROM evidencias e
-      JOIN usuario_metas um ON e.meta_id = um.id
-      JOIN usuarios u ON e.usuario_id = u.id
+        um.comentario_admin,
+        um.created_at as fecha_subida
+      FROM usuario_metas um
+      JOIN usuarios u ON um.usuario_id = u.id
       JOIN areas a ON u.area_id = a.id
-      WHERE 1=1
+      WHERE um.evidencia_url IS NOT NULL
     `;
 
     const params: (string | number)[] = [];
@@ -67,12 +65,18 @@ export async function GET(request: NextRequest) {
       paramCount++;
     }
 
-    query += ` ORDER BY e.created_at DESC`;
+    query += ` ORDER BY um.created_at DESC`;
 
     const result = await db.query(query, params);
 
+    // Agregar nombre_archivo desde evidencia_url
+    const evidencias = result.rows.map(row => ({
+      ...row,
+      nombre_archivo: row.evidencia_url ? 'evidencia.pdf' : null
+    }));
+
     return NextResponse.json({ 
-      evidencias: result.rows 
+      evidencias
     });
   } catch (error) {
     console.error("Error al obtener evidencias:", error);

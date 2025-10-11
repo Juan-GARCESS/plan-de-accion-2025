@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { AdminDashboardLayout, GestionAllSections } from '@/components/admin';
 import { PlanAccionAdminTable } from '@/components/admin/PlanAccionAdminTable';
+import { EvidenciasReview } from '@/components/admin/EvidenciasReview';
 import { EjeSeguimientoMatrix } from '@/components/seguimiento/EjeSeguimientoMatrix';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminManagement } from '@/hooks/useAdminManagement';
@@ -26,6 +27,7 @@ function DashboardPageContent() {
   const [showGestion, setShowGestion] = useState(false);
   const [selectedAreaId, setSelectedAreaId] = useState<number | null>(null);
   const [selectedArea, setSelectedArea] = useState<Area | null>(null);
+  const [calificarTrimestre, setCalificarTrimestre] = useState<number | null>(null);
 
   // Prevenir navegación hacia atrás - AQUÍ es el dashboard principal del admin
   useEffect(() => {
@@ -48,6 +50,7 @@ function DashboardPageContent() {
 
   const handleAreaSelect = (areaId: number) => {
     setShowGestion(false);
+    setCalificarTrimestre(null);
     const area = areas.find(a => a.id === areaId);
     setSelectedAreaId(areaId);
     setSelectedArea(area || null);
@@ -55,14 +58,24 @@ function DashboardPageContent() {
 
   const handleDashboardSelect = () => {
     setShowGestion(false);
+    setCalificarTrimestre(null);
     setSelectedAreaId(null);
     setSelectedArea(null);
   };
 
   const handleGestionSelect = () => {
     setShowGestion(true);
+    setCalificarTrimestre(null);
     setSelectedAreaId(null);
     setSelectedArea(null);
+  };
+
+  const handleCalificarTrimestre = (trimestre: number) => {
+    setCalificarTrimestre(trimestre);
+  };
+
+  const handleVolverArea = () => {
+    setCalificarTrimestre(null);
   };
 
   if (loading || gestionLoading) {
@@ -125,13 +138,46 @@ function DashboardPageContent() {
           onDeleteArea={deleteArea}
         />
       ) : selectedArea ? (
-        <div>
-          <PlanAccionAdminTable
-            areaId={selectedArea.id}
-            areaName={selectedArea.nombre_area}
-          />
-          <EjeSeguimientoMatrix areaId={selectedArea.id} editable={false} />
-        </div>
+        calificarTrimestre !== null ? (
+          <div>
+            <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <button
+                onClick={handleVolverArea}
+                style={{
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '500'
+                }}
+              >
+                ← Volver
+              </button>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '600' }}>
+                  📋 Calificar Evidencias - Trimestre {calificarTrimestre}
+                </h2>
+                <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: '#6b7280' }}>
+                  Área: {selectedArea.nombre_area}
+                </p>
+              </div>
+            </div>
+
+            <EvidenciasReview areaId={selectedArea.id} trimestre={calificarTrimestre} />
+          </div>
+        ) : (
+          <div>
+            <PlanAccionAdminTable
+              areaId={selectedArea.id}
+              areaName={selectedArea.nombre_area}
+              onCalificarTrimestre={handleCalificarTrimestre}
+            />
+            <EjeSeguimientoMatrix areaId={selectedArea.id} editable={false} />
+          </div>
+        )
       ) : null}
     </AdminDashboardLayout>
   );

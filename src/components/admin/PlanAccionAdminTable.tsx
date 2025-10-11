@@ -4,47 +4,51 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
-interface Meta {
+interface PlanAccionRow {
   id: number;
-  eje: string;
-  sub_eje: string;
-  meta: string;
-  indicador: string;
-  accion: string;
-  presupuesto: string;
-  trimestres: number[]; // Array de trimestres seleccionados (1, 2, 3, 4)
+  eje_nombre: string;
+  sub_eje_nombre: string;
+  meta: string | null;
+  indicador: string | null;
+  accion: string | null;
+  presupuesto: string | null;
 }
 
 interface PlanAccionAdminTableProps {
   areaId: number;
   areaName: string;
+  onCalificarTrimestre?: (trimestre: number) => void;
 }
 
-export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ areaId, areaName }) => {
+export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ areaId, areaName, onCalificarTrimestre }) => {
   const router = useRouter();
-  const [metas, setMetas] = useState<Meta[]>([]);
+  const [planAccion, setPlanAccion] = useState<PlanAccionRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMetas = async () => {
+    const fetchPlanAccion = async () => {
       try {
-        const res = await fetch(`/api/admin/areas/${areaId}/trimestres`);
-        if (!res.ok) throw new Error('Error al cargar metas');
+        const res = await fetch(`/api/admin/areas/${areaId}/plan-accion`);
+        if (!res.ok) throw new Error('Error al cargar plan de acción');
         const data = await res.json();
-        setMetas(data.metas || []);
+        setPlanAccion(data.data || []);
       } catch (error) {
         console.error('Error:', error);
-        toast.error('Error al cargar las metas');
+        toast.error('Error al cargar el plan de acción');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMetas();
+    fetchPlanAccion();
   }, [areaId]);
 
   const handleCalificar = (trimestre: number) => {
-    router.push(`/admin/areas/${areaId}/trimestres/${trimestre}`);
+    if (onCalificarTrimestre) {
+      onCalificarTrimestre(trimestre);
+    } else {
+      router.push(`/admin/areas/${areaId}/trimestres/${trimestre}`);
+    }
   };
 
   if (loading) {
@@ -77,7 +81,7 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
         </p>
       </div>
 
-      {/* Tabla de Metas */}
+      {/* Tabla de Plan de Acción */}
       <div style={{
         overflowX: 'auto',
         marginBottom: '2rem',
@@ -104,20 +108,19 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
             </tr>
           </thead>
           <tbody>
-            {metas.map((meta, idx) => (
-              <tr key={meta.id} style={{
+            {planAccion.map((row, idx) => (
+              <tr key={row.id} style={{
                 backgroundColor: idx % 2 === 0 ? '#ffffff' : '#f9fafb'
               }}>
-                <td style={bodyCellStyle}>{meta.eje}</td>
-                <td style={bodyCellStyle}>{meta.sub_eje}</td>
-                <td style={bodyCellStyle}>{meta.meta}</td>
-                <td style={bodyCellStyle}>{meta.indicador}</td>
-                <td style={bodyCellStyle}>{meta.accion}</td>
-                <td style={bodyCellStyle}>{meta.presupuesto}</td>
+                <td style={bodyCellStyle}>{row.eje_nombre}</td>
+                <td style={bodyCellStyle}>{row.sub_eje_nombre}</td>
+                <td style={bodyCellStyle}>{row.meta || '-'}</td>
+                <td style={bodyCellStyle}>{row.indicador || '-'}</td>
+                <td style={bodyCellStyle}>{row.accion || '-'}</td>
+                <td style={bodyCellStyle}>{row.presupuesto || '-'}</td>
                 <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
                   <input
                     type="checkbox"
-                    checked={meta.trimestres.includes(1)}
                     readOnly
                     style={{ cursor: 'not-allowed', accentColor: '#10b981' }}
                   />
@@ -125,7 +128,6 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
                 <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
                   <input
                     type="checkbox"
-                    checked={meta.trimestres.includes(2)}
                     readOnly
                     style={{ cursor: 'not-allowed', accentColor: '#10b981' }}
                   />
@@ -133,7 +135,6 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
                 <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
                   <input
                     type="checkbox"
-                    checked={meta.trimestres.includes(3)}
                     readOnly
                     style={{ cursor: 'not-allowed', accentColor: '#10b981' }}
                   />
@@ -141,7 +142,6 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
                 <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
                   <input
                     type="checkbox"
-                    checked={meta.trimestres.includes(4)}
                     readOnly
                     style={{ cursor: 'not-allowed', accentColor: '#10b981' }}
                   />
