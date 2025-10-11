@@ -12,6 +12,10 @@ interface PlanAccionRow {
   indicador: string | null;
   accion: string | null;
   presupuesto: string | null;
+  t1: boolean;
+  t2: boolean;
+  t3: boolean;
+  t4: boolean;
 }
 
 interface PlanAccionAdminTableProps {
@@ -248,6 +252,7 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
                 <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
                   <input
                     type="checkbox"
+                    checked={row.t1}
                     readOnly
                     disabled
                     style={{ cursor: 'not-allowed', accentColor: '#10b981' }}
@@ -256,6 +261,7 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
                 <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
                   <input
                     type="checkbox"
+                    checked={row.t2}
                     readOnly
                     disabled
                     style={{ cursor: 'not-allowed', accentColor: '#10b981' }}
@@ -264,6 +270,7 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
                 <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
                   <input
                     type="checkbox"
+                    checked={row.t3}
                     readOnly
                     disabled
                     style={{ cursor: 'not-allowed', accentColor: '#10b981' }}
@@ -272,6 +279,7 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
                 <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
                   <input
                     type="checkbox"
+                    checked={row.t4}
                     readOnly
                     disabled
                     style={{ cursor: 'not-allowed', accentColor: '#10b981' }}
