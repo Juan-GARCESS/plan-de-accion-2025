@@ -49,7 +49,7 @@ CREATE TABLE subejes (
 
 ```sql
 -- Agregar columnas nuevas
-ALTER TABLE usuarios 
+ALTER TABLE usuarios
 ADD COLUMN estado VARCHAR(20) DEFAULT 'pendiente',
 ADD COLUMN fecha_aprobacion TIMESTAMP,
 ADD COLUMN aprobado_por INTEGER REFERENCES usuarios(id);
@@ -62,6 +62,7 @@ CREATE INDEX idx_usuarios_estado ON usuarios(estado);
 ```
 
 **Valores de `estado`**:
+
 - `'pendiente'` - Usuario registrado pero no aprobado
 - `'aprobado'` - Usuario aprobado por admin
 - `'rechazado'` - Usuario rechazado por admin
@@ -77,19 +78,19 @@ CREATE TABLE usuario_metas (
   usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
   eje_id INTEGER NOT NULL REFERENCES ejes(id) ON DELETE CASCADE,
   subeje_id INTEGER REFERENCES subejes(id) ON DELETE SET NULL,
-  
+
   -- Contenido de la meta
   meta TEXT NOT NULL,
   indicador TEXT,
   accion TEXT,
   presupuesto DECIMAL(12,2) DEFAULT 0,
-  
+
   -- Seguimiento por trimestre
   trimestre_1 BOOLEAN DEFAULT false,
   trimestre_2 BOOLEAN DEFAULT false,
   trimestre_3 BOOLEAN DEFAULT false,
   trimestre_4 BOOLEAN DEFAULT false,
-  
+
   -- Metadata
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -100,10 +101,10 @@ CREATE INDEX idx_usuario_metas_usuario ON usuario_metas(usuario_id);
 CREATE INDEX idx_usuario_metas_eje ON usuario_metas(eje_id);
 CREATE INDEX idx_usuario_metas_subeje ON usuario_metas(subeje_id);
 CREATE INDEX idx_usuario_metas_trimestres ON usuario_metas(
-  usuario_id, 
-  trimestre_1, 
-  trimestre_2, 
-  trimestre_3, 
+  usuario_id,
+  trimestre_1,
+  trimestre_2,
+  trimestre_3,
   trimestre_4
 );
 
@@ -131,30 +132,30 @@ CREATE TABLE evidencias (
   id SERIAL PRIMARY KEY,
   meta_id INTEGER NOT NULL REFERENCES usuario_metas(id) ON DELETE CASCADE,
   usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-  
+
   -- Información del trimestre
   trimestre INTEGER NOT NULL CHECK (trimestre BETWEEN 1 AND 4),
   año INTEGER NOT NULL DEFAULT EXTRACT(YEAR FROM CURRENT_DATE),
-  
+
   -- Archivo
   archivo_url TEXT NOT NULL,
   archivo_nombre TEXT NOT NULL,
   archivo_tipo VARCHAR(50),
   archivo_tamaño INTEGER, -- en bytes
-  
+
   -- Contenido
   descripcion TEXT,
-  
+
   -- Estado y calificación
   estado VARCHAR(20) DEFAULT 'enviado' CHECK (estado IN ('enviado', 'en_revision', 'aprobado', 'rechazado')),
   calificacion INTEGER CHECK (calificacion >= 0 AND calificacion <= 100),
   comentario_admin TEXT,
-  
+
   -- Auditoría
   fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   fecha_revision TIMESTAMP,
   revisado_por INTEGER REFERENCES usuarios(id),
-  
+
   -- Metadata
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -185,19 +186,19 @@ EXECUTE FUNCTION update_usuario_metas_timestamp();
 CREATE TABLE notificaciones (
   id SERIAL PRIMARY KEY,
   usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-  
+
   -- Contenido
   tipo VARCHAR(50) NOT NULL, -- 'aprobacion', 'rechazo_evidencia', 'calificacion', etc.
   titulo VARCHAR(255) NOT NULL,
   mensaje TEXT NOT NULL,
-  
+
   -- Enlaces
   url_accion VARCHAR(500),
-  
+
   -- Estado
   leida BOOLEAN DEFAULT false,
   fecha_lectura TIMESTAMP,
-  
+
   -- Metadata
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -219,11 +220,11 @@ CREATE TABLE emails_enviados (
   asunto VARCHAR(500) NOT NULL,
   cuerpo TEXT NOT NULL,
   tipo VARCHAR(50), -- 'aprobacion', 'rechazo', 'calificacion', etc.
-  
+
   -- Estado de envío
   enviado BOOLEAN DEFAULT false,
   error TEXT,
-  
+
   -- Metadata
   fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   intentos INTEGER DEFAULT 0
@@ -241,84 +242,84 @@ CREATE INDEX idx_emails_enviado ON emails_enviados(enviado);
 
 ```sql
 CREATE MATERIALIZED VIEW plan_accion_general AS
-SELECT 
+SELECT
   -- Información de usuario
   u.id as usuario_id,
   u.nombre as usuario_nombre,
   u.email as usuario_email,
-  
+
   -- Información de área
   a.id as area_id,
   a.nombre as area_nombre,
-  
+
   -- Información de eje y sub-eje
   e.id as eje_id,
   e.nombre as eje_nombre,
   se.id as subeje_id,
   se.nombre as subeje_nombre,
-  
+
   -- Información de la meta
   um.id as meta_id,
   um.meta,
   um.indicador,
   um.accion,
   um.presupuesto,
-  
+
   -- Trimestres seleccionados
   um.trimestre_1,
   um.trimestre_2,
   um.trimestre_3,
   um.trimestre_4,
-  
+
   -- Calificaciones por trimestre
   (
-    SELECT calificacion 
-    FROM evidencias 
-    WHERE meta_id = um.id 
-      AND trimestre = 1 
-      AND estado = 'aprobado' 
-    ORDER BY fecha_revision DESC 
+    SELECT calificacion
+    FROM evidencias
+    WHERE meta_id = um.id
+      AND trimestre = 1
+      AND estado = 'aprobado'
+    ORDER BY fecha_revision DESC
     LIMIT 1
   ) as calificacion_t1,
   (
-    SELECT calificacion 
-    FROM evidencias 
-    WHERE meta_id = um.id 
-      AND trimestre = 2 
-      AND estado = 'aprobado' 
-    ORDER BY fecha_revision DESC 
+    SELECT calificacion
+    FROM evidencias
+    WHERE meta_id = um.id
+      AND trimestre = 2
+      AND estado = 'aprobado'
+    ORDER BY fecha_revision DESC
     LIMIT 1
   ) as calificacion_t2,
   (
-    SELECT calificacion 
-    FROM evidencias 
-    WHERE meta_id = um.id 
-      AND trimestre = 3 
-      AND estado = 'aprobado' 
-    ORDER BY fecha_revision DESC 
+    SELECT calificacion
+    FROM evidencias
+    WHERE meta_id = um.id
+      AND trimestre = 3
+      AND estado = 'aprobado'
+    ORDER BY fecha_revision DESC
     LIMIT 1
   ) as calificacion_t3,
   (
-    SELECT calificacion 
-    FROM evidencias 
-    WHERE meta_id = um.id 
-      AND trimestre = 4 
-      AND estado = 'aprobado' 
-    ORDER BY fecha_revision DESC 
+    SELECT calificacion
+    FROM evidencias
+    WHERE meta_id = um.id
+      AND trimestre = 4
+      AND estado = 'aprobado'
+    ORDER BY fecha_revision DESC
     LIMIT 1
   ) as calificacion_t4,
-  
+
   -- Promedio de calificaciones
   (
     SELECT AVG(calificacion)::DECIMAL(5,2)
     FROM evidencias
     WHERE meta_id = um.id AND estado = 'aprobado'
   ) as promedio_calificaciones,
-  
+
   -- Metadata
   um.created_at,
   um.updated_at
-  
+
 FROM usuario_metas um
 INNER JOIN usuarios u ON um.usuario_id = u.id
 INNER JOIN areas a ON u.area_id = a.id
@@ -353,7 +354,7 @@ $$ LANGUAGE plpgsql;
 BEGIN;
 
 -- 1. Agregar campos a usuarios
-ALTER TABLE usuarios 
+ALTER TABLE usuarios
 ADD COLUMN IF NOT EXISTS estado VARCHAR(20) DEFAULT 'pendiente',
 ADD COLUMN IF NOT EXISTS fecha_aprobacion TIMESTAMP,
 ADD COLUMN IF NOT EXISTS aprobado_por INTEGER REFERENCES usuarios(id);
@@ -470,19 +471,22 @@ SELECT 'Migración completada exitosamente' as status;
 ## ✅ **CÓMO EJECUTAR LA MIGRACIÓN**
 
 ### Opción 1: Desde pgAdmin o cliente PostgreSQL
+
 1. Conectarse a la base de datos
 2. Copiar y pegar el script completo
 3. Ejecutar
 
 ### Opción 2: Desde la terminal con psql
+
 ```bash
 psql "postgresql://neondb_owner:npg_vc9djoEer1Rl@ep-frosty-moon-acux7z3k-pooler.sa-east-1.aws.neon.tech/neondb" < migracion.sql
 ```
 
 ### Opción 3: Crear API endpoint de migración
+
 ```typescript
 // /api/admin/migrate/route.ts
-import { pool } from '@/lib/db';
+import { pool } from "@/lib/db";
 
 export async function POST(request: Request) {
   try {
@@ -490,16 +494,19 @@ export async function POST(request: Request) {
     await pool.query(`
       -- Script completo aquí
     `);
-    
-    return Response.json({ 
-      success: true, 
-      message: 'Migración completada' 
+
+    return Response.json({
+      success: true,
+      message: "Migración completada",
     });
   } catch (error) {
-    return Response.json({ 
-      success: false, 
-      error: error.message 
-    }, { status: 500 });
+    return Response.json(
+      {
+        success: false,
+        error: error.message,
+      },
+      { status: 500 }
+    );
   }
 }
 ```
@@ -510,24 +517,24 @@ export async function POST(request: Request) {
 
 ```sql
 -- Verificar que todas las tablas existan
-SELECT table_name 
-FROM information_schema.tables 
+SELECT table_name
+FROM information_schema.tables
 WHERE table_schema = 'public'
 ORDER BY table_name;
 
 -- Verificar índices creados
-SELECT indexname, tablename 
-FROM pg_indexes 
+SELECT indexname, tablename
+FROM pg_indexes
 WHERE schemaname = 'public'
 ORDER BY tablename, indexname;
 
 -- Verificar triggers
-SELECT trigger_name, event_object_table 
-FROM information_schema.triggers 
+SELECT trigger_name, event_object_table
+FROM information_schema.triggers
 WHERE trigger_schema = 'public';
 
 -- Contar registros en cada tabla
-SELECT 
+SELECT
   'usuarios' as tabla, COUNT(*) as registros FROM usuarios
 UNION ALL
 SELECT 'areas', COUNT(*) FROM areas
@@ -550,6 +557,7 @@ SELECT 'emails_enviados', COUNT(*) FROM emails_enviados;
 ## ⚠️ **IMPORTANTE**
 
 1. **Hacer backup antes de migrar**:
+
    ```bash
    pg_dump "connection_string" > backup_antes_migracion.sql
    ```

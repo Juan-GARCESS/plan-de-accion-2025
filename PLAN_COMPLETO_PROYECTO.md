@@ -3,6 +3,7 @@
 ## ✅ **ESTADO ACTUAL** (Lo que ya está hecho)
 
 ### 1. Sistema Base
+
 - ✅ Autenticación (login/registro)
 - ✅ Base de datos PostgreSQL (Neon)
 - ✅ Sistema de roles (admin/usuario)
@@ -12,6 +13,7 @@
 - ✅ Componentes UI base (Button, Input, Card, etc.)
 
 ### 2. Panel Administrativo
+
 - ✅ Gestión de Áreas (crear, editar, eliminar)
 - ✅ Gestión de Usuarios (listar, editar, eliminar)
 - ✅ Gestión de Ejes/Sub-ejes (crear, editar, eliminar)
@@ -20,6 +22,7 @@
 - ✅ AdminNavbar con perfil y theme toggle
 
 ### 3. Panel de Usuario
+
 - ✅ Dashboard básico con misión y visión
 - ✅ Navbar con nombre de usuario y logout
 - ✅ Perfil de usuario
@@ -29,6 +32,7 @@
 ## 🔧 **PROBLEMAS A ARREGLAR** (Fase 1 - Inmediato)
 
 ### 1. Colores de Texto
+
 - ❌ Hay textos en gris (#6b7280, #64748b, #94a3b8) que deben ser negros
 - **Archivos a modificar**:
   - `TrimestreSelections.tsx`
@@ -39,6 +43,7 @@
   - Otros componentes con text-gray-500
 
 ### 2. Theme Toggle
+
 - ✅ Ya agregado a AdminNavbar
 - ✅ Ya agregado a Navbar de usuario
 
@@ -49,6 +54,7 @@
 ## **FASE 2: Sistema de Aprobación de Usuarios** 🔐
 
 ### Funcionalidad:
+
 1. **Admin ve solicitudes de registro**
    - Nueva sección en panel admin: "Usuarios Pendientes"
    - Tabla con usuarios en estado "pendiente"
@@ -65,6 +71,7 @@
    - Área asignada en el correo
 
 ### Cambios en Base de Datos:
+
 ```sql
 -- Agregar estado a usuarios
 ALTER TABLE usuarios ADD COLUMN estado VARCHAR(20) DEFAULT 'pendiente';
@@ -75,6 +82,7 @@ ALTER TABLE usuarios ADD COLUMN fecha_aprobacion TIMESTAMP;
 ```
 
 ### Archivos a crear:
+
 - `/api/admin/usuarios/pendientes/route.ts` - Listar usuarios pendientes
 - `/api/admin/usuarios/aprobar/route.ts` - ✅ Ya existe (actualizar)
 - `/api/admin/usuarios/rechazar/route.ts` - ✅ Ya existe (actualizar)
@@ -82,6 +90,7 @@ ALTER TABLE usuarios ADD COLUMN fecha_aprobacion TIMESTAMP;
 - `src/components/admin/PendingUsersSection.tsx` - Componente UI
 
 ### Servicios a integrar:
+
 - **Resend** o **SendGrid** para envío de emails
 - Configurar templates de emails
 
@@ -90,6 +99,7 @@ ALTER TABLE usuarios ADD COLUMN fecha_aprobacion TIMESTAMP;
 ## **FASE 3: Sistema de Trimestres para Usuarios** 📅
 
 ### Funcionalidad:
+
 1. **Dashboard de usuario muestra botones de trimestres**
    - Debajo de "Misión y Visión"
    - 4 botones: "Trimestre 1", "Trimestre 2", "Trimestre 3", "Trimestre 4"
@@ -111,6 +121,7 @@ ALTER TABLE usuarios ADD COLUMN fecha_aprobacion TIMESTAMP;
    - Checkbox por trimestre en cada meta
 
 ### Cambios en Base de Datos:
+
 ```sql
 -- Nueva tabla: metas de usuario
 CREATE TABLE usuario_metas (
@@ -136,6 +147,7 @@ CREATE INDEX idx_usuario_metas_trimestres ON usuario_metas(usuario_id, trimestre
 ```
 
 ### Archivos a crear:
+
 - `/app/dashboard/trimestre/[numero]/page.tsx` - Página de trimestre
 - `/api/usuario/metas/route.ts` - ✅ Ya existe (actualizar)
 - `/api/usuario/trimestres/route.ts` - ✅ Ya existe (actualizar)
@@ -147,6 +159,7 @@ CREATE INDEX idx_usuario_metas_trimestres ON usuario_metas(usuario_id, trimestre
 ## **FASE 4: Sistema de Envío de Evidencias** 📤
 
 ### Funcionalidad:
+
 1. **Tabla de envío de evidencias**
    - Aparece en la página de cada trimestre
    - Columnas:
@@ -166,6 +179,7 @@ CREATE INDEX idx_usuario_metas_trimestres ON usuario_metas(usuario_id, trimestre
    - Puede volver a enviar si fue rechazado
 
 ### Cambios en Base de Datos:
+
 ```sql
 -- Nueva tabla: evidencias/informes
 CREATE TABLE evidencias (
@@ -191,12 +205,14 @@ CREATE INDEX idx_evidencias_estado ON evidencias(estado);
 ```
 
 ### Archivos a crear:
+
 - `/api/usuario/evidencias/route.ts` - CRUD de evidencias
 - `/api/upload/route.ts` - Subir archivos (usar Cloudinary o S3)
 - `src/components/dashboard/EvidenciasSection.tsx` - Sección de evidencias
 - `src/components/dashboard/FileUpload.tsx` - Componente de upload
 
 ### Servicios a integrar:
+
 - **Cloudinary** o **AWS S3** para almacenar archivos
 - Validación de tipos de archivo
 - Límite de tamaño (ej: 10MB)
@@ -206,6 +222,7 @@ CREATE INDEX idx_evidencias_estado ON evidencias(estado);
 ## **FASE 5: Sistema de Calificación Admin** 📊
 
 ### Funcionalidad:
+
 1. **Admin ve informes recibidos**
    - Nueva sección: "Calificar Informes"
    - Filtros: Por área, por trimestre, por estado
@@ -230,6 +247,7 @@ CREATE INDEX idx_evidencias_estado ON evidencias(estado);
    - Usuario recibe notificación
 
 ### Archivos a crear:
+
 - `/app/admin/calificar/page.tsx` - Página de calificación
 - `/api/admin/evidencias/route.ts` - Listar evidencias
 - `/api/admin/evidencias/calificar/route.ts` - Calificar evidencia
@@ -243,6 +261,7 @@ CREATE INDEX idx_evidencias_estado ON evidencias(estado);
 ## **FASE 6: Plan de Acción General** 📈
 
 ### Funcionalidad:
+
 1. **Admin ve Plan de Acción General**
    - Botón en sidebar: "Plan de Acción General"
    - Navega a `/admin/plan-general`
@@ -280,10 +299,11 @@ CREATE INDEX idx_evidencias_estado ON evidencias(estado);
      - Filtros en columnas
 
 ### Cambios en Base de Datos:
+
 ```sql
 -- Vista materializada para optimizar consultas
 CREATE MATERIALIZED VIEW plan_accion_general AS
-SELECT 
+SELECT
   u.id as usuario_id,
   u.nombre as usuario_nombre,
   a.nombre as area_nombre,
@@ -312,6 +332,7 @@ CREATE INDEX idx_plan_general ON plan_accion_general(area_nombre, usuario_nombre
 ```
 
 ### Archivos a crear:
+
 - `/app/admin/plan-general/page.tsx` - Página del plan general
 - `/api/admin/plan-general/route.ts` - Obtener datos consolidados
 - `/api/admin/plan-general/export/route.ts` - Exportar a Excel
@@ -319,6 +340,7 @@ CREATE INDEX idx_plan_general ON plan_accion_general(area_nombre, usuario_nombre
 - `src/lib/excelExporter.ts` - Utilidad para exportar Excel
 
 ### Librerías a instalar:
+
 ```bash
 npm install xlsx --save
 npm install file-saver --save
@@ -330,21 +352,25 @@ npm install @types/file-saver --save-dev
 ## 📅 **CRONOGRAMA DE IMPLEMENTACIÓN**
 
 ### Semana 1:
+
 - **Lunes-Martes**: Fase 1 (Arreglar colores grises) ✅
 - **Miércoles-Jueves**: Fase 2 (Sistema de aprobación de usuarios)
 - **Viernes**: Fase 3 - Parte 1 (Botones de trimestres en dashboard)
 
 ### Semana 2:
+
 - **Lunes-Martes**: Fase 3 - Parte 2 (Tabla de trimestres y metas)
 - **Miércoles-Jueves**: Fase 4 (Sistema de evidencias)
 - **Viernes**: Testing y correcciones
 
 ### Semana 3:
+
 - **Lunes-Martes**: Fase 5 (Sistema de calificación admin)
 - **Miércoles-Jueves**: Fase 6 (Plan de Acción General)
 - **Viernes**: Exportación a Excel y optimizaciones
 
 ### Semana 4:
+
 - **Lunes-Martes**: Testing completo del sistema
 - **Miércoles-Jueves**: Correcciones y mejoras UI
 - **Viernes**: Deployment y documentación final
@@ -354,6 +380,7 @@ npm install @types/file-saver --save-dev
 ## 🎨 **DISEÑO UI - Especificaciones**
 
 ### Tabla de Trimestres (Usuario)
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │ Trimestre 1 - 2025                                              │
@@ -375,6 +402,7 @@ Envío de Evidencias
 ```
 
 ### Tabla de Calificación (Admin)
+
 ```
 Filtros: [Área ▼] [Trimestre ▼] [Estado ▼]
 
@@ -387,6 +415,7 @@ Filtros: [Área ▼] [Trimestre ▼] [Estado ▼]
 ```
 
 ### Plan de Acción General (Admin)
+
 ```
 [🔄 Actualizar] [📊 Exportar a Excel]
 
@@ -406,11 +435,13 @@ Filtros: [Área ▼] [Usuario ▼] [Trimestre ▼]
 ## 🔐 **SEGURIDAD Y PERMISOS**
 
 ### Middleware de Autenticación:
+
 - Verificar token en cada request
 - Validar rol de usuario
 - Proteger rutas de admin
 
 ### Validaciones:
+
 - Usuario solo puede ver/editar sus propias metas
 - Usuario solo puede subir evidencias de sus metas
 - Admin puede ver/editar todo
@@ -445,6 +476,7 @@ npm install @types/react-datepicker --save-dev
 ## ✅ **CHECKLIST FINAL**
 
 ### Antes de deployment:
+
 - [ ] Todos los tests pasan
 - [ ] No hay errores de TypeScript
 - [ ] No hay warnings de ESLint

@@ -23,7 +23,11 @@ export async function GET(
         pa.meta,
         pa.indicador,
         pa.accion,
-        pa.presupuesto
+        pa.presupuesto,
+        pa.t1,
+        pa.t2,
+        pa.t3,
+        pa.t4
       FROM area_ejes ae
       INNER JOIN ejes e ON ae.eje_id = e.id
       INNER JOIN sub_ejes se ON e.id = se.eje_id
@@ -47,9 +51,9 @@ export async function GET(
       if (!row.id) {
         // Crear registro en plan_accion
         const insertQuery = `
-          INSERT INTO plan_accion (area_id, eje_id, sub_eje_id, meta, indicador, accion, presupuesto)
-          VALUES ($1, $2, $3, NULL, NULL, NULL, NULL)
-          RETURNING id
+          INSERT INTO plan_accion (area_id, eje_id, sub_eje_id, meta, indicador, accion, presupuesto, t1, t2, t3, t4)
+          VALUES ($1, $2, $3, NULL, NULL, NULL, NULL, FALSE, FALSE, FALSE, FALSE)
+          RETURNING id, t1, t2, t3, t4
         `;
         
         const insertResult = await db.query(insertQuery, [
@@ -68,7 +72,11 @@ export async function GET(
           meta: null,
           indicador: null,
           accion: null,
-          presupuesto: null
+          presupuesto: null,
+          t1: insertResult.rows[0].t1,
+          t2: insertResult.rows[0].t2,
+          t3: insertResult.rows[0].t3,
+          t4: insertResult.rows[0].t4
         });
       } else {
         dataWithIds.push(row);
