@@ -55,10 +55,9 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
       if (!res.ok) throw new Error('Error al cargar evidencias');
       const data = await res.json();
       setEvidencias(data.evidencias || []);
-    } catch {
-      toast.error('Error al cargar evidencias', {
-        description: 'No se pudieron cargar las evidencias.'
-      });
+    } catch (error) {
+      console.error('Error al cargar evidencias:', error);
+      // NO mostrar toast de error - simplemente no hay evidencias aún
     } finally {
       setLoading(false);
     }

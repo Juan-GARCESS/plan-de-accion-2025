@@ -4,7 +4,6 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { AdminDashboardLayout, GestionAllSections } from '@/components/admin';
 import { PlanAccionAdminTable } from '@/components/admin/PlanAccionAdminTable';
 import { EvidenciasReview } from '@/components/admin/EvidenciasReview';
-import { EjeSeguimientoMatrix } from '@/components/seguimiento/EjeSeguimientoMatrix';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminManagement } from '@/hooks/useAdminManagement';
 import type { Area } from '@/types';
@@ -175,7 +174,6 @@ function DashboardPageContent() {
               areaName={selectedArea.nombre_area}
               onCalificarTrimestre={handleCalificarTrimestre}
             />
-            <EjeSeguimientoMatrix areaId={selectedArea.id} editable={false} />
           </div>
         )
       ) : null}

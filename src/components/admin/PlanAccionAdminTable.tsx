@@ -24,6 +24,8 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
   const router = useRouter();
   const [planAccion, setPlanAccion] = useState<PlanAccionRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingCell, setEditingCell] = useState<{ id: number; field: 'meta' | 'indicador' } | null>(null);
+  const [tempValue, setTempValue] = useState('');
 
   useEffect(() => {
     const fetchPlanAccion = async () => {
@@ -48,6 +50,61 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
       onCalificarTrimestre(trimestre);
     } else {
       router.push(`/admin/areas/${areaId}/trimestres/${trimestre}`);
+    }
+  };
+
+  const handleDoubleClick = (id: number, field: 'meta' | 'indicador', currentValue: string | null) => {
+    setEditingCell({ id, field });
+    setTempValue(currentValue || '');
+  };
+
+  const handleSave = async () => {
+    if (!editingCell) return;
+
+    const { id, field } = editingCell;
+
+    try {
+      const res = await fetch('/api/admin/areas/plan-accion/update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id,
+          [field]: tempValue
+        })
+      });
+
+      if (!res.ok) throw new Error('Error al actualizar');
+
+      // Actualizar localmente
+      setPlanAccion(prev => prev.map(row => 
+        row.id === id 
+          ? { ...row, [field]: tempValue }
+          : row
+      ));
+
+      toast.success('Actualizado', {
+        description: `${field === 'meta' ? 'Meta' : 'Indicador'} actualizado correctamente.`
+      });
+    } catch (error) {
+      toast.error('Error al guardar', {
+        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+      });
+    } finally {
+      setEditingCell(null);
+      setTempValue('');
+    }
+  };
+
+  const handleCancel = () => {
+    setEditingCell(null);
+    setTempValue('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      handleCancel();
     }
   };
 
@@ -114,14 +171,81 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
               }}>
                 <td style={bodyCellStyle}>{row.eje_nombre}</td>
                 <td style={bodyCellStyle}>{row.sub_eje_nombre}</td>
-                <td style={bodyCellStyle}>{row.meta || '-'}</td>
-                <td style={bodyCellStyle}>{row.indicador || '-'}</td>
+                
+                {/* Meta - Editable */}
+                <td 
+                  style={{ 
+                    ...bodyCellStyle, 
+                    cursor: editingCell?.id === row.id && editingCell?.field === 'meta' ? 'text' : 'pointer',
+                    backgroundColor: editingCell?.id === row.id && editingCell?.field === 'meta' ? '#fef3c7' : undefined
+                  }}
+                  onDoubleClick={() => handleDoubleClick(row.id, 'meta', row.meta)}
+                  title="Doble clic para editar"
+                >
+                  {editingCell?.id === row.id && editingCell?.field === 'meta' ? (
+                    <input
+                      type="text"
+                      value={tempValue}
+                      onChange={(e) => setTempValue(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      onBlur={handleSave}
+                      autoFocus
+                      style={{
+                        width: '100%',
+                        padding: '4px',
+                        border: '2px solid #f59e0b',
+                        borderRadius: '4px',
+                        fontSize: '0.875rem'
+                      }}
+                    />
+                  ) : (
+                    row.meta || '-'
+                  )}
+                </td>
+
+                {/* Indicador - Editable */}
+                <td 
+                  style={{ 
+                    ...bodyCellStyle, 
+                    cursor: editingCell?.id === row.id && editingCell?.field === 'indicador' ? 'text' : 'pointer',
+                    backgroundColor: editingCell?.id === row.id && editingCell?.field === 'indicador' ? '#fef3c7' : undefined
+                  }}
+                  onDoubleClick={() => handleDoubleClick(row.id, 'indicador', row.indicador)}
+                  title="Doble clic para editar"
+                >
+                  {editingCell?.id === row.id && editingCell?.field === 'indicador' ? (
+                    <input
+                      type="text"
+                      value={tempValue}
+                      onChange={(e) => setTempValue(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      onBlur={handleSave}
+                      autoFocus
+                      style={{
+                        width: '100%',
+                        padding: '4px',
+                        border: '2px solid #f59e0b',
+                        borderRadius: '4px',
+                        fontSize: '0.875rem'
+                      }}
+                    />
+                  ) : (
+                    row.indicador || '-'
+                  )}
+                </td>
+
+                {/* Acción - No editable */}
                 <td style={bodyCellStyle}>{row.accion || '-'}</td>
+                
+                {/* Presupuesto - No editable */}
                 <td style={bodyCellStyle}>{row.presupuesto || '-'}</td>
+                
+                {/* Trimestres - No editables */}
                 <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
                   <input
                     type="checkbox"
                     readOnly
+                    disabled
                     style={{ cursor: 'not-allowed', accentColor: '#10b981' }}
                   />
                 </td>
@@ -129,6 +253,7 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
                   <input
                     type="checkbox"
                     readOnly
+                    disabled
                     style={{ cursor: 'not-allowed', accentColor: '#10b981' }}
                   />
                 </td>
@@ -136,6 +261,7 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
                   <input
                     type="checkbox"
                     readOnly
+                    disabled
                     style={{ cursor: 'not-allowed', accentColor: '#10b981' }}
                   />
                 </td>
@@ -143,6 +269,7 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
                   <input
                     type="checkbox"
                     readOnly
+                    disabled
                     style={{ cursor: 'not-allowed', accentColor: '#10b981' }}
                   />
                 </td>
