@@ -32,6 +32,8 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
   const [loading, setLoading] = useState(true);
   const [trimestreHabilitado, setTrimestreHabilitado] = useState(false);
   const [valores, setValores] = useState<{ [key: number]: { texto: string; url: string } }>({});
+  
+  // Versión actualizada con diseño mejorado v2.0
 
   // Verificar si el trimestre está habilitado
   useEffect(() => {
