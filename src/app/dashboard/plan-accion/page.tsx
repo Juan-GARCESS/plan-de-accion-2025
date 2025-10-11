@@ -4,10 +4,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { PlanAccionTable } from '@/components/admin/PlanAccionTable';
+import { PlanAccionUserTable } from '@/components/user/PlanAccionUserTable';
 import { createCardStyle, colors, spacing } from '@/lib/styleUtils';
 import { UserDashboardLayout } from '@/components/user/UserDashboardLayout';
-import { EjeSeguimientoMatrix } from '@/components/seguimiento/EjeSeguimientoMatrix';
 
 export default function UserPlanAccionPage() {
   const router = useRouter();
@@ -85,8 +84,7 @@ export default function UserPlanAccionPage() {
         </p>
       </div>
       <div style={{ padding: spacing.lg }}>
-        <PlanAccionTable areaId={areaId} areaName={areaName} isAdmin={false} />
-        <EjeSeguimientoMatrix areaId={areaId} editable={true} />
+        <PlanAccionUserTable areaId={areaId} areaName={areaName} />
       </div>
     </UserDashboardLayout>
   );
