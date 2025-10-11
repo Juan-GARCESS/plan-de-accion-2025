@@ -12,10 +12,10 @@ interface PlanAccionRow {
   indicador: string | null;
   accion: string | null;
   presupuesto: string | null;
-  t1: boolean;
-  t2: boolean;
-  t3: boolean;
-  t4: boolean;
+  t1?: boolean | null;
+  t2?: boolean | null;
+  t3?: boolean | null;
+  t4?: boolean | null;
 }
 
 interface PlanAccionUserTableProps {
@@ -276,8 +276,8 @@ export const PlanAccionUserTable: React.FC<PlanAccionUserTableProps> = ({ areaId
                 <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
                   <input
                     type="checkbox"
-                    checked={row.t1}
-                    onChange={() => handleCheckboxChange(row.id, 't1', row.t1)}
+                    checked={row.t1 || false}
+                    onChange={() => handleCheckboxChange(row.id, 't1', row.t1 || false)}
                     style={{ cursor: 'pointer', width: '18px', height: '18px' }}
                   />
                 </td>
@@ -286,8 +286,8 @@ export const PlanAccionUserTable: React.FC<PlanAccionUserTableProps> = ({ areaId
                 <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
                   <input
                     type="checkbox"
-                    checked={row.t2}
-                    onChange={() => handleCheckboxChange(row.id, 't2', row.t2)}
+                    checked={row.t2 || false}
+                    onChange={() => handleCheckboxChange(row.id, 't2', row.t2 || false)}
                     style={{ cursor: 'pointer', width: '18px', height: '18px' }}
                   />
                 </td>
@@ -296,8 +296,8 @@ export const PlanAccionUserTable: React.FC<PlanAccionUserTableProps> = ({ areaId
                 <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
                   <input
                     type="checkbox"
-                    checked={row.t3}
-                    onChange={() => handleCheckboxChange(row.id, 't3', row.t3)}
+                    checked={row.t3 || false}
+                    onChange={() => handleCheckboxChange(row.id, 't3', row.t3 || false)}
                     style={{ cursor: 'pointer', width: '18px', height: '18px' }}
                   />
                 </td>
@@ -306,8 +306,8 @@ export const PlanAccionUserTable: React.FC<PlanAccionUserTableProps> = ({ areaId
                 <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
                   <input
                     type="checkbox"
-                    checked={row.t4}
-                    onChange={() => handleCheckboxChange(row.id, 't4', row.t4)}
+                    checked={row.t4 || false}
+                    onChange={() => handleCheckboxChange(row.id, 't4', row.t4 || false)}
                     style={{ cursor: 'pointer', width: '18px', height: '18px' }}
                   />
                 </td>
