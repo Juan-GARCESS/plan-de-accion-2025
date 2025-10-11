@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
         pa.indicador,
         pa.accion,
         pa.presupuesto,
-        e.nombre as eje_nombre,
-        se.nombre as sub_eje_nombre,
+        e.nombre_eje as eje_nombre,
+        se.nombre_sub_eje as sub_eje_nombre,
         um.id as evidencia_id,
         um.evidencia_texto,
         um.evidencia_url,
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
         AND um.usuario_id = $1 
         AND um.trimestre = $2
       WHERE pa.area_id = $3
-      ORDER BY e.nombre, se.nombre`,
+      ORDER BY e.nombre_eje, se.nombre_sub_eje`,
       [userId, trimestre, areaId]
     );
 
