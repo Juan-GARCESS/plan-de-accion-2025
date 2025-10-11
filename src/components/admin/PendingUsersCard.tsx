@@ -170,8 +170,8 @@ export const PendingUsersCard: React.FC<PendingUsersCardProps> = ({
                 </label>
                 <SearchableSelect
                   options={areas.map(a => ({
-                    id: a.id,
-                    nombre: a.nombre_area
+                    value: a.id,
+                    label: a.nombre_area
                   }))}
                   value={areaSeleccionada || 0}
                   onChange={(value) => setSelectedAreas(prev => ({
@@ -179,8 +179,6 @@ export const PendingUsersCard: React.FC<PendingUsersCardProps> = ({
                     [usuario.id]: value
                   }))}
                   placeholder="Selecciona un área..."
-                  getOptionLabel={(opt) => opt.nombre}
-                  getOptionValue={(opt) => opt.id}
                 />
               </div>
 
