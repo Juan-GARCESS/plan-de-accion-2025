@@ -71,7 +71,11 @@ export default function TrimstrePage() {
     'Octubre - Diciembre';
 
   return (
-    <UserDashboardLayout userName={user.nombre} areaName={undefined}>
+    <UserDashboardLayout 
+      userName={user.nombre} 
+      areaName={undefined}
+      onBackHome={() => router.push('/dashboard')}
+    >
       <div style={{ padding: '24px' }}>
         {/* Header */}
         <div style={{
@@ -81,27 +85,17 @@ export default function TrimstrePage() {
           marginBottom: 24,
           color: '#fff'
         }}>
-          <button
-            onClick={() => router.push('/dashboard')}
-            style={{
-              background: 'rgba(255, 255, 255, 0.2)',
-              border: 'none',
-              borderRadius: 8,
-              padding: '8px 16px',
-              color: '#fff',
-              cursor: 'pointer',
-              marginBottom: 16,
-              fontSize: '0.875rem',
-              fontWeight: '600'
-            }}
-          >
-            ← Volver al Dashboard
-          </button>
-          
-          <h1 style={{ margin: 0, marginBottom: 8, fontSize: '2rem', fontWeight: '700' }}>
-            📈 {trimestreNombre}
+          <h1 style={{
+            margin: 0,
+            fontSize: '2rem',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            📊 {trimestreNombre}
           </h1>
-          <p style={{ margin: 0, opacity: 0.9, fontSize: '1rem' }}>
+          <p style={{ margin: '8px 0 0 0', opacity: 0.9 }}>
             {trimestrePeriodo} • Gestiona tus metas, acciones y evidencias
           </p>
         </div>

@@ -30,6 +30,7 @@ export const TrimestreTable: React.FC<TrimestreTableProps> = ({
 }) => {
   const [metas, setMetas] = useState<Meta[]>([]);
   const [loading, setLoading] = useState(true);
+  const [trimestreHabilitado, setTrimestreHabilitado] = useState(false);
   const [editingCell, setEditingCell] = useState<{ metaId: number; field: 'accion' | 'presupuesto' } | null>(null);
   const [tempValue, setTempValue] = useState('');
 
@@ -51,6 +52,28 @@ export const TrimestreTable: React.FC<TrimestreTableProps> = ({
     };
 
     fetchMetas();
+  }, [trimestreId, areaId]);
+
+  // Verificar si el trimestre está habilitado en plan_accion
+  useEffect(() => {
+    const checkTrimestreHabilitado = async () => {
+      try {
+        const res = await fetch(`/api/admin/areas/${areaId}/plan-accion`);
+        if (!res.ok) throw new Error('Error al verificar trimestre');
+        const data = await res.json();
+        
+        // Verificar si AL MENOS UNA fila tiene el trimestre marcado
+        const trimestreKey = `t${trimestreId}` as 't1' | 't2' | 't3' | 't4';
+        const algunoMarcado = data.data?.some((row: any) => row[trimestreKey] === true);
+        
+        setTrimestreHabilitado(algunoMarcado || false);
+      } catch (error) {
+        console.error('Error al verificar trimestre:', error);
+        setTrimestreHabilitado(false);
+      }
+    };
+
+    checkTrimestreHabilitado();
   }, [trimestreId, areaId]);
 
   const handleDoubleClick = (metaId: number, field: 'accion' | 'presupuesto', currentValue: string | null) => {
@@ -119,6 +142,42 @@ export const TrimestreTable: React.FC<TrimestreTableProps> = ({
         textAlign: 'center'
       }}>
         <p style={{ color: '#9ca3af', margin: 0 }}>Cargando metas...</p>
+      </div>
+    );
+  }
+
+  // Si el trimestre no está habilitado
+  if (!trimestreHabilitado) {
+    return (
+      <div style={{
+        background: '#fff',
+        border: '1px solid #e5e7eb',
+        borderRadius: 12,
+        padding: 40,
+        textAlign: 'center'
+      }}>
+        <span style={{ fontSize: '3rem', marginBottom: 16, display: 'block' }}>🔒</span>
+        <h3 style={{ margin: 0, marginBottom: 8, color: colors.gray[800] }}>
+          Trimestre no habilitado
+        </h3>
+        <p style={{ margin: 0, color: colors.gray[600], fontSize: '0.875rem', marginBottom: 16 }}>
+          Debes marcar el checkbox de este trimestre (T{trimestreId}) en tu Plan de Acción para poder enviar evidencias.
+        </p>
+        <button
+          onClick={() => window.location.href = '/dashboard/plan-accion'}
+          style={{
+            background: '#3b82f6',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 8,
+            padding: '12px 24px',
+            fontSize: '0.875rem',
+            fontWeight: 600,
+            cursor: 'pointer'
+          }}
+        >
+          Ir a Plan de Acción
+        </button>
       </div>
     );
   }
