@@ -68,7 +68,7 @@ export const TrimestreTable: React.FC<TrimestreTableProps> = ({
         const trimestreKey = `t${trimestreId}` as 't1' | 't2' | 't3' | 't4';
         console.log(`🔍 Buscando columna: ${trimestreKey}`);
         
-        const algunoMarcado = data.data?.some((row: any) => {
+        const algunoMarcado = data.data?.some((row: { id: number; t1?: boolean; t2?: boolean; t3?: boolean; t4?: boolean }) => {
           console.log(`Fila ID ${row.id}: ${trimestreKey} = ${row[trimestreKey]}`);
           return row[trimestreKey] === true;
         });
