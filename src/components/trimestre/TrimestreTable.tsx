@@ -42,10 +42,9 @@ export const TrimestreTable: React.FC<TrimestreTableProps> = ({
         if (!res.ok) throw new Error('Error al cargar metas');
         const data = await res.json();
         setMetas(data.metas || []);
-      } catch {
-        toast.error('Error al cargar metas', {
-          description: 'No se pudieron cargar las metas del trimestre.'
-        });
+      } catch (error) {
+        console.error('Error al cargar metas:', error);
+        // No mostrar toast de error si no hay metas aún
       } finally {
         setLoading(false);
       }
