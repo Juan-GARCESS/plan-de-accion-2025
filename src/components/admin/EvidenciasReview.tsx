@@ -39,6 +39,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
 
   useEffect(() => {
     fetchEvidencias();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [areaId, trimestre]);
 
   const fetchEvidencias = async () => {

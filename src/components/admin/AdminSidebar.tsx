@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import React, { useState } from 'react';
-import { HomeIcon, WrenchScrewdriverIcon, BuildingOfficeIcon, DocumentCheckIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, WrenchScrewdriverIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
 import { MagnifyingGlassIcon as SearchSolidIcon } from '@heroicons/react/20/solid';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import type { Area } from '@/types';

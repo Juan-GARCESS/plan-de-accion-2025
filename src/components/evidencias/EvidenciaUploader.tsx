@@ -20,7 +20,6 @@ export const EvidenciaUploader: React.FC<EvidenciaUploaderProps> = ({
 }) => {
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [loadingExisting, setLoadingExisting] = useState(false);
 
   // Cargar evidencia existente si hay URL
   useEffect(() => {
@@ -29,7 +28,6 @@ export const EvidenciaUploader: React.FC<EvidenciaUploaderProps> = ({
     } else {
       // Verificar si existe evidencia para esta meta
       const checkExisting = async () => {
-        setLoadingExisting(true);
         try {
           const res = await fetch(`/api/usuario/evidencias?meta_id=${metaId}`);
           if (res.ok) {
@@ -40,8 +38,6 @@ export const EvidenciaUploader: React.FC<EvidenciaUploaderProps> = ({
           }
         } catch (error) {
           console.error('Error checking existing evidencia:', error);
-        } finally {
-          setLoadingExisting(false);
         }
       };
       checkExisting();
