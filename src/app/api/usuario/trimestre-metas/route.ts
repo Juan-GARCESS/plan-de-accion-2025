@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
       FROM plan_accion pa
       JOIN ejes e ON pa.eje_id = e.id
       JOIN sub_ejes se ON pa.sub_eje_id = se.id
-      LEFT JOIN usuario_metas um ON pa.id = um.meta_id 
+      LEFT JOIN usuario_metas um ON pa.id = um.plan_accion_id 
         AND um.usuario_id = $1 
         AND um.trimestre = $2
       WHERE pa.area_id = $3
@@ -81,9 +81,9 @@ export async function POST(request: NextRequest) {
     // Insertar o actualizar evidencia
     const result = await db.query(
       `INSERT INTO usuario_metas 
-        (usuario_id, meta_id, trimestre, evidencia_texto, evidencia_url, estado)
+        (usuario_id, plan_accion_id, trimestre, evidencia_texto, evidencia_url, estado)
       VALUES ($1, $2, $3, $4, $5, 'pendiente')
-      ON CONFLICT (usuario_id, meta_id, trimestre)
+      ON CONFLICT (usuario_id, plan_accion_id, trimestre)
       DO UPDATE SET
         evidencia_texto = $4,
         evidencia_url = $5,
