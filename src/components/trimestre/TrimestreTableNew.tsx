@@ -184,103 +184,145 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold mb-4">📋 Metas y Evidencias - Trimestre {trimestreId}</h2>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+          📋 Metas y Evidencias - Trimestre {trimestreId}
+        </h2>
+        <p className="text-sm text-gray-600">
+          Envía tus evidencias para cada meta. El administrador las revisará y calificará.
+        </p>
+      </div>
       
       {metas.map((meta) => (
-        <div key={meta.id} className="border rounded-lg p-4 bg-white shadow-sm">
-          {/* Información de la meta */}
-          <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b">
-            <div>
-              <p className="text-sm text-gray-500">Eje</p>
-              <p className="font-medium">{meta.eje_nombre}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Sub-Eje</p>
-              <p className="font-medium">{meta.sub_eje_nombre}</p>
-            </div>
-            <div className="col-span-2">
-              <p className="text-sm text-gray-500">Meta</p>
-              <p className="font-medium">{meta.meta || 'Sin meta'}</p>
-            </div>
-            <div className="col-span-2">
-              <p className="text-sm text-gray-500">Acción</p>
-              <p className="font-medium">{meta.accion || 'Sin acción definida'}</p>
+        <div key={meta.id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          {/* Header de la meta */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 border-b border-gray-200">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase mb-1">Eje</p>
+                <p className="font-semibold text-gray-800">{meta.eje_nombre}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase mb-1">Sub-Eje</p>
+                <p className="font-semibold text-gray-800">{meta.sub_eje_nombre}</p>
+              </div>
             </div>
           </div>
 
-          {/* Estado y calificación */}
-          <div className="flex items-center gap-4 mb-4">
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Estado</p>
-              {getEstadoBadge(meta.estado)}
+          {/* Contenido de la meta */}
+          <div className="p-4 space-y-4">
+            {/* Meta e Indicador */}
+            <div className="grid grid-cols-1 gap-3">
+              <div className="bg-gray-50 p-3 rounded-md">
+                <p className="text-xs font-medium text-gray-500 uppercase mb-1">Meta</p>
+                <p className="text-sm text-gray-800">{meta.meta || 'Sin meta definida'}</p>
+              </div>
+              {meta.indicador && (
+                <div className="bg-gray-50 p-3 rounded-md">
+                  <p className="text-xs font-medium text-gray-500 uppercase mb-1">Indicador</p>
+                  <p className="text-sm text-gray-800">{meta.indicador}</p>
+                </div>
+              )}
+              <div className="bg-blue-50 p-3 rounded-md border border-blue-200">
+                <p className="text-xs font-medium text-blue-700 uppercase mb-1">Acción a Realizar</p>
+                <p className="text-sm font-medium text-blue-900">{meta.accion || 'Sin acción definida'}</p>
+              </div>
             </div>
-            {meta.calificacion !== null && (
+
+            {/* Estado y Calificación */}
+            <div className="flex items-center gap-4 pt-3 border-t border-gray-200">
               <div>
-                <p className="text-sm text-gray-500 mb-1">Calificación</p>
-                <p className="font-bold text-lg text-blue-600">{meta.calificacion}</p>
+                <p className="text-xs font-medium text-gray-500 mb-1">Estado</p>
+                {getEstadoBadge(meta.estado)}
+              </div>
+              {meta.calificacion !== null && (
+                <div>
+                  <p className="text-xs font-medium text-gray-500 mb-1">Calificación</p>
+                  <p className="font-bold text-2xl text-blue-600">{meta.calificacion}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Observaciones del admin */}
+            {meta.observaciones && (
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-md">
+                <div className="flex items-start gap-2">
+                  <span className="text-yellow-600 text-lg">💬</span>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-yellow-800 mb-1">Observaciones del evaluador:</p>
+                    <p className="text-sm text-yellow-900">{meta.observaciones}</p>
+                  </div>
+                </div>
               </div>
             )}
-          </div>
 
-          {/* Observaciones del admin */}
-          {meta.observaciones && (
-            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-              <p className="text-sm font-medium text-yellow-800 mb-1">💬 Observaciones del evaluador:</p>
-              <p className="text-sm text-yellow-900">{meta.observaciones}</p>
+            {/* Formulario de evidencia */}
+            <div className="space-y-3 pt-3 border-t border-gray-200">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  📝 Evidencia (Descripción) *
+                </label>
+                <textarea
+                  value={valores[meta.id]?.texto || ''}
+                  onChange={(e) => setValores({
+                    ...valores,
+                    [meta.id]: { ...valores[meta.id], texto: e.target.value }
+                  })}
+                  className="w-full border border-gray-300 rounded-lg p-3 min-h-[100px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Describe detalladamente lo que hiciste para cumplir esta meta..."
+                  disabled={meta.estado === 'aprobado'}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  🔗 URL de Evidencia (opcional)
+                </label>
+                <input
+                  type="url"
+                  value={valores[meta.id]?.url || ''}
+                  onChange={(e) => setValores({
+                    ...valores,
+                    [meta.id]: { ...valores[meta.id], url: e.target.value }
+                  })}
+                  className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="https://drive.google.com/..."
+                  disabled={meta.estado === 'aprobado'}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  💡 Puedes compartir enlaces de Google Drive, Dropbox, etc.
+                </p>
+              </div>
+
+              {meta.estado !== 'aprobado' && (
+                <button
+                  onClick={() => handleEnviarEvidencia(meta.id)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+                >
+                  {meta.evidencia_id ? (
+                    <>
+                      🔄 <span>Actualizar Evidencia</span>
+                    </>
+                  ) : (
+                    <>
+                      📤 <span>Enviar Evidencia</span>
+                    </>
+                  )}
+                </button>
+              )}
+
+              {meta.fecha_envio && (
+                <p className="text-xs text-gray-500 text-center">
+                  ⏰ Última actualización: {new Date(meta.fecha_envio).toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </p>
+              )}
             </div>
-          )}
-
-          {/* Formulario de evidencia */}
-          <div className="space-y-3">
-            <div>
-              <label className="block text-sm font-medium mb-1">Evidencia (Descripción)</label>
-              <textarea
-                value={valores[meta.id]?.texto || ''}
-                onChange={(e) => setValores({
-                  ...valores,
-                  [meta.id]: { ...valores[meta.id], texto: e.target.value }
-                })}
-                className="w-full border rounded-md p-2 min-h-[80px]"
-                placeholder="Describe lo que hiciste para cumplir esta meta..."
-                disabled={meta.estado === 'aprobado'}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">URL de Evidencia (opcional)</label>
-              <input
-                type="url"
-                value={valores[meta.id]?.url || ''}
-                onChange={(e) => setValores({
-                  ...valores,
-                  [meta.id]: { ...valores[meta.id], url: e.target.value }
-                })}
-                className="w-full border rounded-md p-2"
-                placeholder="https://..."
-                disabled={meta.estado === 'aprobado'}
-              />
-            </div>
-
-            {meta.estado !== 'aprobado' && (
-              <button
-                onClick={() => handleEnviarEvidencia(meta.id)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                {meta.evidencia_id ? '🔄 Actualizar Evidencia' : '📤 Enviar Evidencia'}
-              </button>
-            )}
-
-            {meta.fecha_envio && (
-              <p className="text-xs text-gray-500">
-                Última actualización: {new Date(meta.fecha_envio).toLocaleDateString('es-ES', {
-                  day: '2-digit',
-                  month: 'long',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </p>
-            )}
           </div>
         </div>
       ))}
