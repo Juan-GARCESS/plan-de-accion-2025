@@ -87,6 +87,91 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Sección de Trimestres */}
+        <div style={{ 
+          background: '#fff', 
+          border: '1px solid #e5e7eb', 
+          borderRadius: 12, 
+          padding: 24,
+          marginBottom: '24px'
+        }}>
+          <h2 style={{ 
+            marginTop: 0, 
+            marginBottom: 16,
+            fontSize: '1.25rem',
+            fontWeight: '600',
+            color: '#111827'
+          }}>
+            📊 Plan de Acción por Trimestre
+          </h2>
+          <p style={{ 
+            margin: 0, 
+            marginBottom: 20,
+            color: '#6b7280', 
+            fontSize: '0.875rem' 
+          }}>
+            Selecciona un trimestre para gestionar tus metas, evidencias y seguimiento:
+          </p>
+          
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '16px' 
+          }}>
+            {[1, 2, 3, 4].map(trimestre => (
+              <button
+                key={trimestre}
+                onClick={() => router.push(`/dashboard/trimestre/${trimestre}`)}
+                style={{
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: '20px',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 6px rgba(59, 130, 246, 0.2)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontFamily: 'inherit'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 8px 12px rgba(59, 130, 246, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 6px rgba(59, 130, 246, 0.2)';
+                }}
+              >
+                <span style={{ fontSize: '2rem', marginBottom: '4px' }}>📈</span>
+                <span style={{ fontSize: '1.125rem', fontWeight: '700' }}>
+                  Trimestre {trimestre}
+                </span>
+                <span style={{ fontSize: '0.75rem', opacity: 0.9 }}>
+                  {trimestre === 1 ? 'Ene - Mar' : 
+                   trimestre === 2 ? 'Abr - Jun' :
+                   trimestre === 3 ? 'Jul - Sep' : 
+                   'Oct - Dic'}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <div style={{
+            marginTop: 20,
+            padding: 12,
+            backgroundColor: '#f3f4f6',
+            borderRadius: 8,
+            fontSize: '0.75rem',
+            color: '#4b5563'
+          }}>
+            💡 <strong>Tip:</strong> En cada trimestre podrás definir tus acciones, presupuesto y subir evidencias de cumplimiento.
+          </div>
+        </div>
+
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <button onClick={() => router.push('/dashboard/plan-accion')} style={{ background: '#111827', color: '#fff', border: '1px solid #111827', borderRadius: 12, padding: '14px 28px', fontWeight: 700, cursor: 'pointer' }}>
             Plan de Acción
