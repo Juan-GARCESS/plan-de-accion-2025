@@ -83,11 +83,11 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
           });
           setValores(valoresIniciales);
         } else {
-          toast.error('Error al cargar metas', { closeButton: true });
+          // Solo mostrar error si no es por tabla inexistente
+          console.error('Error al cargar metas:', data);
         }
       } catch (error) {
         console.error('Error:', error);
-        toast.error('Error al cargar metas', { closeButton: true });
       } finally {
         setLoading(false);
       }

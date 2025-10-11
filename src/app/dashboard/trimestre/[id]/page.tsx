@@ -103,7 +103,6 @@ export default function TrimstrePage() {
         {/* Tabla de Metas */}
         <TrimestreTable 
           trimestreId={trimestreId}
-          userId={user.id}
           areaId={user.area_id || 0}
         />
       </div>
