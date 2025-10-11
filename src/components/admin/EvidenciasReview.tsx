@@ -35,7 +35,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
   const [calificacion, setCalificacion] = useState(0);
   const [comentario, setComentario] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [filter, setFilter] = useState<'todas' | 'pendientes' | 'calificadas'>('pendientes');
+  const [filter, setFilter] = useState<'todas' | 'pendientes' | 'aprobadas' | 'rechazadas'>('pendientes');
 
   useEffect(() => {
     fetchEvidencias();
@@ -136,7 +136,8 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
 
   const evidenciasFiltradas = evidencias.filter(e => {
     if (filter === 'pendientes') return e.estado_calificacion === 'pendiente' || !e.estado_calificacion;
-    if (filter === 'calificadas') return e.estado_calificacion === 'aprobado' || e.estado_calificacion === 'rechazado';
+    if (filter === 'aprobadas') return e.estado_calificacion === 'aprobado';
+    if (filter === 'rechazadas') return e.estado_calificacion === 'rechazado';
     return true;
   });
 
@@ -156,7 +157,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
         gap: spacing.sm,
         marginBottom: spacing.lg
       }}>
-        {(['todas', 'pendientes', 'calificadas'] as const).map(f => (
+        {(['todas', 'pendientes', 'aprobadas', 'rechazadas'] as const).map(f => (
           <button
             key={f}
             onClick={() => setFilter(f)}
@@ -174,7 +175,8 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
           >
             {f} ({evidencias.filter(e => {
               if (f === 'pendientes') return e.estado_calificacion === 'pendiente' || !e.estado_calificacion;
-              if (f === 'calificadas') return e.estado_calificacion === 'aprobado' || e.estado_calificacion === 'rechazado';
+              if (f === 'aprobadas') return e.estado_calificacion === 'aprobado';
+              if (f === 'rechazadas') return e.estado_calificacion === 'rechazado';
               return true;
             }).length})
           </button>
