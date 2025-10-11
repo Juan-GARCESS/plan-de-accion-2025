@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 
 interface MetaEvidencia {
   id: number;
@@ -27,16 +26,11 @@ interface TrimestreTableProps {
 }
 
 export default function TrimestreTable({ trimestreId, areaId }: TrimestreTableProps) {
-  const router = useRouter();
   const [metas, setMetas] = useState<MetaEvidencia[]>([]);
   const [valores, setValores] = useState<Record<number, { evidencia_texto: string; evidencia_url: string }>>({});
   const [enviando, setEnviando] = useState<number | null>(null);
 
-  useEffect(() => {
-    cargarMetas();
-  }, [trimestreId, areaId]);
-
-  const cargarMetas = async () => {
+  const cargarMetas = useCallback(async () => {
     try {
       const res = await fetch(`/api/usuario/trimestre-metas?trimestre=${trimestreId}&area_id=${areaId}`);
       const data = await res.json();
@@ -56,10 +50,14 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
       } else {
         toast.error(data.error || 'Error al cargar metas');
       }
-    } catch (error) {
+    } catch {
       toast.error('Error al cargar metas');
     }
-  };
+  }, [trimestreId, areaId]);
+
+  useEffect(() => {
+    cargarMetas();
+  }, [cargarMetas]);
 
   const handleEnviarEvidencia = async (metaId: number) => {
     const evidencia_texto = valores[metaId]?.evidencia_texto?.trim();
@@ -91,7 +89,7 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
       } else {
         toast.error(data.error || 'Error al enviar evidencia');
       }
-    } catch (error) {
+    } catch {
       toast.error('Error al enviar evidencia');
     } finally {
       setEnviando(null);
