@@ -31,9 +31,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    console.log('API recibió:', { trimestre, participando, año, userId });
-
-    // 🔍 Verificar si ya existe una selección para este trimestre
+    // Verificar si ya existe una selección para este trimestre
     const existingSelectionResult = await db.query(`
       SELECT id FROM selecciones_trimestre 
       WHERE usuario_id = $1 AND trimestre = $2 AND año = $3
@@ -46,16 +44,12 @@ export async function POST(request: NextRequest) {
         SET participando = $1, updated_at = CURRENT_TIMESTAMP
         WHERE usuario_id = $2 AND trimestre = $3 AND año = $4
       `, [participando ? 1 : 0, userId, trimestre, año]);
-      
-      console.log('Selección actualizada:', { participando: participando ? 1 : 0 });
     } else {
       // Crear nueva selección
       await db.query(`
         INSERT INTO selecciones_trimestre (usuario_id, trimestre, año, participando, created_at, updated_at)
         VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
       `, [userId, trimestre, año, participando ? 1 : 0]);
-      
-      console.log('Nueva selección creada:', { participando: participando ? 1 : 0 });
     }
 
     return NextResponse.json({
