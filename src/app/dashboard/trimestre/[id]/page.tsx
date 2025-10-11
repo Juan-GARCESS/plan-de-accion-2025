@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { UserDashboardLayout } from '@/components/user/UserDashboardLayout';
-import { TrimestreTable } from '@/components/trimestre/TrimestreTable';
+import TrimestreTable from '@/components/trimestre/TrimestreTableNew';
 import { toast } from 'sonner';
 
 export default function TrimstrePage() {
