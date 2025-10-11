@@ -117,7 +117,10 @@ export const PlanAccionUserTable: React.FC<PlanAccionUserTableProps> = ({ areaId
         })
       });
 
-      if (!res.ok) throw new Error('Error al actualizar trimestre');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Error al actualizar trimestre');
+      }
 
       // Actualizar localmente
       setPlanAccion(prev => prev.map(row => 
@@ -131,7 +134,7 @@ export const PlanAccionUserTable: React.FC<PlanAccionUserTableProps> = ({ areaId
       });
     } catch (error) {
       toast.error('Error al actualizar trimestre', {
-        description: 'Intenta nuevamente.',
+        description: error instanceof Error ? error.message : 'Intenta nuevamente.',
         closeButton: true
       });
     }
