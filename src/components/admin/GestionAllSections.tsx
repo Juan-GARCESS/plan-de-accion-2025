@@ -2,7 +2,6 @@
 'use client';
 
 import React from 'react';
-import { PendingUsersCard } from '@/components/admin/PendingUsersCard';
 import { UsersSectionImproved } from '@/components/admin/UsersSectionImproved';
 import { AreasManagementSectionImproved } from '@/components/admin/AreasManagementSectionImproved';
 import { EjesManagementSectionImproved } from '@/components/admin/EjesManagementSectionImproved';
@@ -12,8 +11,6 @@ interface GestionAllSectionsProps {
   usuarios: Usuario[];
   areas: Area[];
   // user actions
-  onApprove: (userId: number, areaId: number) => Promise<void>;
-  onReject: (userId: number) => Promise<void>;
   onEdit: (userId: number, data: { nombre: string; email: string; password?: string; area_id?: number }) => Promise<void>;
   onDelete: (userId: number) => Promise<void>;
   onGeneratePassword: (userId: number) => Promise<string>;
@@ -26,8 +23,6 @@ interface GestionAllSectionsProps {
 export const GestionAllSections: React.FC<GestionAllSectionsProps> = ({
   usuarios,
   areas,
-  onApprove,
-  onReject,
   onEdit,
   onDelete,
   onGeneratePassword,
@@ -37,19 +32,9 @@ export const GestionAllSections: React.FC<GestionAllSectionsProps> = ({
 }) => {
   return (
     <div>
-      {/* Tarjeta destacada de usuarios pendientes */}
-      <PendingUsersCard
-        usuarios={usuarios}
-        areas={areas}
-        onApprove={onApprove}
-        onReject={onReject}
-      />
-
       <UsersSectionImproved
         usuarios={usuarios}
         areas={areas}
-        onApprove={onApprove}
-        onReject={onReject}
         onEdit={onEdit}
         onDelete={onDelete}
         onGeneratePassword={onGeneratePassword}
