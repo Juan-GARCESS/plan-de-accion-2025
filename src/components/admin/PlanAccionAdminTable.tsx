@@ -36,7 +36,9 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
         setPlanAccion(data.data || []);
       } catch (error) {
         console.error('Error:', error);
-        toast.error('Error al cargar el plan de acción');
+        toast.error('Error al cargar el plan de acción', {
+          closeButton: true
+        });
       } finally {
         setLoading(false);
       }
@@ -83,11 +85,13 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
       ));
 
       toast.success('Actualizado', {
-        description: `${field === 'meta' ? 'Meta' : 'Indicador'} actualizado correctamente.`
+        description: `${field === 'meta' ? 'Meta' : 'Indicador'} actualizado correctamente.`,
+        closeButton: true
       });
     } catch (error) {
       toast.error('Error al guardar', {
-        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+        description: error instanceof Error ? error.message : 'Intenta nuevamente.',
+        closeButton: true
       });
     } finally {
       setEditingCell(null);

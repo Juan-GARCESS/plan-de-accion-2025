@@ -12,18 +12,20 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    // Verificar que es admin
-    const adminCheck = await db.query(
+    // Verificar rol del usuario
+    const userCheck = await db.query(
       "SELECT rol FROM usuarios WHERE id = $1",
       [userId]
     );
 
-    if (adminCheck.rows.length === 0 || adminCheck.rows[0].rol !== 'admin') {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    if (userCheck.rows.length === 0) {
+      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 401 });
     }
 
+    const isAdmin = userCheck.rows[0].rol === 'admin';
+
     const body = await request.json();
-    const { id, meta, indicador } = body;
+    const { id, meta, indicador, accion, presupuesto, t1, t2, t3, t4 } = body;
 
     if (!id) {
       return NextResponse.json({ 
@@ -31,20 +33,65 @@ export async function PUT(request: NextRequest) {
       }, { status: 400 });
     }
 
+    // Validar permisos según rol
+    if (!isAdmin && (meta !== undefined || indicador !== undefined)) {
+      return NextResponse.json({ 
+        error: "No tienes permiso para editar Meta o Indicador" 
+      }, { status: 403 });
+    }
+
     // Construir query dinámicamente
     const updates: string[] = [];
-    const values: (string | number)[] = [];
+    const values: (string | number | boolean)[] = [];
     let paramCount = 1;
 
-    if (meta !== undefined) {
+    // Admin puede editar meta e indicador
+    if (isAdmin && meta !== undefined) {
       updates.push(`meta = $${paramCount}`);
       values.push(meta);
       paramCount++;
     }
 
-    if (indicador !== undefined) {
+    if (isAdmin && indicador !== undefined) {
       updates.push(`indicador = $${paramCount}`);
       values.push(indicador);
+      paramCount++;
+    }
+
+    // Todos pueden editar accion, presupuesto y trimestres
+    if (accion !== undefined) {
+      updates.push(`accion = $${paramCount}`);
+      values.push(accion);
+      paramCount++;
+    }
+
+    if (presupuesto !== undefined) {
+      updates.push(`presupuesto = $${paramCount}`);
+      values.push(presupuesto);
+      paramCount++;
+    }
+
+    if (t1 !== undefined) {
+      updates.push(`t1 = $${paramCount}`);
+      values.push(t1);
+      paramCount++;
+    }
+
+    if (t2 !== undefined) {
+      updates.push(`t2 = $${paramCount}`);
+      values.push(t2);
+      paramCount++;
+    }
+
+    if (t3 !== undefined) {
+      updates.push(`t3 = $${paramCount}`);
+      values.push(t3);
+      paramCount++;
+    }
+
+    if (t4 !== undefined) {
+      updates.push(`t4 = $${paramCount}`);
+      values.push(t4);
       paramCount++;
     }
 

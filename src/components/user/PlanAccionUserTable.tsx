@@ -12,6 +12,10 @@ interface PlanAccionRow {
   indicador: string | null;
   accion: string | null;
   presupuesto: string | null;
+  t1: boolean;
+  t2: boolean;
+  t3: boolean;
+  t4: boolean;
 }
 
 interface PlanAccionUserTableProps {
@@ -34,7 +38,9 @@ export const PlanAccionUserTable: React.FC<PlanAccionUserTableProps> = ({ areaId
         setPlanAccion(data.data || []);
       } catch (error) {
         console.error('Error:', error);
-        toast.error('Error al cargar el plan de acción');
+        toast.error('Error al cargar el plan de acción', {
+          closeButton: true
+        });
       } finally {
         setLoading(false);
       }
@@ -73,11 +79,13 @@ export const PlanAccionUserTable: React.FC<PlanAccionUserTableProps> = ({ areaId
       ));
 
       toast.success('Actualizado', {
-        description: `${field === 'accion' ? 'Acción' : 'Presupuesto'} actualizado correctamente.`
+        description: `${field === 'accion' ? 'Acción' : 'Presupuesto'} actualizado correctamente.`,
+        closeButton: true
       });
     } catch (error) {
       toast.error('Error al guardar', {
-        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+        description: error instanceof Error ? error.message : 'Intenta nuevamente.',
+        closeButton: true
       });
     } finally {
       setEditingCell(null);
@@ -95,6 +103,37 @@ export const PlanAccionUserTable: React.FC<PlanAccionUserTableProps> = ({ areaId
       handleSave();
     } else if (e.key === 'Escape') {
       handleCancel();
+    }
+  };
+
+  const handleCheckboxChange = async (id: number, trimestre: 't1' | 't2' | 't3' | 't4', currentValue: boolean) => {
+    try {
+      const res = await fetch('/api/admin/areas/plan-accion/update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id,
+          [trimestre]: !currentValue
+        })
+      });
+
+      if (!res.ok) throw new Error('Error al actualizar trimestre');
+
+      // Actualizar localmente
+      setPlanAccion(prev => prev.map(row => 
+        row.id === id 
+          ? { ...row, [trimestre]: !currentValue }
+          : row
+      ));
+
+      toast.success('Trimestre actualizado', {
+        closeButton: true
+      });
+    } catch (error) {
+      toast.error('Error al actualizar trimestre', {
+        description: 'Intenta nuevamente.',
+        closeButton: true
+      });
     }
   };
 
@@ -148,6 +187,10 @@ export const PlanAccionUserTable: React.FC<PlanAccionUserTableProps> = ({ areaId
               <th style={headerCellStyle}>Indicador</th>
               <th style={headerCellStyle}>Acción</th>
               <th style={headerCellStyle}>Presupuesto</th>
+              <th style={headerCellStyle}>T1</th>
+              <th style={headerCellStyle}>T2</th>
+              <th style={headerCellStyle}>T3</th>
+              <th style={headerCellStyle}>T4</th>
             </tr>
           </thead>
           <tbody>
@@ -224,6 +267,46 @@ export const PlanAccionUserTable: React.FC<PlanAccionUserTableProps> = ({ areaId
                   ) : (
                     row.presupuesto || '-'
                   )}
+                </td>
+
+                {/* T1 - Checkbox */}
+                <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
+                  <input
+                    type="checkbox"
+                    checked={row.t1}
+                    onChange={() => handleCheckboxChange(row.id, 't1', row.t1)}
+                    style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                  />
+                </td>
+
+                {/* T2 - Checkbox */}
+                <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
+                  <input
+                    type="checkbox"
+                    checked={row.t2}
+                    onChange={() => handleCheckboxChange(row.id, 't2', row.t2)}
+                    style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                  />
+                </td>
+
+                {/* T3 - Checkbox */}
+                <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
+                  <input
+                    type="checkbox"
+                    checked={row.t3}
+                    onChange={() => handleCheckboxChange(row.id, 't3', row.t3)}
+                    style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                  />
+                </td>
+
+                {/* T4 - Checkbox */}
+                <td style={{ ...bodyCellStyle, textAlign: 'center' }}>
+                  <input
+                    type="checkbox"
+                    checked={row.t4}
+                    onChange={() => handleCheckboxChange(row.id, 't4', row.t4)}
+                    style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+                  />
                 </td>
               </tr>
             ))}
