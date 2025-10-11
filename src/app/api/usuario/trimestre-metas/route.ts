@@ -36,9 +36,10 @@ export async function GET(request: NextRequest) {
         e.nombre as eje_nombre,
         se.nombre as subeje_nombre
       FROM usuario_metas um
-      LEFT JOIN sub_ejes se ON um.subeje_id = se.id
+      LEFT JOIN sub_ejes se ON um.sub_eje_id = se.id
       LEFT JOIN ejes e ON se.eje_id = e.id
-      WHERE um.area_id = $1 
+      JOIN usuarios u ON um.usuario_id = u.id
+      WHERE u.area_id = $1 
         AND um.trimestre = $2
         AND um.usuario_id = $3
       ORDER BY e.nombre, se.nombre

@@ -1,7 +1,7 @@
 // src/components/evidencias/EvidenciaUploader.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { colors, spacing } from '@/lib/styleUtils';
 
@@ -19,7 +19,34 @@ export const EvidenciaUploader: React.FC<EvidenciaUploaderProps> = ({
   existingUrl
 }) => {
   const [uploading, setUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(existingUrl || null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [loadingExisting, setLoadingExisting] = useState(false);
+
+  // Cargar evidencia existente si hay URL
+  useEffect(() => {
+    if (existingUrl) {
+      setPreviewUrl(existingUrl);
+    } else {
+      // Verificar si existe evidencia para esta meta
+      const checkExisting = async () => {
+        setLoadingExisting(true);
+        try {
+          const res = await fetch(`/api/usuario/evidencias?meta_id=${metaId}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.existe && data.evidencia) {
+              setPreviewUrl(`evidencia_${data.evidencia.id}`);
+            }
+          }
+        } catch (error) {
+          console.error('Error checking existing evidencia:', error);
+        } finally {
+          setLoadingExisting(false);
+        }
+      };
+      checkExisting();
+    }
+  }, [existingUrl, metaId]);
 
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {

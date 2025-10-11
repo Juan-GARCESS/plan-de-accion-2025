@@ -89,34 +89,59 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const evidenciaId = searchParams.get('id');
+    const metaId = searchParams.get('meta_id');
 
-    if (!evidenciaId) {
-      return NextResponse.json({ 
-        error: "ID de evidencia requerido" 
-      }, { status: 400 });
+    // Si se solicita por ID de evidencia
+    if (evidenciaId) {
+      const result = await db.query(
+        `SELECT archivo_base64, nombre_archivo, tipo_archivo 
+         FROM evidencias 
+         WHERE id = $1 AND usuario_id = $2`,
+        [evidenciaId, userId]
+      );
+
+      if (result.rows.length === 0) {
+        return NextResponse.json({ 
+          error: "Evidencia no encontrada" 
+        }, { status: 404 });
+      }
+
+      const evidencia = result.rows[0];
+
+      return NextResponse.json({
+        archivo: evidencia.archivo_base64,
+        nombre: evidencia.nombre_archivo,
+        tipo: evidencia.tipo_archivo
+      });
     }
 
-    // Obtener evidencia
-    const result = await db.query(
-      `SELECT archivo_base64, nombre_archivo, tipo_archivo 
-       FROM evidencias 
-       WHERE id = $1 AND usuario_id = $2`,
-      [evidenciaId, userId]
-    );
+    // Si se solicita por meta_id (para verificar si existe)
+    if (metaId) {
+      const result = await db.query(
+        `SELECT id, nombre_archivo, tipo_archivo, created_at, tamano_bytes
+         FROM evidencias 
+         WHERE meta_id = $1 AND usuario_id = $2
+         ORDER BY created_at DESC
+         LIMIT 1`,
+        [metaId, userId]
+      );
 
-    if (result.rows.length === 0) {
-      return NextResponse.json({ 
-        error: "Evidencia no encontrada" 
-      }, { status: 404 });
+      if (result.rows.length === 0) {
+        return NextResponse.json({ 
+          existe: false 
+        });
+      }
+
+      return NextResponse.json({
+        existe: true,
+        evidencia: result.rows[0]
+      });
     }
 
-    const evidencia = result.rows[0];
+    return NextResponse.json({ 
+      error: "ID de evidencia o meta_id requerido" 
+    }, { status: 400 });
 
-    return NextResponse.json({
-      archivo: evidencia.archivo_base64,
-      nombre: evidencia.nombre_archivo,
-      tipo: evidencia.tipo_archivo
-    });
   } catch (error) {
     console.error("Error al obtener evidencia:", error);
     return NextResponse.json({ 

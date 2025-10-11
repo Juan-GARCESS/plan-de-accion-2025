@@ -23,7 +23,12 @@ interface Evidencia {
   fecha_subida: string;
 }
 
-export const EvidenciasReview: React.FC = () => {
+interface EvidenciasReviewProps {
+  areaId?: number;
+  trimestre?: number;
+}
+
+export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trimestre }) => {
   const [evidencias, setEvidencias] = useState<Evidencia[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvidencia, setSelectedEvidencia] = useState<Evidencia | null>(null);
@@ -34,12 +39,18 @@ export const EvidenciasReview: React.FC = () => {
 
   useEffect(() => {
     fetchEvidencias();
-  }, []);
+  }, [areaId, trimestre]);
 
   const fetchEvidencias = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/evidencias');
+      let url = '/api/admin/evidencias';
+      const params = new URLSearchParams();
+      if (areaId) params.append('areaId', areaId.toString());
+      if (trimestre) params.append('trimestre', trimestre.toString());
+      if (params.toString()) url += `?${params.toString()}`;
+      
+      const res = await fetch(url);
       if (!res.ok) throw new Error('Error al cargar evidencias');
       const data = await res.json();
       setEvidencias(data.evidencias || []);

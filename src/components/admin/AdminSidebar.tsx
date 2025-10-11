@@ -14,8 +14,6 @@ interface AdminSidebarProps {
   userName?: string;
   onGestionSelect?: () => void;
   isGestionSelected?: boolean;
-  onEvidenciasSelect?: () => void;
-  isEvidenciasSelected?: boolean;
 }
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({
@@ -25,9 +23,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   onDashboardSelect,
   userName,
   onGestionSelect,
-  isGestionSelected,
-  onEvidenciasSelect,
-  isEvidenciasSelected
+  isGestionSelected
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -179,40 +175,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         >
           <WrenchScrewdriverIcon style={{ width: '18px', height: '18px' }} />
           <span>Gestión</span>
-        </button>
-
-        {/* Evidencias Button */}
-        <button
-          onClick={onEvidenciasSelect}
-          style={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '10px 12px',
-            marginBottom: '20px',
-            border: 'none',
-            borderRadius: '8px',
-            background: isEvidenciasSelected ? '#1e293b' : 'transparent',
-            color: isEvidenciasSelected ? 'white' : '#475569',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            if (!isEvidenciasSelected) {
-              e.currentTarget.style.background = '#f1f5f9';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isEvidenciasSelected) {
-              e.currentTarget.style.background = 'transparent';
-            }
-          }}
-        >
-          <DocumentCheckIcon style={{ width: '18px', height: '18px' }} />
-          <span>Evidencias</span>
         </button>
 
         {/* ÁREAS Section */}

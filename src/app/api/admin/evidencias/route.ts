@@ -22,8 +22,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    // Obtener todas las evidencias con información de usuario y meta
-    const result = await db.query(`
+    // Obtener parámetros de filtro
+    const { searchParams } = new URL(request.url);
+    const areaId = searchParams.get('areaId');
+    const trimestre = searchParams.get('trimestre');
+
+    // Construir query con filtros opcionales
+    let query = `
       SELECT 
         e.id,
         e.meta_id,
@@ -43,9 +48,28 @@ export async function GET(request: NextRequest) {
       FROM evidencias e
       JOIN usuario_metas um ON e.meta_id = um.id
       JOIN usuarios u ON e.usuario_id = u.id
-      JOIN areas a ON um.area_id = a.id
-      ORDER BY e.created_at DESC
-    `);
+      JOIN areas a ON u.area_id = a.id
+      WHERE 1=1
+    `;
+
+    const params: any[] = [];
+    let paramCount = 1;
+
+    if (areaId) {
+      query += ` AND u.area_id = $${paramCount}`;
+      params.push(parseInt(areaId));
+      paramCount++;
+    }
+
+    if (trimestre) {
+      query += ` AND um.trimestre = $${paramCount}`;
+      params.push(parseInt(trimestre));
+      paramCount++;
+    }
+
+    query += ` ORDER BY e.created_at DESC`;
+
+    const result = await db.query(query, params);
 
     return NextResponse.json({ 
       evidencias: result.rows 

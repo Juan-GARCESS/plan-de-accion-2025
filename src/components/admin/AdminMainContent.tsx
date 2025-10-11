@@ -38,7 +38,36 @@ export const AdminMainContent: React.FC<AdminMainContentProps> = ({ children }) 
             </div>
           </div>
 
-          {/* CTA removido: Plan de acción general (no utilizado) */}
+          {/* Botón Plan de Acción General */}
+          <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+            <button
+              onClick={() => window.open('/plan-accion-general.pdf', '_blank')}
+              style={{
+                padding: '1rem 2rem',
+                backgroundColor: '#1e293b',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#334155';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#1e293b';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+              }}
+            >
+              📄 Ver Plan de Acción General
+            </button>
+          </div>
         </div>
       )}
     </div>

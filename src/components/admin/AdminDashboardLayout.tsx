@@ -15,8 +15,6 @@ interface AdminDashboardLayoutProps {
   userName?: string;
   onGestionSelect?: () => void;
   isGestionSelected?: boolean;
-  onEvidenciasSelect?: () => void;
-  isEvidenciasSelected?: boolean;
   children?: React.ReactNode;
 }
 
@@ -28,8 +26,6 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
   userName,
   onGestionSelect,
   isGestionSelected,
-  onEvidenciasSelect,
-  isEvidenciasSelected,
   children
 }) => {
   const sidebarWidth = 280;
@@ -71,8 +67,6 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
           userName={userName}
           onGestionSelect={onGestionSelect}
           isGestionSelected={isGestionSelected}
-          onEvidenciasSelect={onEvidenciasSelect}
-          isEvidenciasSelected={isEvidenciasSelected}
         />
       </aside>
 
