@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { colors, spacing } from '@/lib/styleUtils';
+import { EvidenciaUploader } from '@/components/evidencias/EvidenciaUploader';
 
 interface Meta {
   id: number;
@@ -275,29 +276,15 @@ export const TrimestreTable: React.FC<TrimestreTableProps> = ({
                 </td>
 
                 <td style={cellStyle}>
-                  {meta.evidencia_url ? (
-                    <span style={{ color: colors.success }}>✓ Subida</span>
-                  ) : (
-                    <button
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: colors.primary,
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: 6,
-                        cursor: 'pointer',
-                        fontSize: '0.75rem',
-                        fontWeight: '600'
-                      }}
-                      onClick={() => {
-                        toast.info('Próximamente', {
-                          description: 'La funcionalidad de subir evidencias estará disponible pronto.'
-                        });
-                      }}
-                    >
-                      Subir
-                    </button>
-                  )}
+                  <EvidenciaUploader
+                    metaId={meta.id}
+                    existingUrl={meta.evidencia_url}
+                    onUploadSuccess={(url) => {
+                      setMetas(prev => prev.map(m =>
+                        m.id === meta.id ? { ...m, evidencia_url: url } : m
+                      ));
+                    }}
+                  />
                 </td>
 
                 <td style={cellStyle}>
