@@ -9,6 +9,8 @@ export async function GET(request: NextRequest) {
     const match = cookie?.match(/userId=(\d+)/);
     const userId = match ? parseInt(match[1], 10) : null;
 
+    console.log('🔍 GET /api/usuario/trimestre-metas - userId:', userId);
+
     if (!userId) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
@@ -17,11 +19,15 @@ export async function GET(request: NextRequest) {
     const trimestre = searchParams.get('trimestre');
     const areaId = searchParams.get('area_id');
 
+    console.log('📋 Parámetros:', { trimestre, areaId });
+
     if (!trimestre || !areaId) {
       return NextResponse.json({ 
         error: "Parámetros requeridos: trimestre, area_id" 
       }, { status: 400 });
     }
+
+    console.log('🔎 Ejecutando query...');
 
     // Obtener plan de acción del área con las evidencias del usuario
     const result = await db.query(
@@ -51,11 +57,15 @@ export async function GET(request: NextRequest) {
       [userId, trimestre, areaId]
     );
 
+    console.log('✅ Metas encontradas:', result.rows.length);
+    console.log('📊 Primeras 2 metas:', result.rows.slice(0, 2));
+
     return NextResponse.json({ metas: result.rows });
   } catch (error) {
-    console.error("Error al obtener metas:", error);
+    console.error("❌ Error al obtener metas:", error);
     return NextResponse.json({ 
-      error: "Error al obtener metas" 
+      error: "Error al obtener metas",
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }

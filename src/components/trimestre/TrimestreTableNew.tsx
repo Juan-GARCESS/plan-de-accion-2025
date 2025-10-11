@@ -65,12 +65,20 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
 
     const cargarMetas = async () => {
       try {
+        console.log('🔍 Cargando metas para:', { trimestreId, areaId });
         const response = await fetch(
           `/api/usuario/trimestre-metas?trimestre=${trimestreId}&area_id=${areaId}`
         );
         const data = await response.json();
         
+        console.log('📦 Respuesta del servidor:', { 
+          ok: response.ok, 
+          status: response.status,
+          data 
+        });
+        
         if (response.ok) {
+          console.log('✅ Metas recibidas:', data.metas?.length || 0);
           setMetas(data.metas || []);
           
           // Inicializar valores de edición
@@ -83,11 +91,10 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
           });
           setValores(valoresIniciales);
         } else {
-          // Solo mostrar error si no es por tabla inexistente
-          console.error('Error al cargar metas:', data);
+          console.error('❌ Error al cargar metas:', data);
         }
       } catch (error) {
-        console.error('Error:', error);
+        console.error('❌ Error en fetch:', error);
       } finally {
         setLoading(false);
       }
