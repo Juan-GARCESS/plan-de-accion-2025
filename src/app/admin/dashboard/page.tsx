@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { AdminDashboardLayout, GestionAllSections } from '@/components/admin';
+import { EvidenciasReview } from '@/components/admin/EvidenciasReview';
 import { EjeSeguimientoMatrix } from '@/components/seguimiento/EjeSeguimientoMatrix';
 import { PlanAccionTable } from '@/components/admin/PlanAccionTable';
 import { useAuth } from '@/hooks/useAuth';
@@ -24,6 +25,7 @@ function DashboardPageContent() {
     deleteArea
   } = useAdminManagement();
   const [showGestion, setShowGestion] = useState(false);
+  const [showEvidencias, setShowEvidencias] = useState(false);
   const [selectedAreaId, setSelectedAreaId] = useState<number | null>(null);
   const [selectedArea, setSelectedArea] = useState<Area | null>(null);
 
@@ -48,6 +50,7 @@ function DashboardPageContent() {
 
   const handleAreaSelect = (areaId: number) => {
     setShowGestion(false);
+    setShowEvidencias(false);
     const area = areas.find(a => a.id === areaId);
     setSelectedAreaId(areaId);
     setSelectedArea(area || null);
@@ -55,12 +58,21 @@ function DashboardPageContent() {
 
   const handleDashboardSelect = () => {
     setShowGestion(false);
+    setShowEvidencias(false);
     setSelectedAreaId(null);
     setSelectedArea(null);
   };
 
   const handleGestionSelect = () => {
     setShowGestion(true);
+    setShowEvidencias(false);
+    setSelectedAreaId(null);
+    setSelectedArea(null);
+  };
+
+  const handleEvidenciasSelect = () => {
+    setShowGestion(false);
+    setShowEvidencias(true);
     setSelectedAreaId(null);
     setSelectedArea(null);
   };
@@ -108,10 +120,19 @@ function DashboardPageContent() {
       onAreaSelect={handleAreaSelect}
       onDashboardSelect={handleDashboardSelect}
       onGestionSelect={handleGestionSelect}
+      onEvidenciasSelect={handleEvidenciasSelect}
       userName={user.nombre}
       isGestionSelected={showGestion}
+      isEvidenciasSelected={showEvidencias}
     >
-      {showGestion ? (
+      {showEvidencias ? (
+        <div>
+          <h2 style={{ marginTop: 0, marginBottom: '1.5rem', fontSize: '1.5rem', fontWeight: '600' }}>
+            📋 Revisión de Evidencias
+          </h2>
+          <EvidenciasReview />
+        </div>
+      ) : showGestion ? (
         <GestionAllSections
           usuarios={usuarios}
           areas={areas}
