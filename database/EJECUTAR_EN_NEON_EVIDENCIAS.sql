@@ -9,8 +9,8 @@ DROP TABLE IF EXISTS usuario_metas CASCADE;
 -- 2. Crear la tabla usuario_metas
 CREATE TABLE usuario_metas (
   id SERIAL PRIMARY KEY,
-  usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-  meta_id INTEGER NOT NULL,
+  usuario_id INTEGER NOT NULL,
+  plan_accion_id INTEGER NOT NULL,
   trimestre INTEGER NOT NULL CHECK (trimestre IN (1, 2, 3, 4)),
   evidencia_texto TEXT,
   evidencia_url TEXT,
@@ -19,15 +19,15 @@ CREATE TABLE usuario_metas (
   calificacion DECIMAL(5, 2),
   fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   fecha_revision TIMESTAMP,
-  revisado_por INTEGER REFERENCES usuarios(id),
+  revisado_por INTEGER,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(usuario_id, meta_id, trimestre)
+  UNIQUE(usuario_id, plan_accion_id, trimestre)
 );
 
 -- 3. Crear índices para mejorar el rendimiento
 CREATE INDEX idx_usuario_metas_usuario ON usuario_metas(usuario_id);
-CREATE INDEX idx_usuario_metas_meta ON usuario_metas(meta_id);
+CREATE INDEX idx_usuario_metas_plan_accion ON usuario_metas(plan_accion_id);
 CREATE INDEX idx_usuario_metas_trimestre ON usuario_metas(trimestre);
 CREATE INDEX idx_usuario_metas_estado ON usuario_metas(estado);
 
