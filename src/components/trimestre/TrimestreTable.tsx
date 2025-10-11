@@ -199,12 +199,15 @@ export const TrimestreTable: React.FC<TrimestreTableProps> = ({
         padding: 40,
         textAlign: 'center'
       }}>
-        <span style={{ fontSize: '3rem', marginBottom: 16, display: 'block' }}>📋</span>
-        <h3 style={{ margin: 0, marginBottom: 8, color: colors.gray[800] }}>
-          No hay metas definidas
+        <span style={{ fontSize: '3rem', marginBottom: 16, display: 'block' }}>✅</span>
+        <h3 style={{ margin: '0 0 8px 0', color: colors.gray[800] }}>
+          Trimestre {trimestreId} Habilitado
         </h3>
-        <p style={{ margin: 0, color: colors.gray[600], fontSize: '0.875rem' }}>
-          El administrador aún no ha creado metas para este trimestre.
+        <p style={{ margin: '0 0 16px 0', color: colors.gray[600], fontSize: '0.875rem' }}>
+          Has marcado este trimestre correctamente. El sistema de envío de evidencias estará disponible próximamente.
+        </p>
+        <p style={{ margin: 0, color: colors.gray[500], fontSize: '0.75rem', fontStyle: 'italic' }}>
+          Por ahora, asegúrate de tener completadas las columnas Acción y Presupuesto en tu Plan de Acción.
         </p>
       </div>
     );
