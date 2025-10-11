@@ -3,6 +3,7 @@
 ## 📊 RESUMEN DE IMPLEMENTACIÓN
 
 ### ✅ **Base de Datos**
+
 - **Tabla:** `usuario_metas`
 - **Columnas principales:**
   - `id` - Serial Primary Key
@@ -30,11 +31,14 @@
 ### ✅ **API Endpoints**
 
 #### GET `/api/usuario/trimestre-metas`
+
 **Parámetros:**
+
 - `trimestre` - Número del trimestre (1-4)
 - `area_id` - ID del área del usuario
 
 **Retorna:**
+
 ```json
 {
   "metas": [
@@ -59,7 +63,9 @@
 ```
 
 #### POST `/api/usuario/trimestre-metas`
+
 **Body:**
+
 ```json
 {
   "planAccionId": 1,
@@ -70,6 +76,7 @@
 ```
 
 **Retorna:**
+
 ```json
 {
   "success": true,
@@ -82,7 +89,9 @@
 ### ✅ **Componentes Frontend**
 
 #### `TrimestreTableNew.tsx`
+
 **Características:**
+
 - ✅ Validación de trimestre habilitado
 - ✅ Carga dinámica de metas
 - ✅ Formularios para evidencias
@@ -93,6 +102,7 @@
 - ✅ Permite actualizar si está rechazado
 
 **Props:**
+
 - `trimestreId: number` - ID del trimestre (1-4)
 - `areaId: number` - ID del área del usuario
 
@@ -101,6 +111,7 @@
 ## 🔄 FLUJO DE TRABAJO
 
 ### **Usuario:**
+
 1. Va al Plan de Acción
 2. Marca checkbox T1, T2, T3 o T4 según corresponda
 3. Click en el trimestre marcado
@@ -111,6 +122,7 @@
 8. Estado: **Pendiente**
 
 ### **Administrador (Próximamente):**
+
 1. Ve lista de evidencias pendientes
 2. Revisa evidencia y URL
 3. Asigna calificación (0-100)
@@ -123,15 +135,18 @@
 ## 📁 ARCHIVOS MODIFICADOS
 
 ### **Base de Datos:**
+
 - `database/EJECUTAR_EN_NEON_EVIDENCIAS.sql` - Script principal ✅
 - `database/crear_usuario_metas_simple.sql` - Versión alternativa
 - `database/verificar_plan_accion.sql` - Script de verificación
 - `database/consultar_esquema.sql` - Consultas útiles
 
 ### **API:**
+
 - `src/app/api/usuario/trimestre-metas/route.ts` - GET y POST ✅
 
 ### **Componentes:**
+
 - `src/components/trimestre/TrimestreTableNew.tsx` - Componente principal ✅
 - `src/app/dashboard/trimestre/[id]/page.tsx` - Página actualizada ✅
 
@@ -140,6 +155,7 @@
 ## 🎯 ESTADO ACTUAL
 
 ### ✅ **COMPLETADO:**
+
 - [x] Diseño de base de datos
 - [x] Creación de tabla usuario_metas
 - [x] API GET para cargar metas
@@ -153,6 +169,7 @@
 - [x] Mensajes de toast
 
 ### ⏳ **PENDIENTE (Siguiente fase):**
+
 - [ ] Interfaz de admin para revisar evidencias
 - [ ] Sistema de calificación
 - [ ] Notificaciones de estado
@@ -165,6 +182,7 @@
 ## 🚀 PARA PROBAR:
 
 1. **Ejecuta en Neon SQL Editor:**
+
    ```sql
    -- Contenido de: database/EJECUTAR_EN_NEON_EVIDENCIAS.sql
    ```

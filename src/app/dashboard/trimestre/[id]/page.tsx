@@ -80,9 +80,9 @@ export default function TrimstrePage() {
         {/* Header */}
         <div style={{
           background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-          borderRadius: 12,
-          padding: 24,
-          marginBottom: 24,
+          borderRadius: '12px',
+          padding: '24px',
+          marginBottom: '24px',
           color: '#fff'
         }}>
           <h1 style={{

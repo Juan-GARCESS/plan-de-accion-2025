@@ -77,9 +77,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { planAccionId, trimestre, evidenciaTexto, evidenciaUrl } = body;
+    const { plan_accion_id, trimestre, evidencia_texto, evidencia_url } = body;
 
-    if (!planAccionId || !trimestre) {
+    if (!plan_accion_id || !trimestre) {
       return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 });
     }
 
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
         fecha_envio = CURRENT_TIMESTAMP,
         updated_at = CURRENT_TIMESTAMP
       RETURNING *`,
-      [userId, planAccionId, trimestre, evidenciaTexto, evidenciaUrl]
+      [userId, plan_accion_id, trimestre, evidencia_texto, evidencia_url]
     );
 
     return NextResponse.json({ 
