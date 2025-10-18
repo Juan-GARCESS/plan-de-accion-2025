@@ -31,6 +31,16 @@ export const AreasManagementSectionImproved: React.FC<AreasManagementSectionProp
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [createForm, setCreateForm] = useState({ nombre: '', descripcion: '' });
   const [editForm, setEditForm] = useState({ nombre: '', descripcion: '' });
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // =============== ESTILOS USANDO EL NUEVO SISTEMA ===============
   
@@ -243,6 +253,19 @@ export const AreasManagementSectionImproved: React.FC<AreasManagementSectionProp
 
       {/* Tabla de áreas */}
       <div style={tableContainerStyle}>
+        {isMobile && areas.length > 0 && (
+          <div style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: '#fffbeb',
+            borderBottom: '1px solid #fef3c7',
+            fontSize: '12px',
+            color: '#92400e',
+            textAlign: 'center',
+            marginBottom: '0.5rem'
+          }}>
+            👈 Desliza para ver más columnas
+          </div>
+        )}
         <table style={tableStyle}>
           <thead style={tableHeaderStyle}>
             <tr>

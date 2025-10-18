@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { AdminDashboardLayout, GestionAllSections } from '@/components/admin';
+import { AdminDashboardLayout, GestionAllSections, AreasManagementSectionImproved, EjesManagementSectionImproved } from '@/components/admin';
 import { PlanAccionAdminTable } from '@/components/admin/PlanAccionAdminTable';
 import { EvidenciasReview } from '@/components/admin/EvidenciasReview';
 import { useAuth } from '@/hooks/useAuth';
@@ -24,6 +24,8 @@ function DashboardPageContent() {
     deleteArea
   } = useAdminManagement();
   const [showGestion, setShowGestion] = useState(false);
+  const [showAreasManagement, setShowAreasManagement] = useState(false);
+  const [showEjesManagement, setShowEjesManagement] = useState(false);
   const [selectedAreaId, setSelectedAreaId] = useState<number | null>(null);
   const [selectedArea, setSelectedArea] = useState<Area | null>(null);
   const [calificarTrimestre, setCalificarTrimestre] = useState<number | null>(null);
@@ -49,6 +51,8 @@ function DashboardPageContent() {
 
   const handleAreaSelect = (areaId: number) => {
     setShowGestion(false);
+    setShowAreasManagement(false);
+    setShowEjesManagement(false);
     setCalificarTrimestre(null);
     const area = areas.find(a => a.id === areaId);
     setSelectedAreaId(areaId);
@@ -57,6 +61,8 @@ function DashboardPageContent() {
 
   const handleDashboardSelect = () => {
     setShowGestion(false);
+    setShowAreasManagement(false);
+    setShowEjesManagement(false);
     setCalificarTrimestre(null);
     setSelectedAreaId(null);
     setSelectedArea(null);
@@ -64,6 +70,26 @@ function DashboardPageContent() {
 
   const handleGestionSelect = () => {
     setShowGestion(true);
+    setShowAreasManagement(false);
+    setShowEjesManagement(false);
+    setCalificarTrimestre(null);
+    setSelectedAreaId(null);
+    setSelectedArea(null);
+  };
+
+  const handleAreasManagementSelect = () => {
+    setShowGestion(false);
+    setShowAreasManagement(true);
+    setShowEjesManagement(false);
+    setCalificarTrimestre(null);
+    setSelectedAreaId(null);
+    setSelectedArea(null);
+  };
+
+  const handleEjesManagementSelect = () => {
+    setShowGestion(false);
+    setShowAreasManagement(false);
+    setShowEjesManagement(true);
     setCalificarTrimestre(null);
     setSelectedAreaId(null);
     setSelectedArea(null);
@@ -120,8 +146,12 @@ function DashboardPageContent() {
       onAreaSelect={handleAreaSelect}
       onDashboardSelect={handleDashboardSelect}
       onGestionSelect={handleGestionSelect}
+      onAreasManagementSelect={handleAreasManagementSelect}
+      onEjesManagementSelect={handleEjesManagementSelect}
       userName={user.nombre}
       isGestionSelected={showGestion}
+      isAreasManagementSelected={showAreasManagement}
+      isEjesManagementSelected={showEjesManagement}
     >
       {showGestion ? (
         <GestionAllSections
@@ -136,6 +166,15 @@ function DashboardPageContent() {
           onEditArea={editArea}
           onDeleteArea={deleteArea}
         />
+      ) : showAreasManagement ? (
+        <AreasManagementSectionImproved
+          areas={areas}
+          onCreate={createArea}
+          onEdit={editArea}
+          onDelete={deleteArea}
+        />
+      ) : showEjesManagement ? (
+        <EjesManagementSectionImproved />
       ) : selectedArea ? (
         calificarTrimestre !== null ? (
           <div>

@@ -80,7 +80,7 @@ export const AdminNavbar: React.FC<AdminNavbarProps> = ({ userName, userPhotoUrl
           {showMenuButton ? (
             <button
               onClick={onMenuClick}
-              aria-label="Abrir menú"
+              aria-label="Abrir/Cerrar menú"
               style={menuButtonStyle}
               onMouseEnter={(e)=>{ e.currentTarget.style.backgroundColor='#f3f4f6'; }}
               onMouseLeave={(e)=>{ e.currentTarget.style.backgroundColor='#ffffff'; }}

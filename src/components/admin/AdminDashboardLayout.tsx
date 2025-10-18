@@ -15,6 +15,10 @@ interface AdminDashboardLayoutProps {
   userName?: string;
   onGestionSelect?: () => void;
   isGestionSelected?: boolean;
+  onAreasManagementSelect?: () => void;
+  isAreasManagementSelected?: boolean;
+  onEjesManagementSelect?: () => void;
+  isEjesManagementSelected?: boolean;
   children?: React.ReactNode;
 }
 
@@ -26,6 +30,10 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
   userName,
   onGestionSelect,
   isGestionSelected,
+  onAreasManagementSelect,
+  isAreasManagementSelected,
+  onEjesManagementSelect,
+  isEjesManagementSelected,
   children
 }) => {
   const sidebarWidth = 280;
@@ -71,6 +79,16 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
     handleCloseSidebar();
   };
 
+  const handleAreasManagementSelectWithClose = () => {
+    onAreasManagementSelect?.();
+    handleCloseSidebar();
+  };
+
+  const handleEjesManagementSelectWithClose = () => {
+    onEjesManagementSelect?.();
+    handleCloseSidebar();
+  };
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
       {/* Overlay para móvil cuando el sidebar está abierto */}
@@ -112,6 +130,10 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
           userName={userName}
           onGestionSelect={handleGestionSelectWithClose}
           isGestionSelected={isGestionSelected}
+          onAreasManagementSelect={handleAreasManagementSelectWithClose}
+          isAreasManagementSelected={isAreasManagementSelected}
+          onEjesManagementSelect={handleEjesManagementSelectWithClose}
+          isEjesManagementSelected={isEjesManagementSelected}
           onClose={isMobile ? handleCloseSidebar : undefined}
         />
       </aside>
@@ -126,7 +148,7 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
           userName={userName} 
           userPhotoUrl={userPhotoUrl} 
           showMenuButton={!sidebarOpen || isMobile} 
-          onMenuClick={() => setSidebarOpen(true)} 
+          onMenuClick={() => setSidebarOpen(!sidebarOpen)} 
         />
 
         {/* Content Area */}
@@ -139,8 +161,7 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
             backgroundColor: '#ffffff', 
             borderRadius: '12px', 
             border: '1px solid #e5e7eb', 
-            padding: isMobile ? '0.75rem' : '1rem',
-            overflow: 'auto'
+            padding: isMobile ? '0.75rem' : '1rem'
           }}>
             {children || (
               <AdminMainContent areas={areas} />

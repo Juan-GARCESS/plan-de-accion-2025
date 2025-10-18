@@ -1,7 +1,7 @@
 // src/components/admin/AreasManagementSection.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AreaForm } from './AreaForm';
 import { AreaCard } from './AreaCard';
 import type { Area } from '@/types';
@@ -20,6 +20,16 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
   onDelete,
 }) => {
   const [editingArea, setEditingArea] = useState<Area | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleEdit = (area: Area) => {
     setEditingArea(area);
@@ -36,9 +46,9 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
   };
 
   return (
-    <div style={{ marginBottom: '3rem' }}>
+    <div style={{ marginBottom: isMobile ? '2rem' : '3rem', padding: isMobile ? '1rem' : '0' }}>
       {/* Formulario para crear/editar */}
-      <div style={{ marginBottom: '3rem' }}>
+      <div style={{ marginBottom: isMobile ? '2rem' : '3rem' }}>
         <div style={{
           backgroundColor: 'white',
           border: '1px solid #e2e8f0',
@@ -47,11 +57,11 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
         }}>
           <div style={{
             backgroundColor: '#f0f9ff',
-            padding: '1rem',
+            padding: isMobile ? '0.75rem' : '1rem',
             borderBottom: '1px solid #e2e8f0'
           }}>
             <h3 style={{
-              fontSize: '18px',
+              fontSize: isMobile ? '16px' : '18px',
               fontWeight: '600',
               color: '#0c4a6e',
               margin: 0
@@ -59,7 +69,7 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
               {editingArea ? "✏️ Editar Área" : "➕ Crear Nueva Área"}
             </h3>
             <p style={{
-              fontSize: '14px',
+              fontSize: isMobile ? '12px' : '14px',
               color: '#0369a1',
               margin: '0.5rem 0 0 0'
             }}>
@@ -67,7 +77,7 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
             </p>
           </div>
           
-          <div style={{ padding: '1.5rem' }}>
+          <div style={{ padding: isMobile ? '1rem' : '1.5rem' }}>
             <AreaForm
               area={editingArea}
               onSubmit={editingArea ? handleSaveEdit : onCreate}
@@ -88,11 +98,11 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
           {/* Header */}
           <div style={{
             backgroundColor: '#f0fdf4',
-            padding: '1rem',
+            padding: isMobile ? '0.75rem' : '1rem',
             borderBottom: '1px solid #e2e8f0'
           }}>
             <h3 style={{
-              fontSize: '18px',
+              fontSize: isMobile ? '16px' : '18px',
               fontWeight: '600',
               color: '#166534',
               margin: 0
@@ -100,7 +110,7 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
               🏢 Áreas Existentes ({areas.length})
             </h3>
             <p style={{
-              fontSize: '14px',
+              fontSize: isMobile ? '12px' : '14px',
               color: '#15803d',
               margin: '0.5rem 0 0 0'
             }}>
@@ -110,6 +120,18 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
 
           {/* Table */}
           <div style={{ overflowX: 'auto' }}>
+            {isMobile && areas.length > 0 && (
+              <div style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#fffbeb',
+                borderBottom: '1px solid #fef3c7',
+                fontSize: '12px',
+                color: '#92400e',
+                textAlign: 'center'
+              }}>
+                👈 Desliza para ver más columnas
+              </div>
+            )}
             {areas.length === 0 ? (
               <div style={{
                 padding: '3rem',
@@ -127,14 +149,15 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
             ) : (
               <table style={{
                 width: '100%',
+                minWidth: isMobile ? '800px' : 'auto',
                 borderCollapse: 'collapse'
               }}>
                 <thead>
                   <tr style={{ backgroundColor: '#f8fafc' }}>
-                    <th style={tableHeaderStyle}>Nombre del Área</th>
-                    <th style={tableHeaderStyle}>Descripción</th>
-                    <th style={tableHeaderStyle}>Usuarios</th>
-                    <th style={tableHeaderStyle}>Acciones</th>
+                    <th style={{...tableHeaderStyle, fontSize: isMobile ? '12px' : '14px'}}>Nombre del Área</th>
+                    <th style={{...tableHeaderStyle, fontSize: isMobile ? '12px' : '14px'}}>Descripción</th>
+                    <th style={{...tableHeaderStyle, fontSize: isMobile ? '12px' : '14px'}}>Usuarios</th>
+                    <th style={{...tableHeaderStyle, fontSize: isMobile ? '12px' : '14px'}}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>

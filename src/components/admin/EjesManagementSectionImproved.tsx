@@ -52,6 +52,17 @@ export function EjesManagementSectionImproved() {
   const [asignaciones, setAsignaciones] = useState<AreaEje[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'ejes' | 'asignaciones'>('ejes');
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar móvil
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Estados para formularios
   const [showEjeForm, setShowEjeForm] = useState(false);
@@ -556,6 +567,19 @@ export function EjesManagementSectionImproved() {
 
           {/* Tabla mejorada */}
           <div style={tableContainerStyle}>
+            {isMobile && ejes.length > 0 && (
+              <div style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#fffbeb',
+                borderBottom: '1px solid #fef3c7',
+                fontSize: '12px',
+                color: '#92400e',
+                textAlign: 'center',
+                marginBottom: '0.5rem'
+              }}>
+                👈 Desliza para ver más columnas
+              </div>
+            )}
             <table style={tableStyle}>
               <thead style={tableHeaderStyle}>
                 <tr>
@@ -725,6 +749,19 @@ export function EjesManagementSectionImproved() {
 
           {/* Tabla de asignaciones */}
           <div style={tableContainerStyle}>
+            {isMobile && asignaciones.length > 0 && (
+              <div style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#fffbeb',
+                borderBottom: '1px solid #fef3c7',
+                fontSize: '12px',
+                color: '#92400e',
+                textAlign: 'center',
+                marginBottom: '0.5rem'
+              }}>
+                👈 Desliza para ver más columnas
+              </div>
+            )}
             <table style={tableStyle}>
               <thead style={tableHeaderStyle}>
                 <tr>

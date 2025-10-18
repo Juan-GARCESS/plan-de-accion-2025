@@ -32,6 +32,7 @@ export function EjesManagementSection() {
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'ejes' | 'asignaciones'>('ejes');
+  const [isMobile, setIsMobile] = useState(false);
 
   // Estados para formularios
   const [showEjeForm, setShowEjeForm] = useState(false);
@@ -45,6 +46,16 @@ export function EjesManagementSection() {
   const [asignacionForm, setAsignacionForm] = useState({ area_id: 0, eje_id: 0 });
   const [editEjeForm, setEditEjeForm] = useState({ id: 0, nombre_eje: '', descripcion: '' });
   const [editSubEjeForm, setEditSubEjeForm] = useState({ id: 0, eje_id: 0, nombre_sub_eje: '', descripcion: '' });
+
+  // Detectar móvil
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -336,15 +347,15 @@ export function EjesManagementSection() {
       backdropFilter: 'blur(20px)',
       border: '1px solid rgba(0, 0, 0, 0.1)',
       borderRadius: '16px',
-      padding: '32px',
-      marginBottom: '32px',
+      padding: isMobile ? '16px' : '32px',
+      marginBottom: isMobile ? '16px' : '32px',
       boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
     }}>
       <h2 style={{
-        fontSize: '1.5rem',
+        fontSize: isMobile ? '1.25rem' : '1.5rem',
         fontWeight: '700',
         color: '#000000',
-        marginBottom: '24px',
+        marginBottom: isMobile ? '16px' : '24px',
         textAlign: 'center'
       }}>
         Gestión de Ejes y Sub-ejes
@@ -353,21 +364,23 @@ export function EjesManagementSection() {
       {/* Tabs */}
       <div style={{
         display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
         gap: '8px',
-        marginBottom: '24px',
+        marginBottom: isMobile ? '16px' : '24px',
         borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
         paddingBottom: '16px'
       }}>
         <button
           onClick={() => setActiveTab('ejes')}
           style={{
-            padding: '8px 16px',
+            padding: isMobile ? '10px 12px' : '8px 16px',
+            minHeight: isMobile ? '44px' : 'auto',
             background: activeTab === 'ejes' ? '#000000' : 'transparent',
             color: activeTab === 'ejes' ? 'white' : '#000000',
             border: '1px solid #000000',
             borderRadius: '8px',
             cursor: 'pointer',
-            fontSize: '14px',
+            fontSize: isMobile ? '13px' : '14px',
             fontWeight: '500'
           }}
         >
@@ -376,13 +389,14 @@ export function EjesManagementSection() {
         <button
           onClick={() => setActiveTab('asignaciones')}
           style={{
-            padding: '8px 16px',
+            padding: isMobile ? '10px 12px' : '8px 16px',
+            minHeight: isMobile ? '44px' : 'auto',
             background: activeTab === 'asignaciones' ? '#000000' : 'transparent',
             color: activeTab === 'asignaciones' ? 'white' : '#000000',
             border: '1px solid #000000',
             borderRadius: '8px',
             cursor: 'pointer',
-            fontSize: '14px',
+            fontSize: isMobile ? '13px' : '14px',
             fontWeight: '500'
           }}
         >
@@ -394,20 +408,22 @@ export function EjesManagementSection() {
         <div>
           {/* Botones de crear */}
           <div style={{ 
-            display: 'flex', 
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
             gap: '12px', 
-            marginBottom: '20px'
+            marginBottom: isMobile ? '16px' : '20px'
           }}>
             <button
               onClick={() => setShowEjeForm(true)}
               style={{
-                padding: '8px 16px',
+                padding: isMobile ? '12px 16px' : '8px 16px',
+                minHeight: isMobile ? '44px' : 'auto',
                 background: '#000000',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: isMobile ? '13px' : '14px',
                 fontWeight: '500'
               }}
             >
@@ -416,13 +432,14 @@ export function EjesManagementSection() {
             <button
               onClick={() => setShowSubEjeForm(true)}
               style={{
-                padding: '8px 16px',
+                padding: isMobile ? '12px 16px' : '8px 16px',
+                minHeight: isMobile ? '44px' : 'auto',
                 background: 'rgba(0, 0, 0, 0.8)',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: isMobile ? '13px' : '14px',
                 fontWeight: '500'
               }}
             >
@@ -435,13 +452,30 @@ export function EjesManagementSection() {
             border: '1px solid rgba(0, 0, 0, 0.1)',
             borderRadius: '8px',
             overflow: 'hidden',
-            maxHeight: '600px',
-            overflowY: 'auto'
+            maxHeight: isMobile ? '500px' : '600px',
+            overflowY: 'auto',
+            overflowX: isMobile ? 'auto' : 'hidden'
           }}>
+            {isMobile && (
+              <div style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#fffbeb',
+                borderBottom: '1px solid #fef3c7',
+                fontSize: '12px',
+                color: '#92400e',
+                textAlign: 'center',
+                position: 'sticky',
+                top: 0,
+                zIndex: 20
+              }}>
+                👈 Desliza para ver más columnas
+              </div>
+            )}
             <table style={{
               width: '100%',
+              minWidth: isMobile ? '900px' : 'auto',
               borderCollapse: 'collapse',
-              fontSize: '13px'
+              fontSize: isMobile ? '12px' : '13px'
             }}>
               <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
                 <tr style={{
@@ -642,15 +676,16 @@ export function EjesManagementSection() {
           <button
             onClick={() => setShowAsignacionForm(true)}
             style={{
-              padding: '10px 20px',
+              padding: isMobile ? '12px 20px' : '10px 20px',
+              minHeight: isMobile ? '44px' : 'auto',
               background: '#000000',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               cursor: 'pointer',
-              fontSize: '14px',
+              fontSize: isMobile ? '13px' : '14px',
               fontWeight: '500',
-              marginBottom: '24px'
+              marginBottom: isMobile ? '16px' : '24px'
             }}
           >
             + Asignar Eje a Área

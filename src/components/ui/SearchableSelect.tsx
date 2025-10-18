@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { 
   createInputStyle,
   colors, 
@@ -33,8 +34,10 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [displayValue, setDisplayValue] = useState('');
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Filtrar opciones basado en el término de búsqueda
   const filteredOptions = options.filter(option =>
@@ -48,43 +51,54 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
     setSearchTerm('');
   }, [value, options]);
 
+  // Calcular posición del dropdown cuando se abre
+  useEffect(() => {
+    if (isOpen && containerRef.current) {
+      const updatePosition = () => {
+        if (containerRef.current) {
+          const rect = containerRef.current.getBoundingClientRect();
+          setDropdownPosition({
+            top: rect.bottom + window.scrollY + 4,
+            left: rect.left + window.scrollX,
+            width: rect.width
+          });
+        }
+      };
+      updatePosition();
+      
+      // Actualizar posición al hacer scroll
+      window.addEventListener('scroll', updatePosition, true);
+      window.addEventListener('resize', updatePosition);
+      
+      return () => {
+        window.removeEventListener('scroll', updatePosition, true);
+        window.removeEventListener('resize', updatePosition);
+      };
+    }
+  }, [isOpen]);
+
   // Cerrar dropdown cuando se hace clic fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       
-      // Verificar si el click es en el input o en el dropdown
-      if (containerRef.current && !containerRef.current.contains(target)) {
-        // Si es un portal dropdown, verificar si el click es dentro del dropdown
-        const dropdownElements = document.querySelectorAll('[data-searchable-dropdown]');
-        let isClickInDropdown = false;
-        
-        dropdownElements.forEach(dropdown => {
-          if (dropdown.contains(target)) {
-            isClickInDropdown = true;
-          }
-        });
-        
-        if (!isClickInDropdown) {
-          setIsOpen(false);
-          setSearchTerm('');
-          // Restaurar el display value si no se seleccionó nada
-          const selectedOption = options.find(opt => opt.value === value);
-          setDisplayValue(selectedOption ? selectedOption.label : '');
-        }
+      // Verificar si el click es en el container o en el dropdown
+      const isClickInContainer = containerRef.current && containerRef.current.contains(target);
+      const isClickInDropdown = dropdownRef.current && dropdownRef.current.contains(target);
+      
+      if (!isClickInContainer && !isClickInDropdown) {
+        setIsOpen(false);
+        setSearchTerm('');
+        // Restaurar el display value si no se seleccionó nada
+        const selectedOption = options.find(opt => opt.value === value);
+        setDisplayValue(selectedOption ? selectedOption.label : '');
       }
     };
 
-    const handleResize = () => {
-      // Ya no necesitamos recalcular posición
-    };
-
     document.addEventListener('mousedown', handleClickOutside);
-    window.addEventListener('resize', handleResize);
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      window.removeEventListener('resize', handleResize);
     };
   }, [value, options]);
 
@@ -147,19 +161,18 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
 
   const dropdownStyle: React.CSSProperties = {
     position: 'absolute',
-    top: '100%',
-    left: 0,
-    right: 0,
+    top: dropdownPosition?.top ?? 0,
+    left: dropdownPosition?.left ?? 0,
+    width: dropdownPosition?.width ?? '100%',
     backgroundColor: 'white',
     borderWidth: '1px',
     borderStyle: 'solid',
     borderColor: colors.gray[300],
     borderRadius: borderRadius.md,
     boxShadow: shadows.lg,
-    zIndex: 10000,
-    maxHeight: '200px',
-    overflowY: 'auto',
-    marginTop: '2px'
+    zIndex: 99999,
+    maxHeight: '10rem', // Aproximadamente 4 items
+    overflowY: 'auto'
   };
 
   const optionStyle: React.CSSProperties = {
@@ -206,9 +219,13 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
       {/* Flecha indicadora */}
       <span style={arrowStyle} onClick={handleArrowClick}>▼</span>
 
-      {/* Dropdown con opciones */}
-      {isOpen && (
-        <div style={dropdownStyle} data-searchable-dropdown="true">
+      {/* Dropdown con opciones - renderizado en portal para evitar recortes */}
+      {isOpen && dropdownPosition && ReactDOM.createPortal(
+        <div 
+          ref={dropdownRef}
+          style={dropdownStyle} 
+          data-searchable-dropdown="true"
+        >
           {filteredOptions.length > 0 ? (
             filteredOptions.map((option) => (
               <div
@@ -238,7 +255,8 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
               No se encontraron áreas
             </div>
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

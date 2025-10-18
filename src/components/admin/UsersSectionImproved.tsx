@@ -44,9 +44,25 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
   });
   const [approvalAreaId, setApprovalAreaId] = useState<{[key: number]: number}>({});
   const [generatedPassword, setGeneratedPassword] = useState<string>('');
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar móvil
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
-  const usuariosPendientes = usuarios.filter(u => u.estado === 'pendiente');
-  const usuariosAprobados = usuarios.filter(u => u.estado === 'activo');
+  // Validar que usuarios sea un array
+  const usuariosArray = Array.isArray(usuarios) ? usuarios : [];
+  const usuariosPendientes = usuariosArray.filter(u => u.estado === 'pendiente');
+  const usuariosAprobados = usuariosArray.filter(u => u.estado === 'activo');
+  
+  // Validar que areas sea un array
+  const areasArray = Array.isArray(areas) ? areas : [];
   
   // Separar admin y otros usuarios, admin siempre primero
   const adminUser = usuariosAprobados.find(u => u.rol === 'admin');
@@ -55,7 +71,7 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
 
   const getAreaName = (areaId: number | null) => {
     if (!areaId) return 'Sin área';
-    const area = areas.find(a => a.id === areaId);
+    const area = areasArray.find(a => a.id === areaId);
     return area ? area.nombre_area : 'Área no encontrada';
   };
 
@@ -98,17 +114,20 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
 
   const tableContainerStyle = {
     ...createCardStyle('base'),
-    overflowX: 'visible' as const,
-    overflowY: 'visible' as const,
     marginTop: spacing.md,
     maxWidth: '100%',
+  };
+
+  const tableWrapperStyle = {
+    overflowX: 'auto' as const,
+    overflowY: 'visible' as const,
   };
 
   const tableStyle = {
     width: '100%',
     borderCollapse: 'collapse' as const,
-    fontSize: '0.875rem',
-    minWidth: '500px',
+    fontSize: isMobile ? '0.75rem' : '0.875rem',
+    minWidth: isMobile ? '800px' : '500px',
   };
 
   const tableHeaderStyle = {
@@ -139,6 +158,7 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
     color: colors.gray[700],
     verticalAlign: 'top' as const,
     lineHeight: '1.4',
+    overflow: 'visible' as const,
   };
 
   const actionButtonStyle = {
@@ -347,10 +367,24 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
           </div>
         ) : (
           <div style={tableContainerStyle}>
-            <table style={tableStyle}>
-              <thead style={tableHeaderStyle}>
-                <tr>
-                  <th style={tableHeaderCellStyle}>Usuario</th>
+            {isMobile && usuariosPendientes.length > 0 && (
+              <div style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#fffbeb',
+                borderBottom: '1px solid #fef3c7',
+                fontSize: '12px',
+                color: '#92400e',
+                textAlign: 'center',
+                marginBottom: '0.5rem'
+              }}>
+                👈 Desliza para ver más columnas
+              </div>
+            )}
+            <div style={tableWrapperStyle}>
+              <table style={tableStyle}>
+                <thead style={tableHeaderStyle}>
+                  <tr>
+                    <th style={tableHeaderCellStyle}>Usuario</th>
                   <th style={tableHeaderCellStyle}>Email</th>
                   <th style={tableHeaderCellStyle}>Fecha Registro</th>
                   <th style={tableHeaderCellStyle}>Área Asignada</th>
@@ -377,10 +411,11 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
                     </td>
                     <td style={{ 
                       ...tableCellStyle,
-                      position: 'relative'
+                      position: 'relative',
+                      overflow: 'visible'
                     }}>
                       <SearchableSelect
-                        options={areas.map(area => ({
+                        options={areasArray.map(area => ({
                           value: area.id,
                           label: area.nombre_area
                         }))}
@@ -415,6 +450,7 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </div>
@@ -435,12 +471,26 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
           </div>
         ) : (
           <div style={tableContainerStyle}>
-            <table style={tableStyle}>
-              <thead style={tableHeaderStyle}>
-                <tr>
-                  <th style={tableHeaderCellStyle}>Usuario</th>
-                  <th style={tableHeaderCellStyle}>Email</th>
-                  <th style={tableHeaderCellStyle}>Área</th>
+            {isMobile && usuariosAprobados.length > 0 && (
+              <div style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#fffbeb',
+                borderBottom: '1px solid #fef3c7',
+                fontSize: '12px',
+                color: '#92400e',
+                textAlign: 'center',
+                marginBottom: '0.5rem'
+              }}>
+                👈 Desliza para ver más columnas
+              </div>
+            )}
+            <div style={tableWrapperStyle}>
+              <table style={tableStyle}>
+                <thead style={tableHeaderStyle}>
+                  <tr>
+                    <th style={tableHeaderCellStyle}>Usuario</th>
+                    <th style={tableHeaderCellStyle}>Email</th>
+                    <th style={tableHeaderCellStyle}>Área</th>
                   <th style={tableHeaderCellStyle}>Rol</th>
                   <th style={tableHeaderCellStyle}>Acciones</th>
                 </tr>
@@ -527,6 +577,7 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </div>
@@ -563,7 +614,7 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
               <SearchableSelect
                 options={[
                   { value: 0, label: 'Sin área asignada' },
-                  ...areas.map(area => ({
+                  ...areasArray.map(area => ({
                     value: area.id,
                     label: area.nombre_area
                   }))

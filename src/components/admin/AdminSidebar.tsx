@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import React, { useState } from 'react';
-import { HomeIcon, WrenchScrewdriverIcon, BuildingOfficeIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, WrenchScrewdriverIcon, BuildingOfficeIcon, XMarkIcon, RectangleGroupIcon, Squares2X2Icon } from '@heroicons/react/24/outline';
 import { MagnifyingGlassIcon as SearchSolidIcon } from '@heroicons/react/20/solid';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import type { Area } from '@/types';
@@ -14,7 +14,11 @@ interface AdminSidebarProps {
   userName?: string;
   onGestionSelect?: () => void;
   isGestionSelected?: boolean;
-  onClose?: () => void; // Nueva prop para cerrar en móvil
+  onAreasManagementSelect?: () => void;
+  isAreasManagementSelected?: boolean;
+  onEjesManagementSelect?: () => void;
+  isEjesManagementSelected?: boolean;
+  onClose?: () => void;
 }
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({
@@ -25,6 +29,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   userName,
   onGestionSelect,
   isGestionSelected,
+  onAreasManagementSelect,
+  isAreasManagementSelected,
+  onEjesManagementSelect,
+  isEjesManagementSelected,
   onClose
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -184,7 +192,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             alignItems: 'center',
             gap: '12px',
             padding: '10px 12px',
-            marginBottom: '20px',
+            marginBottom: '8px',
             border: 'none',
             borderRadius: '8px',
             background: isGestionSelected ? '#1e293b' : 'transparent',
@@ -206,7 +214,75 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           }}
         >
           <WrenchScrewdriverIcon style={{ width: '18px', height: '18px' }} />
-          <span>Gestión</span>
+          <span>Gestión de Usuarios</span>
+        </button>
+
+        {/* Gestión de Áreas Button */}
+        <button
+          onClick={onAreasManagementSelect}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '10px 12px',
+            marginBottom: '8px',
+            border: 'none',
+            borderRadius: '8px',
+            background: isAreasManagementSelected ? '#1e293b' : 'transparent',
+            color: isAreasManagementSelected ? 'white' : '#475569',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            if (!isAreasManagementSelected) {
+              e.currentTarget.style.background = '#f1f5f9';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isAreasManagementSelected) {
+              e.currentTarget.style.background = 'transparent';
+            }
+          }}
+        >
+          <RectangleGroupIcon style={{ width: '18px', height: '18px' }} />
+          <span>Gestión de Áreas</span>
+        </button>
+
+        {/* Gestión de Ejes Button */}
+        <button
+          onClick={onEjesManagementSelect}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '10px 12px',
+            marginBottom: '20px',
+            border: 'none',
+            borderRadius: '8px',
+            background: isEjesManagementSelected ? '#1e293b' : 'transparent',
+            color: isEjesManagementSelected ? 'white' : '#475569',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            if (!isEjesManagementSelected) {
+              e.currentTarget.style.background = '#f1f5f9';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isEjesManagementSelected) {
+              e.currentTarget.style.background = 'transparent';
+            }
+          }}
+        >
+          <Squares2X2Icon style={{ width: '18px', height: '18px' }} />
+          <span>Gestión de Ejes</span>
         </button>
 
         {/* ÁREAS Section */}
