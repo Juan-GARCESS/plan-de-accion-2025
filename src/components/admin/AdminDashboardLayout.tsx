@@ -30,6 +30,7 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
 }) => {
   const sidebarWidth = 280;
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const userPhotoUrl = userName
     ? `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=f3f4f6&color=111827&size=128&bold=true`
     : undefined;
@@ -37,7 +38,9 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
   useEffect(() => {
     const handleResize = () => {
       if (typeof window !== 'undefined') {
-        setSidebarOpen(window.innerWidth >= 1024);
+        const mobile = window.innerWidth < 1024;
+        setIsMobile(mobile);
+        setSidebarOpen(!mobile); // Auto-cerrar en móvil, auto-abrir en desktop
       }
     };
     handleResize();
@@ -45,39 +48,100 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Función para cerrar sidebar (útil en móvil)
+  const handleCloseSidebar = () => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+
+  // Wrapper para las funciones de selección que cierra el sidebar en móvil
+  const handleAreaSelectWithClose = (areaId: number) => {
+    onAreaSelect?.(areaId);
+    handleCloseSidebar();
+  };
+
+  const handleDashboardSelectWithClose = () => {
+    onDashboardSelect?.();
+    handleCloseSidebar();
+  };
+
+  const handleGestionSelectWithClose = () => {
+    onGestionSelect?.();
+    handleCloseSidebar();
+  };
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
+      {/* Overlay para móvil cuando el sidebar está abierto */}
+      {isMobile && sidebarOpen && (
+        <div
+          onClick={handleCloseSidebar}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 999,
+            transition: 'opacity 0.3s ease'
+          }}
+        />
+      )}
+
       {/* Sidebar fixed to the top */}
       <aside style={{
         position: 'fixed',
         top: 0,
-        left: 0,
+        left: sidebarOpen ? 0 : '-100%',
         bottom: 0,
-        width: sidebarOpen ? `${sidebarWidth}px` : '0px',
+        width: isMobile ? '280px' : `${sidebarWidth}px`,
+        maxWidth: isMobile ? '85vw' : 'none',
         backgroundColor: '#ffffff',
-        borderRight: sidebarOpen ? '1px solid #e5e7eb' : 'none',
+        borderRight: '1px solid #e5e7eb',
         overflowY: 'auto',
-        transition: 'width 0.25s ease, border-color 0.25s ease'
+        transition: 'left 0.3s ease',
+        zIndex: 1000
       }}>
         <AdminSidebar
           areas={areas}
-          onAreaSelect={onAreaSelect}
+          onAreaSelect={handleAreaSelectWithClose}
           selectedAreaId={selectedAreaId}
-          onDashboardSelect={onDashboardSelect}
+          onDashboardSelect={handleDashboardSelectWithClose}
           userName={userName}
-          onGestionSelect={onGestionSelect}
+          onGestionSelect={handleGestionSelectWithClose}
           isGestionSelected={isGestionSelected}
+          onClose={isMobile ? handleCloseSidebar : undefined}
         />
       </aside>
 
       {/* Main region offset to the right of sidebar */}
-      <div style={{ marginLeft: sidebarOpen ? `${sidebarWidth}px` : '0px', transition: 'margin-left 0.25s ease' }}>
+      <div style={{ 
+        marginLeft: isMobile ? '0' : (sidebarOpen ? `${sidebarWidth}px` : '0px'), 
+        transition: 'margin-left 0.3s ease' 
+      }}>
         {/* Navbar that starts after the sidebar */}
-        <AdminNavbar userName={userName} userPhotoUrl={userPhotoUrl} showMenuButton={!sidebarOpen} onMenuClick={() => setSidebarOpen(true)} />
+        <AdminNavbar 
+          userName={userName} 
+          userPhotoUrl={userPhotoUrl} 
+          showMenuButton={!sidebarOpen || isMobile} 
+          onMenuClick={() => setSidebarOpen(true)} 
+        />
 
         {/* Content Area */}
-        <main style={{ padding: '2rem', backgroundColor: '#f3f4f6', minHeight: 'calc(100vh - 56px)' }}>
-          <div style={{ backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', padding: '1rem' }}>
+        <main style={{ 
+          padding: isMobile ? '1rem' : '2rem', 
+          backgroundColor: '#f3f4f6', 
+          minHeight: 'calc(100vh - 56px)' 
+        }}>
+          <div style={{ 
+            backgroundColor: '#ffffff', 
+            borderRadius: '12px', 
+            border: '1px solid #e5e7eb', 
+            padding: isMobile ? '0.75rem' : '1rem',
+            overflow: 'auto'
+          }}>
             {children || (
               <AdminMainContent areas={areas} />
             )}

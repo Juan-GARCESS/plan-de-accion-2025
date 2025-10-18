@@ -16,7 +16,18 @@ interface AdminNavbarProps {
 export const AdminNavbar: React.FC<AdminNavbarProps> = ({ userName, userPhotoUrl, showMenuButton, onMenuClick }) => {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+
+  // Detectar si es móvil
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -57,7 +68,13 @@ export const AdminNavbar: React.FC<AdminNavbarProps> = ({ userName, userPhotoUrl
 
   return (
     <nav style={navbarStyle}>
-      <div style={containerStyle}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: isMobile ? '12px 16px' : '12px 24px',
+        maxWidth: '100%'
+      }}>
         {/* Menú + Título (izquierda) */}
         <div style={{ ...logoSectionStyle, flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
           {showMenuButton ? (
@@ -76,13 +93,19 @@ export const AdminNavbar: React.FC<AdminNavbarProps> = ({ userName, userPhotoUrl
             style={titleButtonStyle}
             title="Ir al inicio (Misión y Visión)"
           >
-            <span style={titleStyle}>Plan de acción ({new Date().getFullYear()})</span>
+            <span style={{
+              fontSize: isMobile ? '16px' : '20px',
+              fontWeight: '800',
+              color: '#111111'
+            }}>
+              {isMobile ? 'Plan' : `Plan de acción (${new Date().getFullYear()})`}
+            </span>
           </button>
         </div>
 
         {/* Usuario (derecha) */}
         <div style={userSectionStyle} ref={menuRef}>
-          {userName && <span style={userNameTopStyle}>{userName}</span>}
+          {!isMobile && userName && <span style={userNameTopStyle}>{userName}</span>}
           <button
             onClick={() => setMenuOpen((v) => !v)}
             style={userIconButtonStyle}

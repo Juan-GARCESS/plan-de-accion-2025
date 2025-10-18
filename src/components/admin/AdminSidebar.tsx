@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import React, { useState } from 'react';
-import { HomeIcon, WrenchScrewdriverIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, WrenchScrewdriverIcon, BuildingOfficeIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { MagnifyingGlassIcon as SearchSolidIcon } from '@heroicons/react/20/solid';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import type { Area } from '@/types';
@@ -14,6 +14,7 @@ interface AdminSidebarProps {
   userName?: string;
   onGestionSelect?: () => void;
   isGestionSelected?: boolean;
+  onClose?: () => void; // Nueva prop para cerrar en móvil
 }
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({
@@ -23,7 +24,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   onDashboardSelect,
   userName,
   onGestionSelect,
-  isGestionSelected
+  isGestionSelected,
+  onClose
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -35,28 +37,58 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
   return (
     <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '240px',
+      position: 'relative',
+      width: '100%',
       height: '100vh',
       background: 'white',
-      borderRight: '1px solid #e5e7eb',
       display: 'flex',
       flexDirection: 'column',
-      zIndex: 1000,
       boxShadow: '2px 0 8px rgba(0, 0, 0, 0.05)'
     }}>
       {/* Header */}
       <div style={{
         padding: '20px 16px',
         borderBottom: '1px solid #e5e7eb',
-        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)'
+        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+        position: 'relative'
       }}>
+        {/* Botón de cerrar para móvil */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              width: '32px',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: 'none',
+              background: 'rgba(255, 255, 255, 0.8)',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#ffffff';
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.8)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+            title="Cerrar menú"
+          >
+            <XMarkIcon style={{ width: '20px', height: '20px', color: '#64748b' }} />
+          </button>
+        )}
+        
         <button
           onClick={onDashboardSelect}
           style={{
-            width: '100%',
+            width: onClose ? 'calc(100% - 40px)' : '100%',
             textAlign: 'left',
             border: 'none',
             background: 'none',

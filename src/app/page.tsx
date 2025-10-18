@@ -179,9 +179,9 @@ function LoginForm() {
       alignItems: 'center',
       justifyContent: 'center',
       background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-      padding: '10px',
+      padding: '20px 10px',
       fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      overflow: 'hidden'
+      overflow: 'auto'
     }}>
       <div style={{
         width: '100%',
@@ -191,7 +191,7 @@ function LoginForm() {
         WebkitBackdropFilter: 'blur(20px)',
         border: '1px solid rgba(0, 0, 0, 0.1)',
         borderRadius: '24px',
-        padding: '32px',
+        padding: window.innerWidth < 768 ? '24px 20px' : '32px',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
         position: 'relative',
         overflow: 'hidden',
@@ -202,11 +202,11 @@ function LoginForm() {
         {/* Header */}
         <div style={{
           textAlign: 'center',
-          marginBottom: '28px'
+          marginBottom: window.innerWidth < 768 ? '20px' : '28px'
         }}>
           <h2 style={{
             color: '#000000',
-            fontSize: '1.75rem',
+            fontSize: window.innerWidth < 768 ? '1.5rem' : '1.75rem',
             fontWeight: '700',
             margin: '0 0 6px 0',
             background: 'linear-gradient(135deg, #000000 0%, #333333 100%)',
@@ -218,7 +218,7 @@ function LoginForm() {
           </h2>
           <p style={{
             color: '#666666',
-            fontSize: '0.95rem',
+            fontSize: window.innerWidth < 768 ? '0.875rem' : '0.95rem',
             fontWeight: '400',
             margin: 0
           }}>

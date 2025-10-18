@@ -1,7 +1,7 @@
 // src/components/admin/AdminMainContent.tsx
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Area } from '@/types';
 
 interface AdminMainContentProps {
@@ -10,28 +10,112 @@ interface AdminMainContentProps {
 }
 
 export const AdminMainContent: React.FC<AdminMainContentProps> = ({ children }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
-    <div style={containerStyle}>
+    <div style={{
+      flex: 1,
+      padding: isMobile ? '16px' : '24px',
+      backgroundColor: '#ffffff',
+      color: '#111111',
+      overflowY: 'auto'
+    }}>
       {children || (
-        <div style={defaultContentStyle}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto'
+        }}>
           {/* Encabezado */}
-          <div style={welcomeCardStyle}>
-            <h1 style={titleStyle}>Plan de Accion</h1>
-            <p style={subtitleStyle}>Bienvenido al sistema de gestión administrativa</p>
+          <div style={{
+            backgroundColor: '#ffffff',
+            padding: isMobile ? '20px' : '32px',
+            borderRadius: '16px',
+            marginBottom: isMobile ? '20px' : '32px',
+            textAlign: 'center',
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+          }}>
+            <h1 style={{
+              fontSize: isMobile ? '1.75rem' : '2.25rem',
+              fontWeight: '800',
+              color: '#111111',
+              margin: '0 0 8px 0'
+            }}>
+              Plan de Accion
+            </h1>
+            <p style={{
+              fontSize: isMobile ? '0.875rem' : '1rem',
+              color: '#64748b',
+              margin: 0
+            }}>
+              Bienvenido al sistema de gestión administrativa
+            </p>
           </div>
 
           {/* Misión y Visión */}
-          <div style={twoColGridStyle}>
-            <div style={bwCardStyle}>
-              <h3 style={bwCardTitleStyle}>Misión</h3>
-              <p style={bwCardTextStyle}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+            gap: isMobile ? '16px' : '24px',
+            marginBottom: isMobile ? '20px' : '32px'
+          }}>
+            <div style={{
+              backgroundColor: '#ffffff',
+              padding: isMobile ? '20px' : '32px',
+              borderRadius: '12px',
+              border: '1px solid #e5e7eb',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+            }}>
+              <h3 style={{
+                fontSize: isMobile ? '1.25rem' : '1.5rem',
+                fontWeight: '700',
+                color: '#111111',
+                marginTop: 0,
+                marginBottom: '16px'
+              }}>
+                Misión
+              </h3>
+              <p style={{
+                fontSize: isMobile ? '0.875rem' : '1rem',
+                lineHeight: '1.6',
+                color: '#374151',
+                margin: 0
+              }}>
                 Proporcionar herramientas de gestión eficientes y transparentes para el seguimiento de metas
                 y objetivos, facilitando la toma de decisiones estratégicas y el crecimiento organizacional.
               </p>
             </div>
-            <div style={bwCardStyle}>
-              <h3 style={bwCardTitleStyle}>Visión</h3>
-              <p style={bwCardTextStyle}>
+            <div style={{
+              backgroundColor: '#ffffff',
+              padding: isMobile ? '20px' : '32px',
+              borderRadius: '12px',
+              border: '1px solid #e5e7eb',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+            }}>
+              <h3 style={{
+                fontSize: isMobile ? '1.25rem' : '1.5rem',
+                fontWeight: '700',
+                color: '#111111',
+                marginTop: 0,
+                marginBottom: '16px'
+              }}>
+                Visión
+              </h3>
+              <p style={{
+                fontSize: isMobile ? '0.875rem' : '1rem',
+                lineHeight: '1.6',
+                color: '#374151',
+                margin: 0
+              }}>
                 Ser la plataforma de referencia en gestión administrativa, promoviendo la excelencia operativa,
                 la colaboración efectiva y el logro consistente de objetivos institucionales.
               </p>
@@ -39,20 +123,21 @@ export const AdminMainContent: React.FC<AdminMainContentProps> = ({ children }) 
           </div>
 
           {/* Botón Plan de Acción General */}
-          <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+          <div style={{ marginTop: isMobile ? '1.5rem' : '2rem', textAlign: 'center' }}>
             <button
               onClick={() => window.open('/plan-accion-general.pdf', '_blank')}
               style={{
-                padding: '1rem 2rem',
+                padding: isMobile ? '0.875rem 1.5rem' : '1rem 2rem',
                 backgroundColor: '#1e293b',
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: '8px',
-                fontSize: '1rem',
+                fontSize: isMobile ? '0.875rem' : '1rem',
                 fontWeight: '600',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                width: isMobile ? '100%' : 'auto'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#334155';
@@ -72,30 +157,6 @@ export const AdminMainContent: React.FC<AdminMainContentProps> = ({ children }) 
       )}
     </div>
   );
-};
-
-// Estilos
-const containerStyle: React.CSSProperties = {
-  flex: 1,
-  padding: '24px',
-  backgroundColor: '#ffffff',
-  color: '#111111',
-  overflowY: 'auto'
-};
-
-const defaultContentStyle: React.CSSProperties = {
-  maxWidth: '1200px',
-  margin: '0 auto'
-};
-
-const welcomeCardStyle: React.CSSProperties = {
-  backgroundColor: '#ffffff',
-  padding: '32px',
-  borderRadius: '16px',
-  marginBottom: '32px',
-  textAlign: 'center',
-  border: '1px solid #e5e7eb',
-  boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
 };
 
 const titleStyle: React.CSSProperties = {
