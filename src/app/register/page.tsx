@@ -231,7 +231,7 @@ export default function RegisterPage() {
             maxWidth: '400px',
             width: '90%',
             textAlign: 'center',
-            border: `2px solid ${notification.type === 'success' ? '#22c55e' : notification.type === 'error' ? '#ef4444' : '#3b82f6'}`,
+            border: `2px solid ${notification.type === 'success' ? '#22c55e' : notification.type === 'error' ? '#ef4444' : '#111827'}`,
             boxShadow: '0 20px 50px rgba(0, 0, 0, 0.2)',
             animation: 'modalSlideIn 0.3s ease-out'
           }}>
@@ -239,7 +239,7 @@ export default function RegisterPage() {
               width: '60px',
               height: '60px',
               borderRadius: '50%',
-              background: notification.type === 'success' ? '#22c55e' : notification.type === 'error' ? '#ef4444' : '#3b82f6',
+              background: notification.type === 'success' ? '#22c55e' : notification.type === 'error' ? '#ef4444' : '#111827',
               margin: '0 auto 20px',
               display: 'flex',
               alignItems: 'center',
