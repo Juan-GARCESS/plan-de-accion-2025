@@ -448,25 +448,26 @@ function LoginForm() {
               }
             }}
           >
-            <span style={{
-              transition: 'opacity 0.3s ease',
-              opacity: loading ? 0 : 1
-            }}>
-              Iniciar Sesión
-            </span>
-            {loading && (
+            {loading ? (
               <span style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '20px',
-                height: '20px',
-                border: '2px solid transparent',
-                borderTop: '2px solid white',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite'
-              }}></span>
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}>
+                <span style={{
+                  width: '16px',
+                  height: '16px',
+                  border: '3px solid rgba(255, 255, 255, 0.3)',
+                  borderTopColor: 'white',
+                  borderRadius: '50%',
+                  animation: 'spin 0.8s linear infinite',
+                  display: 'inline-block'
+                }}></span>
+                Iniciando sesión...
+              </span>
+            ) : (
+              'Iniciar Sesión'
             )}
           </button>
         </form>

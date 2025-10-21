@@ -11,16 +11,21 @@ interface Evidencia {
   usuario_nombre: string;
   area_nombre: string;
   trimestre: number;
+  anio: number;
   meta: string;
   indicador: string;
   accion: string | null;
   presupuesto: string | null;
-  evidencia_url: string;
+  descripcion: string | null;
+  archivo_url: string;
+  archivo_nombre: string;
+  archivo_tipo: string;
+  archivo_tamano: number;
   calificacion: number | null;
-  estado_calificacion: string | null;
+  estado: string;
   comentario_admin: string | null;
-  nombre_archivo: string;
-  fecha_subida: string;
+  fecha_envio: string;
+  fecha_revision: string | null;
 }
 
 interface EvidenciasReviewProps {
@@ -80,7 +85,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          meta_id: selectedEvidencia.id,
+          evidencia_id: selectedEvidencia.id,
           calificacion: aprobar ? calificacion : 0,
           comentario: comentario || null,
           estado: aprobar ? 'aprobado' : 'rechazado'
@@ -101,7 +106,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
               ...e,
               calificacion: aprobar ? calificacion : 0,
               comentario_admin: comentario || null,
-              estado_calificacion: aprobar ? 'aprobado' : 'rechazado'
+              estado: aprobar ? 'aprobado' : 'rechazado'
             }
           : e
       ));
@@ -121,12 +126,17 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
 
   const handleVerEvidencia = async (evidencia: Evidencia) => {
     try {
-      const evidenciaId = evidencia.evidencia_url.replace('evidencia_', '');
-      const res = await fetch(`/api/admin/ver-evidencia?id=${evidenciaId}`);
-      if (!res.ok) throw new Error('Error al cargar evidencia');
-      
-      const data = await res.json();
-      window.open(data.archivo, '_blank');
+      // Si archivo_url es una URL completa de S3, abrirla directamente
+      if (evidencia.archivo_url.startsWith('http')) {
+        window.open(evidencia.archivo_url, '_blank');
+      } else {
+        // Fallback para evidencias antiguas
+        const res = await fetch(`/api/admin/ver-evidencia?id=${evidencia.id}`);
+        if (!res.ok) throw new Error('Error al cargar evidencia');
+        
+        const data = await res.json();
+        window.open(data.archivo, '_blank');
+      }
     } catch {
       toast.error('Error al ver evidencia', {
         description: 'No se pudo cargar el archivo.'
@@ -135,9 +145,9 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
   };
 
   const evidenciasFiltradas = evidencias.filter(e => {
-    if (filter === 'pendientes') return e.estado_calificacion === 'pendiente' || !e.estado_calificacion;
-    if (filter === 'aprobadas') return e.estado_calificacion === 'aprobado';
-    if (filter === 'rechazadas') return e.estado_calificacion === 'rechazado';
+    if (filter === 'pendientes') return e.estado === 'pendiente' || !e.estado;
+    if (filter === 'aprobadas') return e.estado === 'aprobado';
+    if (filter === 'rechazadas') return e.estado === 'rechazado';
     return true;
   });
 
@@ -174,9 +184,9 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
             }}
           >
             {f} ({evidencias.filter(e => {
-              if (f === 'pendientes') return e.estado_calificacion === 'pendiente' || !e.estado_calificacion;
-              if (f === 'aprobadas') return e.estado_calificacion === 'aprobado';
-              if (f === 'rechazadas') return e.estado_calificacion === 'rechazado';
+              if (f === 'pendientes') return e.estado === 'pendiente' || !e.estado;
+              if (f === 'aprobadas') return e.estado === 'aprobado';
+              if (f === 'rechazadas') return e.estado === 'rechazado';
               return true;
             }).length})
           </button>
@@ -239,20 +249,20 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                   </div>
                 </div>
                 
-                {evidencia.estado_calificacion && evidencia.estado_calificacion !== 'pendiente' && (
+                {evidencia.estado && evidencia.estado !== 'pendiente' && (
                   <span style={{
                     padding: '4px 12px',
-                    backgroundColor: evidencia.estado_calificacion === 'aprobado' 
+                    backgroundColor: evidencia.estado === 'aprobado' 
                       ? '#d1fae5' 
                       : '#fecaca',
-                    color: evidencia.estado_calificacion === 'aprobado' 
+                    color: evidencia.estado === 'aprobado' 
                       ? '#065f46' 
                       : '#991b1b',
                     borderRadius: 12,
                     fontSize: '0.7rem',
                     fontWeight: '600'
                   }}>
-                    {evidencia.estado_calificacion === 'aprobado' ? '✓' : '✗'} {evidencia.calificacion}%
+                    {evidencia.estado === 'aprobado' ? '✓' : '✗'} {evidencia.calificacion}%
                   </span>
                 )}
               </div>
@@ -273,7 +283,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
               </div>
 
               <div style={{ marginBottom: spacing.sm, fontSize: '0.75rem', color: colors.gray[600] }}>
-                📎 {evidencia.nombre_archivo}
+                📎 {evidencia.archivo_nombre}
               </div>
 
               <div style={{ display: 'flex', gap: spacing.xs }}>
@@ -294,7 +304,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                   👁️ Ver
                 </button>
                 
-                {(evidencia.estado_calificacion === 'pendiente' || !evidencia.estado_calificacion) && (
+                {(evidencia.estado === 'pendiente' || !evidencia.estado) && (
                   <button
                     onClick={() => {
                       setSelectedEvidencia(evidencia);

@@ -19,6 +19,8 @@ interface AdminDashboardLayoutProps {
   isAreasManagementSelected?: boolean;
   onEjesManagementSelect?: () => void;
   isEjesManagementSelected?: boolean;
+  onPlanAccionGeneralSelect?: () => void;
+  isPlanAccionGeneralSelected?: boolean;
   children?: React.ReactNode;
 }
 
@@ -34,6 +36,8 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
   isAreasManagementSelected,
   onEjesManagementSelect,
   isEjesManagementSelected,
+  onPlanAccionGeneralSelect,
+  isPlanAccionGeneralSelected,
   children
 }) => {
   const sidebarWidth = 280;
@@ -89,6 +93,11 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
     handleCloseSidebar();
   };
 
+  const handlePlanAccionGeneralSelectWithClose = () => {
+    onPlanAccionGeneralSelect?.();
+    handleCloseSidebar();
+  };
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
       {/* Overlay para móvil cuando el sidebar está abierto */}
@@ -134,6 +143,8 @@ export const AdminDashboardLayout: React.FC<AdminDashboardLayoutProps> = ({
           isAreasManagementSelected={isAreasManagementSelected}
           onEjesManagementSelect={handleEjesManagementSelectWithClose}
           isEjesManagementSelected={isEjesManagementSelected}
+          onPlanAccionGeneralSelect={handlePlanAccionGeneralSelectWithClose}
+          isPlanAccionGeneralSelected={isPlanAccionGeneralSelected}
           onClose={isMobile ? handleCloseSidebar : undefined}
         />
       </aside>

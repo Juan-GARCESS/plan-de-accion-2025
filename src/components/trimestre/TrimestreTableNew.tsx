@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { FileUpload } from '@/components/ui/FileUpload';
 
 interface MetaEvidencia {
   id: number;
@@ -28,6 +29,7 @@ interface TrimestreTableProps {
 export default function TrimestreTable({ trimestreId, areaId }: TrimestreTableProps) {
   const [metas, setMetas] = useState<MetaEvidencia[]>([]);
   const [valores, setValores] = useState<Record<number, { evidencia_texto: string; evidencia_url: string }>>({});
+  const [archivos, setArchivos] = useState<Record<number, File | null>>({});
   const [enviando, setEnviando] = useState<number | null>(null);
 
   const cargarMetas = useCallback(async () => {
@@ -61,36 +63,61 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
 
   const handleEnviarEvidencia = async (metaId: number) => {
     const evidencia_texto = valores[metaId]?.evidencia_texto?.trim();
+    const archivo = archivos[metaId];
     
     if (!evidencia_texto) {
       toast.error('La descripción de la evidencia es obligatoria');
       return;
     }
 
+    if (!archivo) {
+      toast.error('Debes seleccionar un archivo');
+      return;
+    }
+
     setEnviando(metaId);
     
     try {
-      const res = await fetch('/api/usuario/trimestre-metas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          plan_accion_id: metaId,
-          trimestre: trimestreId,
-          evidencia_texto,
-          evidencia_url: valores[metaId]?.evidencia_url || null
-        })
+      // Subir el archivo a S3 y guardar en tabla evidencias
+      const formData = new FormData();
+      formData.append('file', archivo);
+      formData.append('meta_id', metaId.toString());
+      formData.append('trimestre', trimestreId.toString());
+      formData.append('descripcion', evidencia_texto);
+
+      console.log('📤 Enviando evidencia:', {
+        metaId,
+        trimestre: trimestreId,
+        descripcion: evidencia_texto,
+        archivo: archivo.name
       });
 
-      const data = await res.json();
+      const uploadRes = await fetch('/api/usuario/upload-evidencia', {
+        method: 'POST',
+        body: formData
+      });
 
-      if (res.ok) {
-        toast.success('Evidencia enviada correctamente');
-        await cargarMetas(); // Recargar para actualizar estado
-      } else {
-        toast.error(data.error || 'Error al enviar evidencia');
+      const uploadData = await uploadRes.json();
+
+      if (!uploadRes.ok) {
+        console.error('❌ Error al subir:', uploadData);
+        toast.error(uploadData.message || 'Error al subir archivo');
+        setEnviando(null);
+        return;
       }
-    } catch {
-      toast.error('Error al enviar evidencia');
+
+      console.log('✅ Evidencia enviada:', uploadData);
+      toast.success('✅ Evidencia enviada correctamente');
+      
+      // Limpiar formulario después de enviar
+      setArchivos(prev => ({ ...prev, [metaId]: null }));
+      setValores(prev => ({ ...prev, [metaId]: { evidencia_texto: '', evidencia_url: '' } }));
+      
+      // Recargar metas para actualizar estado
+      await cargarMetas();
+    } catch (error) {
+      console.error('❌ Error al enviar evidencia:', error);
+      toast.error(error instanceof Error ? error.message : 'Error al enviar evidencia');
     } finally {
       setEnviando(null);
     }
@@ -269,38 +296,20 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
                     color: '#374151',
                     marginBottom: '8px'
                   }}>
-                    🔗 URL de Evidencia (opcional)
+                    � Archivo de Evidencia
                   </label>
-                  <input
-                    type="text"
-                    value={valores[meta.id]?.evidencia_url || ''}
-                    onChange={(e) => setValores(prev => ({
-                      ...prev,
-                      [meta.id]: { ...prev[meta.id], evidencia_url: e.target.value }
-                    }))}
-                    placeholder="https://drive.google.com/"
-                    style={{
-                      width: '100%',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '8px',
-                      padding: '10px 12px',
-                      fontSize: '0.875rem',
-                      fontFamily: 'inherit',
-                      outline: 'none',
-                      boxSizing: 'border-box'
+                  <FileUpload
+                    currentFile={archivos[meta.id] || null}
+                    onFileSelect={(file) => {
+                      setArchivos(prev => ({ ...prev, [meta.id]: file }));
                     }}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = '#3b82f6';
-                      e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                    onFileRemove={() => {
+                      setArchivos(prev => ({ ...prev, [meta.id]: null }));
                     }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = '#d1d5db';
-                      e.target.style.boxShadow = 'none';
-                    }}
+                    acceptedTypes=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                    maxSizeMB={10}
+                    disabled={enviando === meta.id}
                   />
-                  <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px', margin: '4px 0 0 0' }}>
-                    💡 Puedes compartir enlaces de Google Drive, Dropbox, etc.
-                  </p>
                 </div>
 
                 <button

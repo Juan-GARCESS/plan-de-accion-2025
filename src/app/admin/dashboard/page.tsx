@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { AdminDashboardLayout, GestionAllSections, AreasManagementSectionImproved, EjesManagementSectionImproved } from '@/components/admin';
 import { PlanAccionAdminTable } from '@/components/admin/PlanAccionAdminTable';
 import { EvidenciasReview } from '@/components/admin/EvidenciasReview';
+import PlanAccionGeneralPage from '@/app/admin/plan-accion-general/page';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminManagement } from '@/hooks/useAdminManagement';
 import type { Area } from '@/types';
@@ -26,6 +27,7 @@ function DashboardPageContent() {
   const [showGestion, setShowGestion] = useState(false);
   const [showAreasManagement, setShowAreasManagement] = useState(false);
   const [showEjesManagement, setShowEjesManagement] = useState(false);
+  const [showPlanAccionGeneral, setShowPlanAccionGeneral] = useState(false);
   const [selectedAreaId, setSelectedAreaId] = useState<number | null>(null);
   const [selectedArea, setSelectedArea] = useState<Area | null>(null);
   const [calificarTrimestre, setCalificarTrimestre] = useState<number | null>(null);
@@ -53,6 +55,7 @@ function DashboardPageContent() {
     setShowGestion(false);
     setShowAreasManagement(false);
     setShowEjesManagement(false);
+    setShowPlanAccionGeneral(false);
     setCalificarTrimestre(null);
     const area = areas.find(a => a.id === areaId);
     setSelectedAreaId(areaId);
@@ -63,6 +66,7 @@ function DashboardPageContent() {
     setShowGestion(false);
     setShowAreasManagement(false);
     setShowEjesManagement(false);
+    setShowPlanAccionGeneral(false);
     setCalificarTrimestre(null);
     setSelectedAreaId(null);
     setSelectedArea(null);
@@ -72,6 +76,7 @@ function DashboardPageContent() {
     setShowGestion(true);
     setShowAreasManagement(false);
     setShowEjesManagement(false);
+    setShowPlanAccionGeneral(false);
     setCalificarTrimestre(null);
     setSelectedAreaId(null);
     setSelectedArea(null);
@@ -81,6 +86,7 @@ function DashboardPageContent() {
     setShowGestion(false);
     setShowAreasManagement(true);
     setShowEjesManagement(false);
+    setShowPlanAccionGeneral(false);
     setCalificarTrimestre(null);
     setSelectedAreaId(null);
     setSelectedArea(null);
@@ -90,6 +96,17 @@ function DashboardPageContent() {
     setShowGestion(false);
     setShowAreasManagement(false);
     setShowEjesManagement(true);
+    setShowPlanAccionGeneral(false);
+    setCalificarTrimestre(null);
+    setSelectedAreaId(null);
+    setSelectedArea(null);
+  };
+
+  const handlePlanAccionGeneralSelect = () => {
+    setShowGestion(false);
+    setShowAreasManagement(false);
+    setShowEjesManagement(false);
+    setShowPlanAccionGeneral(true);
     setCalificarTrimestre(null);
     setSelectedAreaId(null);
     setSelectedArea(null);
@@ -148,10 +165,12 @@ function DashboardPageContent() {
       onGestionSelect={handleGestionSelect}
       onAreasManagementSelect={handleAreasManagementSelect}
       onEjesManagementSelect={handleEjesManagementSelect}
+      onPlanAccionGeneralSelect={handlePlanAccionGeneralSelect}
       userName={user.nombre}
       isGestionSelected={showGestion}
       isAreasManagementSelected={showAreasManagement}
       isEjesManagementSelected={showEjesManagement}
+      isPlanAccionGeneralSelected={showPlanAccionGeneral}
     >
       {showGestion ? (
         <GestionAllSections
@@ -175,6 +194,8 @@ function DashboardPageContent() {
         />
       ) : showEjesManagement ? (
         <EjesManagementSectionImproved />
+      ) : showPlanAccionGeneral ? (
+        <PlanAccionGeneralPage />
       ) : selectedArea ? (
         calificarTrimestre !== null ? (
           <div>

@@ -26,28 +26,41 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { meta_id, calificacion, comentario, estado } = body;
+    const { evidencia_id, calificacion, comentario, estado } = body;
 
-    if (!meta_id || calificacion === undefined || !estado) {
+    console.log('📥 Datos recibidos:', { evidencia_id, calificacion, comentario, estado });
+
+    if (!evidencia_id || calificacion === undefined || !estado) {
+      console.log('❌ Validación falló:', { evidencia_id, calificacion, estado });
       return NextResponse.json({ 
-        error: "meta_id, calificacion y estado son requeridos" 
+        error: "evidencia_id, calificacion y estado son requeridos",
+        received: { evidencia_id, calificacion, estado }
       }, { status: 400 });
     }
 
-    // Obtener información del usuario y la evidencia
+    // Validar calificación 0-100
+    if (calificacion < 0 || calificacion > 100) {
+      return NextResponse.json({ 
+        error: "La calificación debe estar entre 0 y 100" 
+      }, { status: 400 });
+    }
+
+    // Obtener información del usuario y la evidencia desde tabla evidencias
     const evidenciaInfo = await db.query(`
       SELECT 
-        um.id,
+        e.id,
+        e.meta_id,
         pa.meta,
-        um.trimestre,
+        e.trimestre,
+        e.anio,
         u.id as usuario_id,
         u.nombre as usuario_nombre,
         u.email as usuario_email
-      FROM usuario_metas um
-      JOIN usuarios u ON um.usuario_id = u.id
-      JOIN plan_accion pa ON um.plan_accion_id = pa.id
-      WHERE um.id = $1
-    `, [meta_id]);
+      FROM evidencias e
+      JOIN usuarios u ON e.usuario_id = u.id
+      JOIN plan_accion pa ON e.meta_id = pa.id
+      WHERE e.id = $1
+    `, [evidencia_id]);
 
     if (evidenciaInfo.rows.length === 0) {
       return NextResponse.json({ error: "Evidencia no encontrada" }, { status: 404 });
@@ -55,25 +68,26 @@ export async function POST(request: NextRequest) {
 
     const evidencia = evidenciaInfo.rows[0];
 
-    // Actualizar calificación en usuario_metas
+    // Actualizar calificación en tabla evidencias
     await db.query(`
-      UPDATE usuario_metas 
+      UPDATE evidencias 
       SET 
         calificacion = $1,
         estado = $2,
-        observaciones = $3,
-        updated_at = CURRENT_TIMESTAMP
+        comentario_admin = $3,
+        fecha_revision = CURRENT_TIMESTAMP,
+        revisado_por = $5
       WHERE id = $4
-    `, [calificacion, estado, comentario || null, meta_id]);
+    `, [calificacion, estado, comentario || null, evidencia_id, userId]);
 
-    // Enviar email al usuario
+    // Enviar email al usuario con Resend
     try {
-      const esAprobada = estado === 'aprobada';
+      const esAprobada = estado === 'aprobada' || estado === 'aprobado';
       
       await resend.emails.send({
         from: 'Plan de Acción <onboarding@resend.dev>',
         to: evidencia.usuario_email,
-        subject: `${esAprobada ? '✓' : '✗'} Calificación de evidencia - Trimestre ${evidencia.trimestre}`,
+        subject: `${esAprobada ? '✅' : '❌'} Calificación de evidencia - Trimestre ${evidencia.trimestre}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
             <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -116,12 +130,7 @@ export async function POST(request: NextRequest) {
         `
       });
 
-      // Registrar email enviado
-      await db.query(
-        `INSERT INTO emails_enviados (usuario_id, tipo, asunto, estado) 
-         VALUES ($1, 'calificacion', 'Evidencia calificada', 'enviado')`,
-        [evidencia.usuario_id]
-      );
+      console.log(`✅ Email enviado a ${evidencia.usuario_email}`);
     } catch (emailError) {
       console.error("Error al enviar email:", emailError);
       // No fallar la calificación si el email falla

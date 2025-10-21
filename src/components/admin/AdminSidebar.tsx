@@ -18,6 +18,8 @@ interface AdminSidebarProps {
   isAreasManagementSelected?: boolean;
   onEjesManagementSelect?: () => void;
   isEjesManagementSelected?: boolean;
+  onPlanAccionGeneralSelect?: () => void;
+  isPlanAccionGeneralSelected?: boolean;
   onClose?: () => void;
 }
 
@@ -33,6 +35,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   isAreasManagementSelected,
   onEjesManagementSelect,
   isEjesManagementSelected,
+  onPlanAccionGeneralSelect,
+  isPlanAccionGeneralSelected,
   onClose
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -260,7 +264,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             alignItems: 'center',
             gap: '12px',
             padding: '10px 12px',
-            marginBottom: '20px',
+            marginBottom: '8px',
             border: 'none',
             borderRadius: '8px',
             background: isEjesManagementSelected ? '#1e293b' : 'transparent',
@@ -283,6 +287,40 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         >
           <Squares2X2Icon style={{ width: '18px', height: '18px' }} />
           <span>Gestión de Ejes</span>
+        </button>
+
+        {/* Plan de Acción General Button */}
+        <button
+          onClick={onPlanAccionGeneralSelect}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '10px 12px',
+            marginBottom: '20px',
+            border: 'none',
+            borderRadius: '8px',
+            background: isPlanAccionGeneralSelected ? '#1e293b' : 'transparent',
+            color: isPlanAccionGeneralSelected ? 'white' : '#475569',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            if (!isPlanAccionGeneralSelected) {
+              e.currentTarget.style.background = '#f1f5f9';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isPlanAccionGeneralSelected) {
+              e.currentTarget.style.background = 'transparent';
+            }
+          }}
+        >
+          <span style={{ fontSize: '18px' }}>📊</span>
+          <span>Plan de Acción General</span>
         </button>
 
         {/* ÁREAS Section */}

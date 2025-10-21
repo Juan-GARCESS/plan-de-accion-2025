@@ -137,13 +137,50 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Sección de Trimestres */}
+        {/* Botón Plan de Acción - Primero */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center',
+          marginBottom: isMobile ? '20px' : '32px'
+        }}>
+          <button 
+            onClick={() => router.push('/dashboard/plan-accion')} 
+            style={{ 
+              background: 'linear-gradient(135deg, #111827 0%, #1f2937 100%)', 
+              color: '#fff', 
+              border: 'none', 
+              borderRadius: 12, 
+              padding: isMobile ? '16px 32px' : '18px 40px', 
+              fontWeight: 700, 
+              cursor: 'pointer',
+              fontSize: isMobile ? '1rem' : '1.125rem',
+              boxShadow: '0 4px 12px rgba(17, 24, 39, 0.3)',
+              transition: 'all 0.3s ease',
+              fontFamily: 'inherit',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(17, 24, 39, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(17, 24, 39, 0.3)';
+            }}
+          >
+            <span style={{ fontSize: '1.5rem' }}>📋</span>
+            Plan de Acción
+          </button>
+        </div>
+
+        {/* Sección de Trimestres - Después */}
         <div style={{ 
           background: '#fff', 
           border: '1px solid #e5e7eb', 
           borderRadius: 12, 
-          padding: isMobile ? '16px' : 24,
-          marginBottom: isMobile ? '16px' : '24px'
+          padding: isMobile ? '16px' : 24
         }}>
           <h2 style={{ 
             marginTop: 0, 
@@ -220,12 +257,6 @@ export default function DashboardPage() {
           }}>
             💡 <strong>Tip:</strong> En cada trimestre podrás definir tus acciones, presupuesto y subir evidencias de cumplimiento.
           </div>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <button onClick={() => router.push('/dashboard/plan-accion')} style={{ background: '#111827', color: '#fff', border: '1px solid #111827', borderRadius: 12, padding: '14px 28px', fontWeight: 700, cursor: 'pointer' }}>
-            Plan de Acción
-          </button>
         </div>
       </div>
     </UserDashboardLayout>

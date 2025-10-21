@@ -30,25 +30,29 @@ export async function GET(request: NextRequest) {
     // Construir query dinámica
     let query = `
       SELECT 
-        um.id,
-        um.plan_accion_id as meta_id,
+        e.id,
+        e.meta_id,
         u.nombre as usuario_nombre,
         a.nombre_area as area_nombre,
-        um.trimestre,
+        e.trimestre,
+        e.anio,
         pa.meta,
         pa.indicador,
         pa.accion,
         pa.presupuesto,
-        um.evidencia_texto,
-        um.evidencia_url,
-        um.calificacion,
-        um.estado as estado_calificacion,
-        um.observaciones as comentario_admin,
-        um.evidencia_texto as nombre_archivo,
-        um.fecha_envio as fecha_subida
-      FROM usuario_metas um
-      JOIN usuarios u ON um.usuario_id = u.id
-      JOIN plan_accion pa ON um.plan_accion_id = pa.id
+        e.descripcion,
+        e.archivo_url,
+        e.archivo_nombre,
+        e.archivo_tipo,
+        e.archivo_tamano,
+        e.calificacion,
+        e.estado,
+        e.comentario_admin,
+        e.fecha_envio,
+        e.fecha_revision
+      FROM evidencias e
+      JOIN usuarios u ON e.usuario_id = u.id
+      JOIN plan_accion pa ON e.meta_id = pa.id
       JOIN areas a ON u.area_id = a.id
       WHERE 1=1
     `;
@@ -63,12 +67,12 @@ export async function GET(request: NextRequest) {
     }
 
     if (trimestre) {
-      query += ` AND um.trimestre = $${paramCount}`;
+      query += ` AND e.trimestre = $${paramCount}`;
       params.push(parseInt(trimestre));
       paramCount++;
     }
 
-    query += ` ORDER BY um.fecha_envio DESC`;
+    query += ` ORDER BY e.fecha_envio DESC`;
 
     const result = await db.query(query, params);
 
@@ -113,14 +117,15 @@ export async function POST(request: NextRequest) {
 
     // Actualizar evidencia
     const result = await db.query(
-      `UPDATE usuario_metas 
+      `UPDATE evidencias 
        SET estado = $1, 
-           observaciones = $2, 
+           comentario_admin = $2, 
            calificacion = $3,
-           updated_at = CURRENT_TIMESTAMP
+           fecha_revision = CURRENT_TIMESTAMP,
+           revisado_por = $5
        WHERE id = $4
        RETURNING *`,
-      [estado, observaciones || null, calificacion || null, evidencia_id]
+      [estado, observaciones || null, calificacion || null, evidencia_id, userId]
     );
 
     if (result.rows.length === 0) {

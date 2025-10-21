@@ -31,9 +31,17 @@ export async function GET(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Obtener evidencia
+    // Si el ID es una URL de S3, redirigir directamente
+    if (evidenciaId.startsWith('http')) {
+      return NextResponse.json({
+        url: evidenciaId,
+        tipo: 'url'
+      });
+    }
+
+    // Si es un ID numérico, obtener la evidencia de la BD
     const result = await db.query(
-      `SELECT archivo_base64, nombre_archivo, tipo_archivo 
+      `SELECT archivo_url, archivo_nombre, archivo_tipo 
        FROM evidencias 
        WHERE id = $1`,
       [evidenciaId]
@@ -48,9 +56,9 @@ export async function GET(request: NextRequest) {
     const evidencia = result.rows[0];
 
     return NextResponse.json({
-      archivo: evidencia.archivo_base64,
-      nombre: evidencia.nombre_archivo,
-      tipo: evidencia.tipo_archivo
+      url: evidencia.archivo_url,
+      nombre: evidencia.archivo_nombre,
+      tipo: evidencia.archivo_tipo
     });
   } catch (error) {
     console.error("Error al obtener evidencia:", error);
