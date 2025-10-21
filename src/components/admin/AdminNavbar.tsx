@@ -51,7 +51,7 @@ export const AdminNavbar: React.FC<AdminNavbarProps> = ({ userName, userPhotoUrl
   };
 
   const navigateToProfile = () => {
-    router.push('/dashboard');
+    router.push('/admin/perfil');
     setMenuOpen(false);
   };
 
