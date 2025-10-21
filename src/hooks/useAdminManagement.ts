@@ -153,14 +153,13 @@ export const useAdminManagement = () => {
   };
 
   // Editar área
-  const editArea = async (areaId: number, data: { nombre: string; descripcion: string; activa?: boolean }) => {
+  const editArea = async (areaId: number, data: { nombre: string; descripcion: string }) => {
     const res = await fetch(`/api/admin/areas/${areaId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         nombre_area: data.nombre,
-        descripcion: data.descripcion,
-        activa: data.activa !== undefined ? data.activa : true
+        descripcion: data.descripcion
       })
     });
 

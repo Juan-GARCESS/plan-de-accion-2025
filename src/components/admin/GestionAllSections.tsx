@@ -16,7 +16,7 @@ interface GestionAllSectionsProps {
   onGeneratePassword: (userId: number) => Promise<string>;
   // area actions (kept for backward compatibility, not used in this component)
   onCreateArea: (data: { nombre: string; descripcion: string }) => Promise<void>;
-  onEditArea: (areaId: number, data: { nombre: string; descripcion: string; activa?: boolean }) => Promise<void>;
+  onEditArea: (areaId: number, data: { nombre: string; descripcion: string }) => Promise<void>;
   onDeleteArea: (areaId: number) => Promise<void>;
 }
 

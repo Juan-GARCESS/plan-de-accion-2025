@@ -68,7 +68,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const areaId = parseInt(id, 10);
-    const { nombre_area, descripcion, activa } = await request.json();
+    const { nombre_area, descripcion } = await request.json();
 
     if (!nombre_area || nombre_area.trim().length === 0) {
       return NextResponse.json({ error: "Nombre del área es requerido" }, { status: 400 });
@@ -94,10 +94,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: "No se puede cambiar el nombre a 'admin'" }, { status: 400 });
     }
 
-    // Actualizar área
+    // Actualizar área (sin columna activa)
     await db.query(
-      "UPDATE areas SET nombre_area = $1, descripcion = $2, activa = $3 WHERE id = $4",
-      [nombre_area.trim(), descripcion || null, activa ? true : false, areaId]
+      "UPDATE areas SET nombre_area = $1, descripcion = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3",
+      [nombre_area.trim(), descripcion || null, areaId]
     );
 
     return NextResponse.json({
@@ -105,8 +105,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       area: {
         id: areaId,
         nombre_area: nombre_area.trim(),
-        descripcion: descripcion || null,
-        activa: activa ? true : false
+        descripcion: descripcion || null
       }
     });
   } catch (err) {
