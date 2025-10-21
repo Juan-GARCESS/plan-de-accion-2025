@@ -373,6 +373,24 @@ export default function PlanAccionGeneralPage() {
                   </th>
                   <th style={{
                     padding: spacing.md,
+                    textAlign: 'left',
+                    fontWeight: '600',
+                    color: colors.gray[700],
+                    borderBottom: `1px solid ${colors.gray[200]}`
+                  }}>
+                    Acción
+                  </th>
+                  <th style={{
+                    padding: spacing.md,
+                    textAlign: 'left',
+                    fontWeight: '600',
+                    color: colors.gray[700],
+                    borderBottom: `1px solid ${colors.gray[200]}`
+                  }}>
+                    Presupuesto
+                  </th>
+                  <th style={{
+                    padding: spacing.md,
                     textAlign: 'center',
                     fontWeight: '600',
                     color: colors.gray[700],
@@ -476,6 +494,26 @@ export default function PlanAccionGeneralPage() {
                             {evidencia.indicador}
                           </div>
                         )}
+                      </td>
+                      <td style={{ padding: spacing.md, maxWidth: '200px' }}>
+                        <div style={{
+                          fontSize: '0.75rem',
+                          color: colors.gray[700],
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {evidencia.accion || '-'}
+                        </div>
+                      </td>
+                      <td style={{ padding: spacing.md }}>
+                        <div style={{
+                          fontSize: '0.875rem',
+                          color: colors.gray[800],
+                          fontWeight: '500'
+                        }}>
+                          {evidencia.presupuesto || '-'}
+                        </div>
                       </td>
                       <td style={{ padding: spacing.md, textAlign: 'center' }}>
                         <span style={{

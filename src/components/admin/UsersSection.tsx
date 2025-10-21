@@ -1,7 +1,9 @@
 // src/components/admin/UsersSection.tsx
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import type { Usuario, Area } from '@/types';
 
 interface UsersSectionProps {
@@ -23,6 +25,20 @@ export const UsersSection: React.FC<UsersSectionProps> = ({
   onDelete,
   onGeneratePassword,
 }) => {
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type?: 'danger' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    type: 'warning'
+  });
+
   const usuariosPendientes = usuarios.filter(u => u.estado === 'pendiente');
   const usuariosAprobados = usuarios.filter(u => u.estado === 'activo');
   
@@ -189,6 +205,17 @@ export const UsersSection: React.FC<UsersSectionProps> = ({
           </div>
         </div>
       </div>
+      
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+        type={confirmDialog.type}
+        confirmText="Confirmar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 };
@@ -211,10 +238,23 @@ const PendingUserRow: React.FC<PendingUserRowProps> = ({
 }) => {
   const [selectedAreaId, setSelectedAreaId] = React.useState<number | null>(null);
   const [loading, setLoading] = React.useState(false);
+  const [confirmDialog, setConfirmDialog] = React.useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type?: 'danger' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    type: 'warning'
+  });
 
   const handleApprove = async () => {
     if (!selectedAreaId) {
-      alert('Por favor selecciona un área para el usuario');
+      toast.error('Por favor selecciona un área para el usuario');
       return;
     }
     
@@ -223,35 +263,43 @@ const PendingUserRow: React.FC<PendingUserRowProps> = ({
       await onApprove(user.id, selectedAreaId);
     } catch (error) {
       console.error('Error al aprobar usuario:', error);
-      alert('Error al aprobar usuario');
+      toast.error('Error al aprobar usuario');
     } finally {
       setLoading(false);
     }
   };
 
   const handleReject = async () => {
-    if (!confirm(`¿Estás seguro de que quieres rechazar a ${user.nombre}?`)) return;
-    
-    setLoading(true);
-    try {
-      await onReject(user.id);
-    } catch (error) {
-      console.error('Error al rechazar usuario:', error);
-      alert('Error al rechazar usuario');
-    } finally {
-      setLoading(false);
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Rechazar Usuario',
+      message: `¿Estás seguro de que quieres rechazar a ${user.nombre}?`,
+      type: 'danger',
+      onConfirm: async () => {
+        setConfirmDialog({ ...confirmDialog, isOpen: false });
+        setLoading(true);
+        try {
+          await onReject(user.id);
+        } catch (error) {
+          console.error('Error al rechazar usuario:', error);
+          toast.error('Error al rechazar usuario');
+        } finally {
+          setLoading(false);
+        }
+      }
+    });
   };
 
   return (
-    <tr style={{
-      backgroundColor: isEven ? '#fffbeb' : 'white',
-      borderBottom: '1px solid #f1f5f9'
-    }}>
-      <td style={tableCellStyle}>{user.nombre}</td>
-      <td style={tableCellStyle}>{user.email}</td>
-      <td style={tableCellStyle}>{user.area_solicitada || 'No especificada'}</td>
-      <td style={tableCellStyle}>Reciente</td>
+    <>
+      <tr style={{
+        backgroundColor: isEven ? '#fffbeb' : 'white',
+        borderBottom: '1px solid #f1f5f9'
+      }}>
+        <td style={tableCellStyle}>{user.nombre}</td>
+        <td style={tableCellStyle}>{user.email}</td>
+        <td style={tableCellStyle}>{user.area_solicitada || 'No especificada'}</td>
+        <td style={tableCellStyle}>Reciente</td>
       <td style={tableCellStyle}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           <select
@@ -309,6 +357,18 @@ const PendingUserRow: React.FC<PendingUserRowProps> = ({
         </div>
       </td>
     </tr>
+    
+    <ConfirmDialog
+      isOpen={confirmDialog.isOpen}
+      title={confirmDialog.title}
+      message={confirmDialog.message}
+      onConfirm={confirmDialog.onConfirm}
+      onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+      type={confirmDialog.type}
+      confirmText="Confirmar"
+      cancelText="Cancelar"
+    />
+  </>
   );
 };
 
@@ -342,6 +402,19 @@ const ApprovedUserRow: React.FC<ApprovedUserRowProps> = ({
     area_id: user.area_id || 0,
     newPassword: ''
   });
+  const [confirmDialog, setConfirmDialog] = React.useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type?: 'danger' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    type: 'warning'
+  });
 
   const handleEdit = async () => {
     setLoading(true);
@@ -356,34 +429,50 @@ const ApprovedUserRow: React.FC<ApprovedUserRowProps> = ({
       setEditData({ ...editData, newPassword: '' });
     } catch (error) {
       console.error('Error al editar usuario:', error);
-      alert('Error al editar usuario');
+      toast.error('Error al editar usuario');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm(`¿Estás seguro de que quieres eliminar a ${user.nombre}?`)) return;
-    
-    setLoading(true);
-    try {
-      await onDelete(user.id);
-    } catch (error) {
-      console.error('Error al eliminar usuario:', error);
-      alert('Error al eliminar usuario');
-    } finally {
-      setLoading(false);
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Eliminar Usuario',
+      message: `¿Estás seguro de que quieres eliminar a ${user.nombre}? Esta acción no se puede deshacer.`,
+      type: 'danger',
+      onConfirm: async () => {
+        setConfirmDialog({ ...confirmDialog, isOpen: false });
+        setLoading(true);
+        try {
+          await onDelete(user.id);
+        } catch (error) {
+          console.error('Error al eliminar usuario:', error);
+          toast.error('Error al eliminar usuario');
+        } finally {
+          setLoading(false);
+        }
+      }
+    });
   };
 
   const handleGeneratePassword = async () => {
     setLoading(true);
     try {
       const newPassword = await onGeneratePassword(user.id);
-      alert(`Nueva contraseña generada: ${newPassword}`);
+      // Mostrar en un dialog más elegante
+      setConfirmDialog({
+        isOpen: true,
+        title: 'Contraseña Generada',
+        message: `Nueva contraseña: ${newPassword}\n\nPor favor, cópiala y compártela con el usuario de forma segura.`,
+        type: 'info',
+        onConfirm: () => {
+          setConfirmDialog({ ...confirmDialog, isOpen: false });
+        }
+      });
     } catch (error) {
       console.error('Error al generar contraseña:', error);
-      alert('Error al generar contraseña');
+      toast.error('Error al generar contraseña');
     } finally {
       setLoading(false);
     }
@@ -493,13 +582,14 @@ const ApprovedUserRow: React.FC<ApprovedUserRowProps> = ({
   }
 
   return (
-    <tr style={{
-      backgroundColor: isEven ? '#f8fafc' : 'white',
-      borderBottom: '1px solid #f1f5f9'
-    }}>
-      <td style={tableCellStyle}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {user.nombre}
+    <>
+      <tr style={{
+        backgroundColor: isEven ? '#f8fafc' : 'white',
+        borderBottom: '1px solid #f1f5f9'
+      }}>
+        <td style={tableCellStyle}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            {user.nombre}
           {isAdmin && (
             <span style={{
               backgroundColor: '#fef3c7',
@@ -593,6 +683,18 @@ const ApprovedUserRow: React.FC<ApprovedUserRowProps> = ({
         )}
       </td>
     </tr>
+    
+    <ConfirmDialog
+      isOpen={confirmDialog.isOpen}
+      title={confirmDialog.title}
+      message={confirmDialog.message}
+      onConfirm={confirmDialog.onConfirm}
+      onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+      type={confirmDialog.type}
+      confirmText={confirmDialog.type === 'info' ? 'Entendido' : 'Confirmar'}
+      cancelText="Cancelar"
+    />
+  </>
   );
 };
 

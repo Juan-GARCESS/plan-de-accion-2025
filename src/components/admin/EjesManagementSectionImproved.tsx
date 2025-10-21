@@ -2,6 +2,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { 
   createCardStyle, 
   createButtonStyle, 
@@ -53,6 +55,21 @@ export function EjesManagementSectionImproved() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'ejes' | 'asignaciones'>('ejes');
   const [isMobile, setIsMobile] = useState(false);
+
+  // Estados para confirm dialogs
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type?: 'danger' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    type: 'warning'
+  });
 
   // Detectar móvil
   useEffect(() => {
@@ -156,14 +173,14 @@ export function EjesManagementSectionImproved() {
         setShowEjeForm(false);
         cargarEjes();
         cargarTodosLosSubEjes();
-        alert('Eje creado exitosamente');
+        toast.success('Eje creado exitosamente');
       } else {
         const error = await response.json();
-        alert(`Error: ${error.error}`);
+        toast.error(`Error: ${error.error}`);
       }
     } catch (error) {
       console.error('Error creando eje:', error);
-      alert('Error al crear el eje');
+      toast.error('Error al crear el eje');
     }
   };
 
@@ -190,39 +207,44 @@ export function EjesManagementSectionImproved() {
         setEditEjeForm({ id: 0, nombre_eje: '', descripcion: '' });
         cargarEjes();
         cargarTodosLosSubEjes();
-        alert('Eje actualizado exitosamente');
+        toast.success('Eje actualizado exitosamente');
       } else {
         const error = await response.json();
-        alert(`Error: ${error.error}`);
+        toast.error(`Error: ${error.error}`);
       }
     } catch (error) {
       console.error('Error actualizando eje:', error);
-      alert('Error al actualizar el eje');
+      toast.error('Error al actualizar el eje');
     }
   };
 
   const eliminarEje = async (ejeId: number) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este eje? Esta acción no se puede deshacer.')) {
-      return;
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Eliminar Eje',
+      message: '¿Estás seguro de que quieres eliminar este eje? Esta acción eliminará también todos sus sub-ejes y no se puede deshacer.',
+      type: 'danger',
+      onConfirm: async () => {
+        setConfirmDialog({ ...confirmDialog, isOpen: false });
+        try {
+          const response = await fetch(`/api/admin/ejes?id=${ejeId}`, {
+            method: 'DELETE'
+          });
 
-    try {
-      const response = await fetch(`/api/admin/ejes?id=${ejeId}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        cargarEjes();
-        cargarTodosLosSubEjes();
-        alert('Eje eliminado exitosamente');
-      } else {
-        const error = await response.json();
-        alert(`Error: ${error.error}`);
+          if (response.ok) {
+            cargarEjes();
+            cargarTodosLosSubEjes();
+            toast.success('Eje eliminado exitosamente');
+          } else {
+            const error = await response.json();
+            toast.error(`Error: ${error.error}`);
+          }
+        } catch (error) {
+          console.error('Error eliminando eje:', error);
+          toast.error('Error al eliminar el eje');
+        }
       }
-    } catch (error) {
-      console.error('Error eliminando eje:', error);
-      alert('Error al eliminar el eje');
-    }
+    });
   };
 
   // =============== FUNCIONES CRUD SUB-EJES ===============
@@ -231,7 +253,7 @@ export function EjesManagementSectionImproved() {
     e.preventDefault();
     
     if (!subEjeForm.eje_id || subEjeForm.eje_id === 0) {
-      alert('Por favor selecciona un eje');
+      toast.error('Por favor selecciona un eje');
       return;
     }
     
@@ -247,14 +269,14 @@ export function EjesManagementSectionImproved() {
         setShowSubEjeForm(false);
         cargarEjes();
         cargarTodosLosSubEjes();
-        alert('Sub-eje creado exitosamente');
+        toast.success('Sub-eje creado exitosamente');
       } else {
         const error = await response.json();
-        alert(`Error: ${error.error}`);
+        toast.error(`Error: ${error.error}`);
       }
     } catch (error) {
       console.error('Error creando sub-eje:', error);
-      alert('Error al crear el sub-eje');
+      toast.error('Error al crear el sub-eje');
     }
   };
 
@@ -282,39 +304,44 @@ export function EjesManagementSectionImproved() {
         setEditSubEjeForm({ id: 0, eje_id: 0, nombre_sub_eje: '', descripcion: '' });
         cargarEjes();
         cargarTodosLosSubEjes();
-        alert('Sub-eje actualizado exitosamente');
+        toast.success('Sub-eje actualizado exitosamente');
       } else {
         const error = await response.json();
-        alert(`Error: ${error.error}`);
+        toast.error(`Error: ${error.error}`);
       }
     } catch (error) {
       console.error('Error actualizando sub-eje:', error);
-      alert('Error al actualizar el sub-eje');
+      toast.error('Error al actualizar el sub-eje');
     }
   };
 
   const eliminarSubEje = async (subEjeId: number) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este sub-eje? Esta acción no se puede deshacer.')) {
-      return;
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Eliminar Sub-eje',
+      message: '¿Estás seguro de que quieres eliminar este sub-eje? Esta acción no se puede deshacer.',
+      type: 'danger',
+      onConfirm: async () => {
+        setConfirmDialog({ ...confirmDialog, isOpen: false });
+        try {
+          const response = await fetch(`/api/admin/sub-ejes?id=${subEjeId}`, {
+            method: 'DELETE'
+          });
 
-    try {
-      const response = await fetch(`/api/admin/sub-ejes?id=${subEjeId}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        cargarEjes();
-        cargarTodosLosSubEjes();
-        alert('Sub-eje eliminado exitosamente');
-      } else {
-        const error = await response.json();
-        alert(`Error: ${error.error}`);
+          if (response.ok) {
+            cargarEjes();
+            cargarTodosLosSubEjes();
+            toast.success('Sub-eje eliminado exitosamente');
+          } else {
+            const error = await response.json();
+            toast.error(`Error: ${error.error}`);
+          }
+        } catch (error) {
+          console.error('Error eliminando sub-eje:', error);
+          toast.error('Error al eliminar el sub-eje');
+        }
       }
-    } catch (error) {
-      console.error('Error eliminando sub-eje:', error);
-      alert('Error al eliminar el sub-eje');
-    }
+    });
   };
 
   // =============== FUNCIONES DE ASIGNACIÓN ===============
@@ -323,12 +350,12 @@ export function EjesManagementSectionImproved() {
     e.preventDefault();
     
     if (!asignacionForm.area_id || asignacionForm.area_id === 0) {
-      alert('Por favor selecciona un área');
+      toast.error('Por favor selecciona un área');
       return;
     }
     
     if (!asignacionForm.eje_id || asignacionForm.eje_id === 0) {
-      alert('Por favor selecciona un eje');
+      toast.error('Por favor selecciona un eje');
       return;
     }
     
@@ -343,38 +370,43 @@ export function EjesManagementSectionImproved() {
         setAsignacionForm({ area_id: 0, eje_id: 0 });
         setShowAsignacionForm(false);
         cargarAsignaciones();
-        alert('Eje asignado exitosamente al área');
+        toast.success('Eje asignado exitosamente al área');
       } else {
         const error = await response.json();
-        alert(`Error: ${error.error}`);
+        toast.error(`Error: ${error.error}`);
       }
     } catch (error) {
       console.error('Error asignando eje:', error);
-      alert('Error al asignar el eje');
+      toast.error('Error al asignar el eje');
     }
   };
 
   const desasignarEjeArea = async (areaId: number, ejeId: number) => {
-    if (!confirm('¿Estás seguro de que quieres desasignar este eje del área?')) {
-      return;
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Desasignar Eje',
+      message: '¿Estás seguro de que quieres desasignar este eje del área?',
+      type: 'warning',
+      onConfirm: async () => {
+        setConfirmDialog({ ...confirmDialog, isOpen: false });
+        try {
+          const response = await fetch(`/api/admin/area-ejes?area_id=${areaId}&eje_id=${ejeId}`, {
+            method: 'DELETE'
+          });
 
-    try {
-      const response = await fetch(`/api/admin/area-ejes?area_id=${areaId}&eje_id=${ejeId}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        cargarAsignaciones();
-        alert('Eje desasignado exitosamente del área');
-      } else {
-        const error = await response.json();
-        alert(`Error: ${error.error}`);
+          if (response.ok) {
+            cargarAsignaciones();
+            toast.success('Eje desasignado exitosamente');
+          } else {
+            const error = await response.json();
+            toast.error(`Error: ${error.error}`);
+          }
+        } catch (error) {
+          console.error('Error desasignando eje:', error);
+          toast.error('Error al desasignar el eje');
+        }
       }
-    } catch (error) {
-      console.error('Error desasignando eje:', error);
-      alert('Error al desasignar el eje');
-    }
+    });
   };
 
   // =============== ESTILOS USANDO EL NUEVO SISTEMA ===============
@@ -1050,6 +1082,17 @@ export function EjesManagementSectionImproved() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+        type={confirmDialog.type}
+        confirmText="Confirmar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 }

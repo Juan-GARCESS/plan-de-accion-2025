@@ -2,6 +2,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import type { Area } from '@/types';
 
 interface AreaCardProps {
@@ -16,24 +18,48 @@ export const AreaCard: React.FC<AreaCardProps> = ({
   onDelete,
 }) => {
   const [loading, setLoading] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type?: 'danger' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    type: 'warning'
+  });
 
   const handleDelete = async () => {
-    if (window.confirm(`¿Estás seguro de eliminar el área "${area.nombre_area}"?`)) {
-      setLoading(true);
-      try {
-        await onDelete(area.id);
-      } finally {
-        setLoading(false);
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Eliminar Área',
+      message: `¿Estás seguro de eliminar el área "${area.nombre_area}"? Esta acción no se puede deshacer.`,
+      type: 'danger',
+      onConfirm: async () => {
+        setConfirmDialog({ ...confirmDialog, isOpen: false });
+        setLoading(true);
+        try {
+          await onDelete(area.id);
+          toast.success('Área eliminada exitosamente');
+        } catch (error) {
+          toast.error('Error al eliminar área');
+        } finally {
+          setLoading(false);
+        }
       }
-    }
+    });
   };
 
   return (
-    <tr style={{
-      backgroundColor: 'white',
-      borderBottom: '1px solid #f1f5f9'
-    }}>
-      <td style={tableCellStyle}>
+    <>
+      <tr style={{
+        backgroundColor: 'white',
+        borderBottom: '1px solid #f1f5f9'
+      }}>
+        <td style={tableCellStyle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           {area.nombre_area}
           <span style={{
@@ -96,6 +122,18 @@ export const AreaCard: React.FC<AreaCardProps> = ({
         </div>
       </td>
     </tr>
+    
+    <ConfirmDialog
+      isOpen={confirmDialog.isOpen}
+      title={confirmDialog.title}
+      message={confirmDialog.message}
+      onConfirm={confirmDialog.onConfirm}
+      onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+      type={confirmDialog.type}
+      confirmText="Eliminar"
+      cancelText="Cancelar"
+    />
+  </>
   );
 };
 

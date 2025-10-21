@@ -4,9 +4,11 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 export default function PerfilUserPage() {
+  const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
@@ -143,6 +145,34 @@ export default function PerfilUserPage() {
       margin: '0 auto'
     }}>
       <div style={{ marginBottom: '32px' }}>
+        <button
+          onClick={() => router.push('/dashboard')}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 16px',
+            backgroundColor: '#ffffff',
+            color: '#111827',
+            border: '1px solid #e5e7eb',
+            borderRadius: '8px',
+            fontSize: '0.875rem',
+            fontWeight: '600',
+            cursor: 'pointer',
+            marginBottom: '16px',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#f9fafb';
+            e.currentTarget.style.borderColor = '#111827';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#ffffff';
+            e.currentTarget.style.borderColor = '#e5e7eb';
+          }}
+        >
+          ← Volver al Dashboard
+        </button>
         <h1 style={{
           fontSize: '2rem',
           fontWeight: '700',
