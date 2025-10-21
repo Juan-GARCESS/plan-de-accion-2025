@@ -27,7 +27,7 @@ function DashboardPageContent() {
   const [showGestion, setShowGestion] = useState(false);
   const [showAreasManagement, setShowAreasManagement] = useState(false);
   const [showEjesManagement, setShowEjesManagement] = useState(false);
-  const [showPlanAccionGeneral, setShowPlanAccionGeneral] = useState(false);
+  const [showPlanAccionGeneral, setShowPlanAccionGeneral] = useState(true); // Mostrar por defecto
   const [selectedAreaId, setSelectedAreaId] = useState<number | null>(null);
   const [selectedArea, setSelectedArea] = useState<Area | null>(null);
   const [calificarTrimestre, setCalificarTrimestre] = useState<number | null>(null);

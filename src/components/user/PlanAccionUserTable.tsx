@@ -231,7 +231,7 @@ export const PlanAccionUserTable: React.FC<PlanAccionUserTableProps> = ({ areaId
                       style={{
                         width: '100%',
                         padding: '4px',
-                        border: '2px solid #3b82f6',
+                        border: '2px solid #111827',
                         borderRadius: '4px',
                         fontSize: '0.875rem'
                       }}
@@ -246,7 +246,7 @@ export const PlanAccionUserTable: React.FC<PlanAccionUserTableProps> = ({ areaId
                   style={{ 
                     ...bodyCellStyle, 
                     cursor: editingCell?.id === row.id && editingCell?.field === 'presupuesto' ? 'text' : 'pointer',
-                    backgroundColor: editingCell?.id === row.id && editingCell?.field === 'presupuesto' ? '#dbeafe' : undefined
+                    backgroundColor: editingCell?.id === row.id && editingCell?.field === 'presupuesto' ? '#f3f4f6' : undefined
                   }}
                   onDoubleClick={() => handleDoubleClick(row.id, 'presupuesto', row.presupuesto)}
                   title="Doble clic para editar"
@@ -262,7 +262,7 @@ export const PlanAccionUserTable: React.FC<PlanAccionUserTableProps> = ({ areaId
                       style={{
                         width: '100%',
                         padding: '4px',
-                        border: '2px solid #3b82f6',
+                        border: '2px solid #111827',
                         borderRadius: '4px',
                         fontSize: '0.875rem'
                       }}

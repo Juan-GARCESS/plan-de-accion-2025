@@ -85,14 +85,20 @@ export const useAdminManagement = () => {
   const deleteUser = async (userId: number) => {
     const res = await fetch('/api/admin/usuarios/eliminar', {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId })
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      },
+      body: JSON.stringify({ user_id: userId }),
+      cache: 'no-store'
     });
 
     if (!res.ok) {
-      throw new Error('Error al eliminar usuario');
+      const errorData = await res.json().catch(() => ({ error: 'Error desconocido' }));
+      throw new Error(errorData.error || 'Error al eliminar usuario');
     }
 
+    // Forzar recarga completa de usuarios
     await fetchUsuarios();
   };
 

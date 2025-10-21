@@ -549,9 +549,9 @@ const ApprovedUserRow: React.FC<ApprovedUserRowProps> = ({
               disabled={loading}
               style={{
                 padding: '4px 8px',
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                border: 'none',
+                backgroundColor: '#ffffff',
+                color: '#111827',
+                border: '1px solid #e5e7eb',
                 borderRadius: '4px',
                 fontSize: '12px',
                 cursor: 'pointer'

@@ -13,6 +13,8 @@ interface EvidenciaAprobada {
   usuario_email: string;
   area_id: number;
   nombre_area: string;
+  eje: string | null;
+  sub_eje: string | null;
   trimestre: number;
   anio: number;
   meta: string;
@@ -340,6 +342,24 @@ export default function PlanAccionGeneralPage() {
                     color: colors.gray[700],
                     borderBottom: `1px solid ${colors.gray[200]}`
                   }}>
+                    Eje
+                  </th>
+                  <th style={{
+                    padding: spacing.md,
+                    textAlign: 'left',
+                    fontWeight: '600',
+                    color: colors.gray[700],
+                    borderBottom: `1px solid ${colors.gray[200]}`
+                  }}>
+                    Sub-eje
+                  </th>
+                  <th style={{
+                    padding: spacing.md,
+                    textAlign: 'left',
+                    fontWeight: '600',
+                    color: colors.gray[700],
+                    borderBottom: `1px solid ${colors.gray[200]}`
+                  }}>
                     Usuario
                   </th>
                   <th style={{
@@ -406,6 +426,22 @@ export default function PlanAccionGeneralPage() {
                           color: colors.gray[900]
                         }}>
                           {evidencia.nombre_area}
+                        </div>
+                      </td>
+                      <td style={{ padding: spacing.md }}>
+                        <div style={{
+                          fontSize: '0.875rem',
+                          color: colors.gray[800]
+                        }}>
+                          {evidencia.eje || '-'}
+                        </div>
+                      </td>
+                      <td style={{ padding: spacing.md }}>
+                        <div style={{
+                          fontSize: '0.875rem',
+                          color: colors.gray[800]
+                        }}>
+                          {evidencia.sub_eje || '-'}
                         </div>
                       </td>
                       <td style={{ padding: spacing.md }}>
@@ -483,13 +519,22 @@ export default function PlanAccionGeneralPage() {
                           onClick={() => handleVerArchivo(evidencia)}
                           style={{
                             padding: '6px 12px',
-                            backgroundColor: colors.primary,
-                            color: 'white',
-                            border: 'none',
+                            backgroundColor: '#ffffff',
+                            color: '#111827',
+                            border: '1px solid #e5e7eb',
                             borderRadius: 6,
                             cursor: 'pointer',
                             fontSize: '0.75rem',
-                            fontWeight: '600'
+                            fontWeight: '600',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.borderColor = '#111827';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.backgroundColor = '#ffffff';
+                            e.currentTarget.style.borderColor = '#e5e7eb';
                           }}
                         >
                           👁️ Ver

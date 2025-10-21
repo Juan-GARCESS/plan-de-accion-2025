@@ -103,7 +103,7 @@ export function TrimestreSelectionCard({
             style={{
               width: '100%',
               padding: '12px',
-              backgroundColor: seleccionando ? '#94a3b8' : '#3b82f6',
+              backgroundColor: seleccionando ? '#94a3b8' : '#111827',
               color: 'white',
               border: 'none',
               borderRadius: '6px',

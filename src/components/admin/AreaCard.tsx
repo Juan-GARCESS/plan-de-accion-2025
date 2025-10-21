@@ -61,9 +61,9 @@ export const AreaCard: React.FC<AreaCardProps> = ({
             disabled={loading}
             style={{
               padding: '6px 12px',
-              backgroundColor: '#3b82f6',
-              color: 'white',
-              border: 'none',
+              backgroundColor: '#ffffff',
+              color: '#111827',
+              border: '1px solid #e5e7eb',
               borderRadius: '6px',
               fontSize: '14px',
               cursor: 'pointer',

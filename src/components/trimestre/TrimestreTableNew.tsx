@@ -276,8 +276,8 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
                       boxSizing: 'border-box'
                     }}
                     onFocus={(e) => {
-                      e.target.style.borderColor = '#3b82f6';
-                      e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                      e.target.style.borderColor = '#111827';
+                      e.target.style.boxShadow = '0 0 0 3px rgba(17, 24, 39, 0.1)';
                     }}
                     onBlur={(e) => {
                       e.target.style.borderColor = '#d1d5db';
@@ -317,7 +317,7 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
                   disabled={enviando === meta.id}
                   style={{
                     width: '100%',
-                    background: enviando === meta.id ? '#9ca3af' : '#2563eb',
+                    background: enviando === meta.id ? '#9ca3af' : '#111827',
                     color: '#fff',
                     fontWeight: '600',
                     padding: '12px 16px',
@@ -332,10 +332,10 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
                     transition: 'background-color 0.2s'
                   }}
                   onMouseEnter={(e) => {
-                    if (enviando !== meta.id) e.currentTarget.style.background = '#1d4ed8';
+                    if (enviando !== meta.id) e.currentTarget.style.background = '#000000';
                   }}
                   onMouseLeave={(e) => {
-                    if (enviando !== meta.id) e.currentTarget.style.background = '#2563eb';
+                    if (enviando !== meta.id) e.currentTarget.style.background = '#111827';
                   }}
                 >
                   {enviando === meta.id ? (
@@ -369,7 +369,7 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
                       href={meta.evidencia_url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      style={{ fontSize: '0.875rem', color: '#2563eb', textDecoration: 'underline' }}
+                      style={{ fontSize: '0.875rem', color: '#111827', textDecoration: 'underline' }}
                     >
                       {meta.evidencia_url}
                     </a>

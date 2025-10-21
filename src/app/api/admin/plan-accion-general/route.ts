@@ -45,6 +45,8 @@ export async function GET(request: NextRequest) {
         pa.indicador,
         pa.accion,
         pa.presupuesto,
+        ej.nombre_eje as eje,
+        se.nombre_sub_eje as sub_eje,
         e.descripcion,
         e.archivo_url,
         e.archivo_nombre,
@@ -60,6 +62,8 @@ export async function GET(request: NextRequest) {
       JOIN usuarios u ON e.usuario_id = u.id
       JOIN plan_accion pa ON e.meta_id = pa.id
       JOIN areas a ON u.area_id = a.id
+      LEFT JOIN ejes ej ON pa.eje_id = ej.id
+      LEFT JOIN sub_ejes se ON pa.sub_eje_id = se.id
       LEFT JOIN usuarios admin ON e.revisado_por = admin.id
       WHERE e.estado = 'aprobado'
     `;

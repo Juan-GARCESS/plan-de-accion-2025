@@ -245,17 +245,6 @@ export const PendingUsersCard: React.FC<PendingUsersCardProps> = ({
           );
         })}
       </div>
-
-      <div style={{
-        marginTop: spacing.md,
-        padding: spacing.sm,
-        backgroundColor: '#fef9e6',
-        borderRadius: borderRadius.sm,
-        fontSize: '0.75rem',
-        color: '#92400e'
-      }}>
-        💡 <strong>Tip:</strong> Al aprobar un usuario, se enviará automáticamente un email de bienvenida con sus credenciales de acceso.
-      </div>
     </div>
   );
 };

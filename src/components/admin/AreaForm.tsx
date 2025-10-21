@@ -60,7 +60,7 @@ export const AreaForm: React.FC<AreaFormProps> = ({
             placeholder="Ej: Recursos Humanos, Marketing, IT..."
             required
             onFocus={(e) => {
-              e.target.style.borderColor = '#3b82f6';
+              e.target.style.borderColor = '#111827';
               e.target.style.backgroundColor = '#ffffff';
             }}
             onBlur={(e) => {
@@ -81,7 +81,7 @@ export const AreaForm: React.FC<AreaFormProps> = ({
             onChange={(e) => setDescripcion(e.target.value)}
             placeholder="Breve descripción del área..."
             onFocus={(e) => {
-              e.target.style.borderColor = '#3b82f6';
+              e.target.style.borderColor = '#111827';
               e.target.style.backgroundColor = '#ffffff';
             }}
             onBlur={(e) => {

@@ -19,10 +19,10 @@ export const StatsCard: React.FC<StatsCardProps> = ({
 }) => {
   const colorMap = {
     blue: {
-      bg: '#eff6ff',
-      border: '#dbeafe',
-      icon: '#3b82f6',
-      text: '#1e40af'
+      bg: '#f9fafb',
+      border: '#e5e7eb',
+      icon: '#111827',
+      text: '#111827'
     },
     green: {
       bg: '#f0fdf4',

@@ -119,7 +119,7 @@ export const UserCard: React.FC<UserCardProps> = ({
             margin: 0,
             fontWeight: '500'
           }}>
-            Área solicitada: <span style={{ color: '#2563eb' }}>
+            Área solicitada: <span style={{ color: '#111827', fontWeight: '600' }}>
               {user.area_solicitada || "N/A"}
             </span>
           </p>

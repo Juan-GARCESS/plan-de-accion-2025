@@ -174,7 +174,7 @@ export const TrimestreTable: React.FC<TrimestreTableProps> = ({
         <button
           onClick={() => window.location.href = '/dashboard/plan-accion'}
           style={{
-            background: '#3b82f6',
+            background: '#111827',
             color: '#fff',
             border: 'none',
             borderRadius: 8,

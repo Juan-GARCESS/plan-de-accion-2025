@@ -141,7 +141,7 @@ export const TrimestreSelections: React.FC = () => {
           disabled={loading}
           style={{
             padding: '8px 16px',
-            backgroundColor: '#3b82f6',
+            backgroundColor: '#111827',
             color: 'white',
             border: 'none',
             borderRadius: '6px',

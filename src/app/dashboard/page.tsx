@@ -202,42 +202,44 @@ export default function DashboardPage() {
           
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', 
-            gap: isMobile ? '12px' : '16px'
+            gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)', 
+            gap: isMobile ? '10px' : '12px'
           }}>
             {[1, 2, 3, 4].map(trimestre => (
               <button
                 key={trimestre}
                 onClick={() => router.push(`/dashboard/trimestre/${trimestre}`)}
                 style={{
-                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 12,
-                  padding: isMobile ? '16px' : '20px',
+                  background: '#ffffff',
+                  color: '#111827',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: 8,
+                  padding: isMobile ? '12px' : '14px',
                   cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 6px rgba(59, 130, 246, 0.2)',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  gap: '8px',
+                  gap: '6px',
                   fontFamily: 'inherit'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = '0 8px 12px rgba(59, 130, 246, 0.3)';
+                  e.currentTarget.style.background = '#f9fafb';
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.08)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 6px rgba(59, 130, 246, 0.2)';
+                  e.currentTarget.style.background = '#ffffff';
+                  e.currentTarget.style.borderColor = '#e5e7eb';
+                  e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
                 }}
               >
-                <span style={{ fontSize: '2rem', marginBottom: '4px' }}>📈</span>
-                <span style={{ fontSize: '1.125rem', fontWeight: '700' }}>
+                <span style={{ fontSize: '1.5rem', marginBottom: '2px' }}>📈</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>
                   Trimestre {trimestre}
                 </span>
-                <span style={{ fontSize: '0.75rem', opacity: 0.9 }}>
+                <span style={{ fontSize: '0.6875rem', color: '#6b7280' }}>
                   {trimestre === 1 ? 'Ene - Mar' : 
                    trimestre === 2 ? 'Abr - Jun' :
                    trimestre === 3 ? 'Jul - Sep' : 
@@ -245,17 +247,6 @@ export default function DashboardPage() {
                 </span>
               </button>
             ))}
-          </div>
-
-          <div style={{
-            marginTop: 20,
-            padding: 12,
-            backgroundColor: '#f3f4f6',
-            borderRadius: 8,
-            fontSize: '0.75rem',
-            color: '#4b5563'
-          }}>
-            💡 <strong>Tip:</strong> En cada trimestre podrás definir tus acciones, presupuesto y subir evidencias de cumplimiento.
           </div>
         </div>
       </div>
