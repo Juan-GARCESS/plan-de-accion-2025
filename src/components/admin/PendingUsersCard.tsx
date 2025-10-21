@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import type { Usuario, Area } from '@/types';
 import { colors, spacing, borderRadius } from '@/lib/styleUtils';
@@ -22,6 +23,19 @@ export const PendingUsersCard: React.FC<PendingUsersCardProps> = ({
 }) => {
   const [selectedAreas, setSelectedAreas] = useState<{ [key: number]: number }>({});
   const [loadingUser, setLoadingUser] = useState<number | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type?: 'danger' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    type: 'warning'
+  });
 
   const usuariosPendientes = usuarios.filter(u => u.estado === 'pendiente');
 
@@ -57,21 +71,28 @@ export const PendingUsersCard: React.FC<PendingUsersCardProps> = ({
   };
 
   const handleReject = async (usuario: Usuario) => {
-    if (!confirm(`¿Rechazar la solicitud de ${usuario.nombre}?`)) return;
-
-    setLoadingUser(usuario.id);
-    try {
-      await onReject(usuario.id);
-      toast.success('Solicitud rechazada', {
-        description: `${usuario.nombre} ha sido notificado por email.`
-      });
-    } catch (error) {
-      toast.error('Error al rechazar', {
-        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
-      });
-    } finally {
-      setLoadingUser(null);
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Rechazar Solicitud',
+      message: `¿Estás seguro de rechazar la solicitud de ${usuario.nombre}? Se le enviará un correo de notificación.`,
+      type: 'warning',
+      onConfirm: async () => {
+        setConfirmDialog({ ...confirmDialog, isOpen: false });
+        setLoadingUser(usuario.id);
+        try {
+          await onReject(usuario.id);
+          toast.success('Solicitud rechazada', {
+            description: `${usuario.nombre} ha sido notificado por email.`
+          });
+        } catch (error) {
+          toast.error('Error al rechazar', {
+            description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+          });
+        } finally {
+          setLoadingUser(null);
+        }
+      }
+    });
   };
 
   if (usuariosPendientes.length === 0) {
@@ -245,6 +266,17 @@ export const PendingUsersCard: React.FC<PendingUsersCardProps> = ({
           );
         })}
       </div>
+      
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+        type={confirmDialog.type}
+        confirmText="Rechazar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 };

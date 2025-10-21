@@ -2,6 +2,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useResponsive } from '@/hooks/useResponsive';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { styles, combineStyles } from '@/styles/components';
@@ -31,6 +33,19 @@ export const UserCard: React.FC<UserCardProps> = ({
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [tempPassword, setTempPassword] = useState('');
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type?: 'danger' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    type: 'warning'
+  });
 
   const handleApprove = async () => {
     if (!selectedAreaId) return;
@@ -52,14 +67,24 @@ export const UserCard: React.FC<UserCardProps> = ({
   };
 
   const handleDelete = async () => {
-    if (window.confirm('¿Estás seguro de eliminar este usuario?')) {
-      setLoading(true);
-      try {
-        await onDelete(user.id);
-      } finally {
-        setLoading(false);
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Eliminar Usuario',
+      message: `¿Estás seguro de eliminar a ${user.nombre}? Esta acción no se puede deshacer.`,
+      type: 'danger',
+      onConfirm: async () => {
+        setConfirmDialog({ ...confirmDialog, isOpen: false });
+        setLoading(true);
+        try {
+          await onDelete(user.id);
+          toast.success('Usuario eliminado exitosamente');
+        } catch (error) {
+          toast.error('Error al eliminar usuario');
+        } finally {
+          setLoading(false);
+        }
       }
-    }
+    });
   };
 
   const handleGeneratePassword = async () => {
@@ -247,6 +272,17 @@ export const UserCard: React.FC<UserCardProps> = ({
           </div>
         )}
       </div>
+      
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+        type={confirmDialog.type}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 };

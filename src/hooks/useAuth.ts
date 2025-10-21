@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useRef, useCallback } from 'react';
+import { toast } from 'sonner';
 
 interface User {
   id: number;
@@ -53,13 +54,21 @@ export function useAuth() {
       setUser(null);
       sessionStorage.removeItem('isAuthenticated');
       
-      // Mostrar mensaje de timeout y redirigir
-      alert('Tu sesión ha expirado por inactividad. Por favor, inicia sesión nuevamente.');
-      window.location.replace('/?timeout=true');
+      // Mostrar mensaje de timeout con toast persistente
+      toast.error('Sesión expirada por inactividad', {
+        description: 'Por favor, inicia sesión nuevamente para continuar.',
+        duration: 8000,
+      });
+      
+      // Esperar un poco para que el usuario vea el mensaje
+      setTimeout(() => {
+        window.location.replace('/?timeout=true');
+      }, 1000);
     } catch (error) {
       console.error('Error during timeout logout:', error);
       setUser(null);
       sessionStorage.removeItem('isAuthenticated');
+      toast.error('Sesión expirada');
       window.location.replace('/?timeout=true');
     }
   }, []);
