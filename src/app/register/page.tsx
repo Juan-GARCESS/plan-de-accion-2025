@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -27,6 +28,23 @@ export default function RegisterPage() {
     title: '',
     message: ''
   })
+
+  // Función para iniciar sesión con Office 365
+  const handleOffice365Login = () => {
+    const clientId = process.env.NEXT_PUBLIC_MICROSOFT_CLIENT_ID || 'YOUR_CLIENT_ID'
+    const redirectUri = encodeURIComponent(window.location.origin + '/api/auth/microsoft/callback')
+    const tenantId = 'common'
+    
+    const authUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/authorize?` +
+      `client_id=${clientId}` +
+      `&response_type=code` +
+      `&redirect_uri=${redirectUri}` +
+      `&response_mode=query` +
+      `&scope=openid%20profile%20email%20User.Read` +
+      `&state=${Math.random().toString(36).substring(7)}`
+    
+    window.location.href = authUrl
+  }
 
   // Verificar si el usuario ya está autenticado
   useEffect(() => {
@@ -206,8 +224,9 @@ export default function RegisterPage() {
       alignItems: 'center',
       justifyContent: 'center',
       background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-      padding: '20px',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      padding: '20px 10px',
+      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      overflow: 'auto'
     }}>
       {notification.show && (
         <div style={{
@@ -292,21 +311,25 @@ export default function RegisterPage() {
         backdropFilter: 'blur(20px)',
         border: '1px solid rgba(0, 0, 0, 0.1)',
         borderRadius: '24px',
-        padding: '32px',
+        padding: window.innerWidth < 768 ? '24px 20px' : '32px',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+        <div style={{ textAlign: 'center', marginBottom: window.innerWidth < 768 ? '20px' : '28px' }}>
           <h2 style={{
             color: '#000000',
-            fontSize: '1.75rem',
+            fontSize: window.innerWidth < 768 ? '1.5rem' : '1.75rem',
             fontWeight: '700',
-            margin: '0 0 6px 0'
+            margin: '0 0 6px 0',
+            background: 'linear-gradient(135deg, #000000 0%, #333333 100%)',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
           }}>
             Crear Cuenta
           </h2>
           <p style={{
             color: '#666666',
-            fontSize: '0.95rem',
+            fontSize: window.innerWidth < 768 ? '0.875rem' : '0.95rem',
             fontWeight: '400',
             margin: 0
           }}>
@@ -411,12 +434,14 @@ export default function RegisterPage() {
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
-                fontSize: '16px',
-                color: '#666666',
-                padding: '4px'
+                padding: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#666666'
               }}
             >
-              {showPassword ? '👁️' : '👁️‍🗨️'}
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
             {errors.password && (
               <p style={{
@@ -537,6 +562,99 @@ export default function RegisterPage() {
             {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
           </button>
         </form>
+
+        {/* Office 365 Login - Temporalmente deshabilitado hasta obtener credenciales de TI */}
+        {process.env.NEXT_PUBLIC_MICROSOFT_CLIENT_ID && process.env.NEXT_PUBLIC_MICROSOFT_CLIENT_ID !== 'YOUR_CLIENT_ID' ? (
+          <div style={{ marginBottom: '20px' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              margin: '20px 0',
+              color: 'rgba(0, 0, 0, 0.4)',
+              fontSize: '14px'
+            }}>
+              <div style={{
+                flex: 1,
+                height: '1px',
+                background: 'rgba(0, 0, 0, 0.1)'
+              }}></div>
+              <span style={{
+                padding: '0 16px',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)'
+              }}>
+                O continúa con
+              </span>
+              <div style={{
+                flex: 1,
+                height: '1px',
+                background: 'rgba(0, 0, 0, 0.1)'
+              }}></div>
+            </div>
+            
+            <button 
+              onClick={handleOffice365Login}
+              type="button"
+              style={{
+                width: '100%',
+                background: 'rgba(0, 0, 0, 0.02)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(0, 0, 0, 0.1)',
+                borderRadius: '12px',
+                padding: '12px 16px',
+                color: '#333333',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                fontFamily: 'inherit'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(0, 0, 0, 0.05)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(0, 0, 0, 0.02)'
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
+              <span style={{
+                width: '20px',
+                height: '20px',
+                backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 23 23'%3e%3cpath fill='%23f35325' d='M1 1h10v10H1z'/%3e%3cpath fill='%2381bc06' d='M12 1h10v10H12z'/%3e%3cpath fill='%2305a6f0' d='M1 12h10v10H1z'/%3e%3cpath fill='%23ffba08' d='M12 12h10v10H12z'/%3e%3c/svg%3e")`,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center'
+              }}></span>
+              Registrarse con Office 365
+            </button>
+          </div>
+        ) : (
+          <div style={{
+            padding: '12px 16px',
+            background: 'rgba(59, 130, 246, 0.08)',
+            border: '1px solid rgba(59, 130, 246, 0.2)',
+            borderRadius: '12px',
+            marginBottom: '20px',
+            textAlign: 'center'
+          }}>
+            <p style={{ 
+              margin: 0, 
+              fontSize: '12px', 
+              color: '#1e40af',
+              lineHeight: '1.5',
+              fontWeight: '500'
+            }}>
+              <strong>Próximamente:</strong> Podrás registrarte con tu cuenta institucional de Office 365
+            </p>
+          </div>
+        )}
 
         <div style={{ textAlign: 'center' }}>
           <p style={{ color: 'rgba(0, 0, 0, 0.6)', fontSize: '14px', margin: 0 }}>

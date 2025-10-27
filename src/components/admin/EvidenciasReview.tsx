@@ -37,6 +37,8 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
   const [evidencias, setEvidencias] = useState<Evidencia[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvidencia, setSelectedEvidencia] = useState<Evidencia | null>(null);
+  const [editingEvidencia, setEditingEvidencia] = useState<Evidencia | null>(null);
+  const [deletingEvidencia, setDeletingEvidencia] = useState<Evidencia | null>(null);
   const [calificacion, setCalificacion] = useState(0);
   const [comentario, setComentario] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -71,7 +73,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
   const handleCalificar = async (aprobar: boolean) => {
     if (!selectedEvidencia) return;
 
-    if (aprobar && (calificacion < 0 || calificacion > 100)) {
+    if (calificacion < 0 || calificacion > 100) {
       toast.warning('Calificación inválida', {
         description: 'La calificación debe estar entre 0 y 100.'
       });
@@ -86,7 +88,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           evidencia_id: selectedEvidencia.id,
-          calificacion: aprobar ? calificacion : 0,
+          calificacion: calificacion,
           comentario: comentario || null,
           estado: aprobar ? 'aprobado' : 'rechazado'
         })
@@ -104,7 +106,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
         e.id === selectedEvidencia.id
           ? {
               ...e,
-              calificacion: aprobar ? calificacion : 0,
+              calificacion: calificacion,
               comentario_admin: comentario || null,
               estado: aprobar ? 'aprobado' : 'rechazado'
             }
@@ -117,6 +119,90 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
       setComentario('');
     } catch (error) {
       toast.error('Error al calificar', {
+        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleEditarCalificacion = async () => {
+    if (!editingEvidencia) return;
+
+    if (calificacion < 0 || calificacion > 100) {
+      toast.warning('Calificación inválida', {
+        description: 'La calificación debe estar entre 0 y 100.'
+      });
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const res = await fetch(`/api/admin/evidencias/${editingEvidencia.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          calificacion,
+          comentario_admin: comentario || null
+        })
+      });
+
+      if (!res.ok) throw new Error('Error al actualizar');
+
+      toast.success('✓ Calificación actualizada', {
+        description: 'Los cambios se han guardado correctamente.',
+        duration: 3000
+      });
+
+      // Actualizar localmente
+      setEvidencias(prev => prev.map(e =>
+        e.id === editingEvidencia.id
+          ? {
+              ...e,
+              calificacion,
+              comentario_admin: comentario || null
+            }
+          : e
+      ));
+
+      // Cerrar modal
+      setEditingEvidencia(null);
+      setCalificacion(0);
+      setComentario('');
+    } catch (error) {
+      toast.error('Error al actualizar', {
+        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleEliminar = async () => {
+    if (!deletingEvidencia) return;
+
+    setSubmitting(true);
+
+    try {
+      const res = await fetch(`/api/admin/evidencias/${deletingEvidencia.id}`, {
+        method: 'DELETE'
+      });
+
+      if (!res.ok) throw new Error('Error al eliminar');
+
+      toast.success('🗑️ Evidencia eliminada', {
+        description: 'La evidencia ha sido eliminada permanentemente.',
+        duration: 3000
+      });
+
+      // Eliminar localmente
+      setEvidencias(prev => prev.filter(e => e.id !== deletingEvidencia.id));
+
+      // Cerrar modal
+      setDeletingEvidencia(null);
+    } catch (error) {
+      toast.error('Error al eliminar', {
         description: error instanceof Error ? error.message : 'Intenta nuevamente.'
       });
     } finally {
@@ -286,11 +372,12 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                 📎 {evidencia.archivo_nombre}
               </div>
 
-              <div style={{ display: 'flex', gap: spacing.xs }}>
+              <div style={{ display: 'flex', gap: spacing.xs, flexWrap: 'wrap' }}>
                 <button
                   onClick={() => handleVerEvidencia(evidencia)}
                   style={{
                     flex: 1,
+                    minWidth: '80px',
                     padding: `${spacing.sm} ${spacing.md}`,
                     backgroundColor: colors.gray[700],
                     color: 'white',
@@ -313,6 +400,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                     }}
                     style={{
                       flex: 1,
+                      minWidth: '100px',
                       padding: `${spacing.sm} ${spacing.md}`,
                       backgroundColor: colors.primary,
                       color: 'white',
@@ -326,6 +414,49 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                     📝 Calificar
                   </button>
                 )}
+
+                {/* Botón Editar - Solo si ya está calificada */}
+                {evidencia.estado && evidencia.estado !== 'pendiente' && (
+                  <button
+                    onClick={() => {
+                      setEditingEvidencia(evidencia);
+                      setCalificacion(evidencia.calificacion || 0);
+                      setComentario(evidencia.comentario_admin || '');
+                    }}
+                    style={{
+                      flex: 1,
+                      minWidth: '80px',
+                      padding: `${spacing.sm} ${spacing.md}`,
+                      backgroundColor: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                      fontSize: '0.75rem',
+                      fontWeight: '600'
+                    }}
+                  >
+                    ✏️ Editar
+                  </button>
+                )}
+
+                {/* Botón Eliminar - Siempre visible */}
+                <button
+                  onClick={() => setDeletingEvidencia(evidencia)}
+                  style={{
+                    padding: `${spacing.sm} ${spacing.md}`,
+                    backgroundColor: '#ef4444',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    fontSize: '0.75rem',
+                    fontWeight: '600'
+                  }}
+                  title="Eliminar evidencia"
+                >
+                  🗑️
+                </button>
               </div>
             </div>
           ))}
@@ -467,6 +598,242 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                 }}
                 disabled={submitting}
                 style={{
+                  padding: `${spacing.sm} ${spacing.md}`,
+                  backgroundColor: colors.gray[200],
+                  color: colors.gray[700],
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: submitting ? 'not-allowed' : 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '600'
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de edición de calificación */}
+      {editingEvidencia && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: spacing.md
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: 12,
+            padding: spacing.lg,
+            maxWidth: 500,
+            width: '100%',
+            maxHeight: '90vh',
+            overflow: 'auto'
+          }}>
+            <h2 style={{ margin: 0, marginBottom: spacing.md, fontSize: '1.5rem', color: colors.gray[900] }}>
+              Editar Calificación
+            </h2>
+
+            <div style={{ marginBottom: spacing.md }}>
+              <strong>{editingEvidencia.usuario_nombre}</strong> - {editingEvidencia.area_nombre}
+              <div style={{ fontSize: '0.875rem', color: colors.gray[600], marginTop: 4 }}>
+                {editingEvidencia.meta}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: spacing.md }}>
+              <label style={{
+                display: 'block',
+                fontWeight: '600',
+                marginBottom: spacing.xs,
+                fontSize: '0.875rem'
+              }}>
+                Calificación (0-100%)
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={calificacion}
+                onChange={(e) => setCalificacion(parseInt(e.target.value))}
+                style={{ width: '100%', marginBottom: spacing.xs }}
+              />
+              <div style={{
+                textAlign: 'center',
+                fontSize: '2rem',
+                fontWeight: '700',
+                color: calificacion >= 70 ? colors.success : colors.danger
+              }}>
+                {calificacion}%
+              </div>
+            </div>
+
+            <div style={{ marginBottom: spacing.lg }}>
+              <label style={{
+                display: 'block',
+                fontWeight: '600',
+                marginBottom: spacing.xs,
+                fontSize: '0.875rem'
+              }}>
+                Comentario (opcional)
+              </label>
+              <textarea
+                value={comentario}
+                onChange={(e) => setComentario(e.target.value)}
+                placeholder="Agrega un comentario para el usuario..."
+                style={{
+                  width: '100%',
+                  padding: spacing.sm,
+                  border: `1px solid ${colors.gray[300]}`,
+                  borderRadius: 8,
+                  fontSize: '0.875rem',
+                  fontFamily: 'inherit',
+                  resize: 'vertical',
+                  minHeight: 80
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: spacing.sm }}>
+              <button
+                onClick={handleEditarCalificacion}
+                disabled={submitting}
+                style={{
+                  flex: 1,
+                  padding: `${spacing.sm} ${spacing.md}`,
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: submitting ? 'not-allowed' : 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  opacity: submitting ? 0.6 : 1
+                }}
+              >
+                {submitting ? '⏳ Guardando...' : '✓ Guardar Cambios'}
+              </button>
+
+              <button
+                onClick={() => {
+                  setEditingEvidencia(null);
+                  setCalificacion(0);
+                  setComentario('');
+                }}
+                disabled={submitting}
+                style={{
+                  padding: `${spacing.sm} ${spacing.md}`,
+                  backgroundColor: colors.gray[200],
+                  color: colors.gray[700],
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: submitting ? 'not-allowed' : 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '600'
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmación de eliminación */}
+      {deletingEvidencia && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: spacing.md
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: 12,
+            padding: spacing.lg,
+            maxWidth: 450,
+            width: '100%'
+          }}>
+            <h2 style={{ 
+              margin: 0, 
+              marginBottom: spacing.md, 
+              fontSize: '1.5rem', 
+              color: colors.gray[900],
+              display: 'flex',
+              alignItems: 'center',
+              gap: spacing.sm
+            }}>
+              <span style={{ fontSize: '2rem' }}>⚠️</span>
+              Eliminar Evidencia
+            </h2>
+
+            <div style={{ marginBottom: spacing.lg }}>
+              <p style={{ margin: 0, marginBottom: spacing.sm, color: colors.gray[700] }}>
+                ¿Estás seguro de que deseas eliminar esta evidencia?
+              </p>
+              <div style={{
+                backgroundColor: colors.gray[50],
+                padding: spacing.sm,
+                borderRadius: 8,
+                fontSize: '0.875rem'
+              }}>
+                <strong>{deletingEvidencia.usuario_nombre}</strong> - {deletingEvidencia.area_nombre}
+                <div style={{ marginTop: 4, color: colors.gray[600] }}>
+                  📎 {deletingEvidencia.archivo_nombre}
+                </div>
+              </div>
+              <p style={{ 
+                margin: 0, 
+                marginTop: spacing.sm, 
+                color: '#dc2626',
+                fontSize: '0.875rem',
+                fontWeight: '600'
+              }}>
+                ⚠️ Esta acción no se puede deshacer.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: spacing.sm }}>
+              <button
+                onClick={handleEliminar}
+                disabled={submitting}
+                style={{
+                  flex: 1,
+                  padding: `${spacing.sm} ${spacing.md}`,
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: submitting ? 'not-allowed' : 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  opacity: submitting ? 0.6 : 1
+                }}
+              >
+                {submitting ? '⏳ Eliminando...' : '🗑️ Eliminar'}
+              </button>
+
+              <button
+                onClick={() => setDeletingEvidencia(null)}
+                disabled={submitting}
+                style={{
+                  flex: 1,
                   padding: `${spacing.sm} ${spacing.md}`,
                   backgroundColor: colors.gray[200],
                   color: colors.gray[700],

@@ -74,40 +74,85 @@ export async function POST(request: NextRequest) {
       // Obtener el año actual
       const anioActual = new Date().getFullYear();
       
-      const query = `
-        INSERT INTO evidencias (
-          meta_id,
-          usuario_id,
-          trimestre,
-          anio,
-          archivo_url,
-          archivo_nombre,
-          archivo_tipo,
-          archivo_tamano,
-          descripcion,
-          estado,
-          fecha_envio
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pendiente', NOW())
-        RETURNING id, archivo_url as url, archivo_nombre as fileName
+      // Verificar si ya existe una evidencia para esta meta (caso de reenvío)
+      const checkQuery = `
+        SELECT id, estado 
+        FROM evidencias 
+        WHERE meta_id = $1 AND usuario_id = $2 AND trimestre = $3 AND anio = $4
       `;
+      const checkResult = await client.query(checkQuery, [metaId, userId, trimestre, anioActual]);
+      
+      let result;
+      
+      if (checkResult.rows.length > 0) {
+        // Ya existe - actualizar (caso de reenvío de evidencia rechazada)
+        const evidenciaId = checkResult.rows[0].id;
+        console.log('🔄 Actualizando evidencia existente:', evidenciaId);
+        
+        const updateQuery = `
+          UPDATE evidencias 
+          SET 
+            archivo_url = $1,
+            archivo_nombre = $2,
+            archivo_tipo = $3,
+            archivo_tamano = $4,
+            descripcion = $5,
+            estado = 'pendiente',
+            fecha_envio = NOW(),
+            fecha_revision = NULL,
+            calificacion = NULL,
+            comentario_admin = NULL
+          WHERE id = $6
+          RETURNING id, archivo_url as url, archivo_nombre as fileName
+        `;
+        
+        result = await client.query(updateQuery, [
+          fileUrl,
+          file.name,
+          file.type,
+          file.size,
+          descripcion || '',
+          evidenciaId
+        ]);
+      } else {
+        // No existe - crear nueva
+        console.log('➕ Creando nueva evidencia');
+        
+        const insertQuery = `
+          INSERT INTO evidencias (
+            meta_id,
+            usuario_id,
+            trimestre,
+            anio,
+            archivo_url,
+            archivo_nombre,
+            archivo_tipo,
+            archivo_tamano,
+            descripcion,
+            estado,
+            fecha_envio
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pendiente', NOW())
+          RETURNING id, archivo_url as url, archivo_nombre as fileName
+        `;
 
-      const result = await client.query(query, [
-        metaId,
-        userId,
-        trimestre,
-        anioActual,
-        fileUrl,
-        file.name,
-        file.type,
-        file.size,
-        descripcion || ''
-      ]);
+        result = await client.query(insertQuery, [
+          metaId,
+          userId,
+          trimestre,
+          anioActual,
+          fileUrl,
+          file.name,
+          file.type,
+          file.size,
+          descripcion || ''
+        ]);
+      }
 
       console.log('✅ Evidencia guardada en BD:', result.rows[0]);
 
       return NextResponse.json({
         success: true,
-        message: 'Archivo subido exitosamente',
+        message: checkResult.rows.length > 0 ? 'Evidencia reenviada exitosamente' : 'Archivo subido exitosamente',
         data: {
           id: result.rows[0].id,
           url: result.rows[0].url,

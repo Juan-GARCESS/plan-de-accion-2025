@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminManagement } from '@/hooks/useAdminManagement';
+import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { PageLayout } from '@/components/layout/PageLayout';
 // Versión renovada con paleta blanco/negro/gris y UX mejorada
 import { UsersSectionImproved } from '@/components/admin/UsersSectionImproved';
@@ -29,6 +30,9 @@ export default function AdminPage() {
     editArea,
     deleteArea
   } = useAdminManagement();
+
+  // Iniciar polling de notificaciones y mostrar toasts en UI
+  useAdminNotifications();
 
   // Prevenir navegación hacia atrás
   useEffect(() => {

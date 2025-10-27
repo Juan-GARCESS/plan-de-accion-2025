@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
     // Obtener plan de acción del área con las evidencias del usuario
     // Solo las metas que tienen marcado el trimestre específico
     const trimestreColumn = `t${trimestre}`;
+    const anioActual = new Date().getFullYear();
     
     const result = await db.query(
       `SELECT 
@@ -36,23 +37,24 @@ export async function GET(request: NextRequest) {
         pa.presupuesto,
         e.nombre_eje as eje_nombre,
         se.nombre_sub_eje as sub_eje_nombre,
-        um.id as evidencia_id,
-        um.evidencia_texto,
-        um.evidencia_url,
-        um.estado,
-        um.observaciones,
-        um.calificacion,
-        um.fecha_envio
+        ev.id as evidencia_id,
+        ev.descripcion as evidencia_texto,
+        ev.archivo_url as evidencia_url,
+        ev.estado,
+        ev.comentario_admin as observaciones,
+        ev.calificacion,
+        ev.fecha_envio
       FROM plan_accion pa
       JOIN ejes e ON pa.eje_id = e.id
       JOIN sub_ejes se ON pa.sub_eje_id = se.id
-      LEFT JOIN usuario_metas um ON pa.id = um.plan_accion_id 
-        AND um.usuario_id = $1 
-        AND um.trimestre = $2
+      LEFT JOIN evidencias ev ON pa.id = ev.meta_id 
+        AND ev.usuario_id = $1 
+        AND ev.trimestre = $2
+        AND ev.anio = $4
       WHERE pa.area_id = $3
         AND pa.${trimestreColumn} = TRUE
       ORDER BY e.nombre_eje, se.nombre_sub_eje`,
-      [userId, trimestre, areaId]
+      [userId, trimestre, areaId, anioActual]
     );
 
     return NextResponse.json({ metas: result.rows });

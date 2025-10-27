@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import type { Usuario, TrimestreEstadistica } from '@/types';
 
 interface AreaUsersViewProps {
@@ -89,13 +90,20 @@ export const AreaUsersView: React.FC<AreaUsersViewProps> = ({ areaId, areaName }
           )
         );
         console.log('Meta actualizada exitosamente');
+        toast.success('Meta asignada correctamente', {
+          description: `La meta para el trimestre ${trimestre} ha sido guardada.`
+        });
       } else {
         console.error('Error en respuesta:', responseData);
-        alert(`Error al asignar meta: ${responseData.error || 'Error desconocido'}`);
+        toast.error('Error al asignar meta', {
+          description: responseData.error || 'Error desconocido. Intenta nuevamente.'
+        });
       }
     } catch (error) {
       console.error('Error updating meta:', error);
-      alert('Error de conexión al asignar meta');
+      toast.error('Error de conexión', {
+        description: 'No se pudo conectar con el servidor al asignar la meta.'
+      });
     }
   };
 

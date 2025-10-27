@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 interface Eje {
   id: number;
@@ -46,6 +47,21 @@ export function EjesManagementSection() {
   const [asignacionForm, setAsignacionForm] = useState({ area_id: 0, eje_id: 0 });
   const [editEjeForm, setEditEjeForm] = useState({ id: 0, nombre_eje: '', descripcion: '' });
   const [editSubEjeForm, setEditSubEjeForm] = useState({ id: 0, eje_id: 0, nombre_sub_eje: '', descripcion: '' });
+  
+  // Estado para el modal de confirmación
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type: 'danger' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    type: 'warning'
+  });
 
   // Detectar móvil
   useEffect(() => {
@@ -239,33 +255,39 @@ export function EjesManagementSection() {
 
   const eliminarEje = async (ejeId: number) => {
     const eje = ejes.find(e => e.id === ejeId);
-    if (!confirm(`¿Eliminar "${eje?.nombre_eje}"? Esta acción no se puede deshacer.`)) {
-      return;
-    }
+    
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Eliminar Eje',
+      message: `¿Eliminar "${eje?.nombre_eje}"? Esta acción no se puede deshacer.`,
+      type: 'danger',
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+        try {
+          const response = await fetch(`/api/admin/ejes?id=${ejeId}`, {
+            method: 'DELETE'
+          });
 
-    try {
-      const response = await fetch(`/api/admin/ejes?id=${ejeId}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        cargarEjes();
-        cargarTodosLosSubEjes();
-        toast.success('Eje eliminado', {
-          description: 'El eje ha sido eliminado del sistema.'
-        });
-      } else {
-        const error = await response.json();
-        toast.error('Error al eliminar eje', {
-          description: error.error || 'Intenta nuevamente.'
-        });
+          if (response.ok) {
+            cargarEjes();
+            cargarTodosLosSubEjes();
+            toast.success('Eje eliminado', {
+              description: 'El eje ha sido eliminado del sistema.'
+            });
+          } else {
+            const error = await response.json();
+            toast.error('Error al eliminar eje', {
+              description: error.error || 'Intenta nuevamente.'
+            });
+          }
+        } catch (error) {
+          console.error('Error eliminando eje:', error);
+          toast.error('Error al eliminar eje', {
+            description: 'No se pudo completar la operación.'
+          });
+        }
       }
-    } catch (error) {
-      console.error('Error eliminando eje:', error);
-      toast.error('Error al eliminar eje', {
-        description: 'No se pudo completar la operación.'
-      });
-    }
+    });
   };
 
   // Funciones para editar sub-ejes
@@ -312,33 +334,39 @@ export function EjesManagementSection() {
 
   const eliminarSubEje = async (subEjeId: number) => {
     const subEje = subEjes.find(s => s.id === subEjeId);
-    if (!confirm(`¿Eliminar "${subEje?.nombre_sub_eje}"? Esta acción no se puede deshacer.`)) {
-      return;
-    }
+    
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Eliminar Sub-eje',
+      message: `¿Eliminar "${subEje?.nombre_sub_eje}"? Esta acción no se puede deshacer.`,
+      type: 'danger',
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+        try {
+          const response = await fetch(`/api/admin/sub-ejes?id=${subEjeId}`, {
+            method: 'DELETE'
+          });
 
-    try {
-      const response = await fetch(`/api/admin/sub-ejes?id=${subEjeId}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        cargarEjes();
-        cargarTodosLosSubEjes();
-        toast.success('Sub-eje eliminado', {
-          description: 'El sub-eje ha sido eliminado del sistema.'
-        });
-      } else {
-        const error = await response.json();
-        toast.error('Error al eliminar sub-eje', {
-          description: error.error || 'Intenta nuevamente.'
-        });
+          if (response.ok) {
+            cargarEjes();
+            cargarTodosLosSubEjes();
+            toast.success('Sub-eje eliminado', {
+              description: 'El sub-eje ha sido eliminado del sistema.'
+            });
+          } else {
+            const error = await response.json();
+            toast.error('Error al eliminar sub-eje', {
+              description: error.error || 'Intenta nuevamente.'
+            });
+          }
+        } catch (error) {
+          console.error('Error eliminando sub-eje:', error);
+          toast.error('Error al eliminar sub-eje', {
+            description: 'No se pudo completar la operación.'
+          });
+        }
       }
-    } catch (error) {
-      console.error('Error eliminando sub-eje:', error);
-      toast.error('Error al eliminar sub-eje', {
-        description: 'No se pudo completar la operación.'
-      });
-    }
+    });
   };
 
   return (
@@ -1162,6 +1190,18 @@ export function EjesManagementSection() {
           </div>
         </div>
       )}
+
+      {/* Modal de confirmación */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        type={confirmDialog.type}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }

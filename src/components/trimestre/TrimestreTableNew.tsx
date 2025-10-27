@@ -1,8 +1,9 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { FileUpload } from '@/components/ui/FileUpload';
+import { CheckCircle2, XCircle, Clock, AlertCircle, Send, Loader2, Filter, FileText } from 'lucide-react';
 
 interface MetaEvidencia {
   id: number;
@@ -26,11 +27,14 @@ interface TrimestreTableProps {
   areaId: number;
 }
 
+type FiltroEstado = 'asignados' | 'pendiente' | 'rechazado' | 'aprobado';
+
 export default function TrimestreTable({ trimestreId, areaId }: TrimestreTableProps) {
   const [metas, setMetas] = useState<MetaEvidencia[]>([]);
   const [valores, setValores] = useState<Record<number, { evidencia_texto: string; evidencia_url: string }>>({});
   const [archivos, setArchivos] = useState<Record<number, File | null>>({});
   const [enviando, setEnviando] = useState<number | null>(null);
+  const [filtro, setFiltro] = useState<FiltroEstado>('asignados');
 
   const cargarMetas = useCallback(async () => {
     try {
@@ -40,7 +44,6 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
       if (res.ok) {
         setMetas(data.metas || []);
         
-        // Pre-cargar valores existentes
         const valoresIniciales: Record<number, { evidencia_texto: string; evidencia_url: string }> = {};
         data.metas?.forEach((meta: MetaEvidencia) => {
           valoresIniciales[meta.id] = {
@@ -78,19 +81,11 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
     setEnviando(metaId);
     
     try {
-      // Subir el archivo a S3 y guardar en tabla evidencias
       const formData = new FormData();
       formData.append('file', archivo);
       formData.append('meta_id', metaId.toString());
       formData.append('trimestre', trimestreId.toString());
       formData.append('descripcion', evidencia_texto);
-
-      console.log('📤 Enviando evidencia:', {
-        metaId,
-        trimestre: trimestreId,
-        descripcion: evidencia_texto,
-        archivo: archivo.name
-      });
 
       const uploadRes = await fetch('/api/usuario/upload-evidencia', {
         method: 'POST',
@@ -100,286 +95,207 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
       const uploadData = await uploadRes.json();
 
       if (!uploadRes.ok) {
-        console.error('❌ Error al subir:', uploadData);
         toast.error(uploadData.message || 'Error al subir archivo');
         setEnviando(null);
         return;
       }
 
-      console.log('✅ Evidencia enviada:', uploadData);
-      toast.success('✅ Evidencia enviada correctamente');
+      toast.success('Evidencia enviada correctamente');
       
-      // Limpiar formulario después de enviar
       setArchivos(prev => ({ ...prev, [metaId]: null }));
       setValores(prev => ({ ...prev, [metaId]: { evidencia_texto: '', evidencia_url: '' } }));
       
-      // Recargar metas para actualizar estado
       await cargarMetas();
     } catch (error) {
-      console.error('❌ Error al enviar evidencia:', error);
       toast.error(error instanceof Error ? error.message : 'Error al enviar evidencia');
     } finally {
       setEnviando(null);
     }
   };
 
+  const metasFiltradas = metas.filter(meta => {
+    if (filtro === 'asignados') {
+      // Mostrar solo las que NO tienen evidencia_id (nunca se ha enviado)
+      return !meta.evidencia_id;
+    }
+    if (filtro === 'pendiente') return meta.evidencia_id && meta.estado === 'pendiente';
+    if (filtro === 'rechazado') return meta.estado === 'rechazado';
+    if (filtro === 'aprobado') return meta.estado === 'aprobado';
+    return true;
+  });
+
+  const contadores = {
+    asignados: metas.filter(m => !m.evidencia_id).length,
+    pendiente: metas.filter(m => m.evidencia_id && m.estado === 'pendiente').length,
+    rechazado: metas.filter(m => m.estado === 'rechazado').length,
+    aprobado: metas.filter(m => m.estado === 'aprobado').length,
+  };
+
   if (metas.length === 0) {
     return (
-      <div style={{
-        background: '#fef3c7',
-        border: '1px solid #fbbf24',
-        borderRadius: '8px',
-        padding: '16px',
-        textAlign: 'center'
-      }}>
-        <p style={{ color: '#92400e', fontSize: '0.875rem' }}>
-          ⚠️ No hay metas asignadas para este trimestre
-        </p>
+      <div style={{ background: '#FEF3C7', border: '1px solid #FBBF24', borderRadius: '8px', padding: '16px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+        <AlertCircle style={{ width: '18px', height: '18px', color: '#92400E' }} />
+        <p style={{ color: '#92400E', fontSize: '14px', margin: 0 }}>No hay metas asignadas para este trimestre</p>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      {/* Header Principal */}
-      <div style={{
-        background: '#fff',
-        borderRadius: '12px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        border: '1px solid #e5e7eb',
-        padding: '16px',
-        marginBottom: '24px'
-      }}>
-        <h2 style={{
-          fontSize: '1.5rem',
-          fontWeight: 'bold',
-          color: '#1f2937',
-          marginBottom: '8px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          margin: 0
-        }}>
-          📋 Metas y Evidencias - Trimestre {trimestreId}
-        </h2>
-        <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: 0 }}>
-          Envía tus evidencias para cada meta. El administrador las revisará y calificará.
-        </p>
+    <div>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginRight: '12px' }}>
+          <Filter style={{ width: '16px', height: '16px', color: '#6B7280' }} />
+          <span style={{ fontSize: '13px', fontWeight: '600', color: '#6B7280' }}>Filtrar:</span>
+        </div>
+        
+        <button onClick={() => setFiltro('asignados')} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', background: filtro === 'asignados' ? '#111827' : '#fff', color: filtro === 'asignados' ? '#fff' : '#6B7280', fontSize: '12px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <FileText style={{ width: '12px', height: '12px' }} /> Asignados ({contadores.asignados})
+        </button>
+
+        <button onClick={() => setFiltro('pendiente')} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', background: filtro === 'pendiente' ? '#FEF3C7' : '#fff', color: filtro === 'pendiente' ? '#92400E' : '#6B7280', fontSize: '12px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <Clock style={{ width: '12px', height: '12px' }} /> Pendientes ({contadores.pendiente})
+        </button>
+
+        <button onClick={() => setFiltro('rechazado')} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', background: filtro === 'rechazado' ? '#FEE2E2' : '#fff', color: filtro === 'rechazado' ? '#991B1B' : '#6B7280', fontSize: '12px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <XCircle style={{ width: '12px', height: '12px' }} /> Rechazados ({contadores.rechazado})
+        </button>
+
+        <button onClick={() => setFiltro('aprobado')} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', background: filtro === 'aprobado' ? '#DCFCE7' : '#fff', color: filtro === 'aprobado' ? '#166534' : '#6B7280', fontSize: '12px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <CheckCircle2 style={{ width: '12px', height: '12px' }} /> Aprobados ({contadores.aprobado})
+        </button>
       </div>
       
-      {metas.map((meta) => (
-        <div key={meta.id} style={{
-          background: '#fff',
-          border: '1px solid #e5e7eb',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          overflow: 'hidden'
-        }}>
-          {/* Header de la meta */}
-          <div style={{
-            background: 'linear-gradient(to right, #eff6ff, #e0e7ff)',
-            padding: '16px',
-            borderBottom: '1px solid #e5e7eb'
-          }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div>
-                <p style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', marginBottom: '4px', margin: 0 }}>Eje</p>
-                <p style={{ fontWeight: '600', color: '#1f2937', margin: 0 }}>{meta.eje_nombre}</p>
-              </div>
-              <div>
-                <p style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', marginBottom: '4px', margin: 0 }}>Sub-Eje</p>
-                <p style={{ fontWeight: '600', color: '#1f2937', margin: 0 }}>{meta.sub_eje_nombre}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Contenido de la meta */}
-          <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* Meta e Indicador */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px' }}>
-                <p style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', marginBottom: '4px', margin: 0 }}>Meta</p>
-                <p style={{ fontSize: '0.875rem', color: '#1f2937', margin: 0 }}>{meta.meta || 'Sin meta definida'}</p>
-              </div>
-              {meta.indicador && (
-                <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px' }}>
-                  <p style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', marginBottom: '4px', margin: 0 }}>Indicador</p>
-                  <p style={{ fontSize: '0.875rem', color: '#1f2937', margin: 0 }}>{meta.indicador}</p>
-                </div>
-              )}
-              <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px' }}>
-                <p style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', textTransform: 'uppercase', marginBottom: '4px', margin: 0 }}>Acción a Realizar</p>
-                <p style={{ fontSize: '0.875rem', color: '#1f2937', margin: 0 }}>{meta.accion || 'Sin acción definida'}</p>
-              </div>
-            </div>
-
-            {/* Estado y Badge */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151' }}>Estado:</span>
-              <span style={{
-                padding: '4px 12px',
-                borderRadius: '9999px',
-                fontSize: '0.75rem',
-                fontWeight: '600',
-                background: meta.estado === 'aprobado' ? '#dcfce7' : meta.estado === 'rechazado' ? '#fee2e2' : '#fef3c7',
-                color: meta.estado === 'aprobado' ? '#166534' : meta.estado === 'rechazado' ? '#991b1b' : '#92400e'
-              }}>
-                {meta.estado === 'aprobado' ? '✅ Aprobado' : meta.estado === 'rechazado' ? '❌ Rechazado' : '⏳ Pendiente'}
-              </span>
-            </div>
-
-            {/* Observaciones si fue rechazado */}
-            {meta.estado === 'rechazado' && meta.observaciones && (
-              <div style={{
-                background: '#fffbeb',
-                borderLeft: '4px solid #f59e0b',
-                padding: '12px',
-                borderRadius: '6px'
-              }}>
-                <p style={{ fontSize: '0.75rem', fontWeight: '600', color: '#92400e', marginBottom: '4px', margin: 0 }}>⚠️ Observaciones del Administrador:</p>
-                <p style={{ fontSize: '0.875rem', color: '#78350f', margin: 0 }}>{meta.observaciones}</p>
-              </div>
-            )}
-
-            {/* Formulario de evidencia (solo si no está aprobado) */}
-            {meta.estado !== 'aprobado' && (
-              <div style={{ marginTop: '8px' }}>
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    color: '#374151',
-                    marginBottom: '8px'
-                  }}>
-                    📝 Evidencia (Descripción) <span style={{ color: '#dc2626' }}>*</span>
-                  </label>
-                  <textarea
-                    value={valores[meta.id]?.evidencia_texto || ''}
-                    onChange={(e) => setValores(prev => ({
-                      ...prev,
-                      [meta.id]: { ...prev[meta.id], evidencia_texto: e.target.value }
-                    }))}
-                    placeholder="Describe detalladamente lo que hiciste para cumplir esta meta..."
-                    style={{
-                      width: '100%',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '8px',
-                      padding: '12px',
-                      minHeight: '100px',
-                      fontSize: '0.875rem',
-                      fontFamily: 'inherit',
-                      resize: 'vertical',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = '#111827';
-                      e.target.style.boxShadow = '0 0 0 3px rgba(17, 24, 39, 0.1)';
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = '#d1d5db';
-                      e.target.style.boxShadow = 'none';
-                    }}
-                  />
-                </div>
-
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    color: '#374151',
-                    marginBottom: '8px'
-                  }}>
-                    � Archivo de Evidencia
-                  </label>
-                  <FileUpload
-                    currentFile={archivos[meta.id] || null}
-                    onFileSelect={(file) => {
-                      setArchivos(prev => ({ ...prev, [meta.id]: file }));
-                    }}
-                    onFileRemove={() => {
-                      setArchivos(prev => ({ ...prev, [meta.id]: null }));
-                    }}
-                    acceptedTypes=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-                    maxSizeMB={10}
-                    disabled={enviando === meta.id}
-                  />
-                </div>
-
-                <button
-                  onClick={() => handleEnviarEvidencia(meta.id)}
-                  disabled={enviando === meta.id}
-                  style={{
-                    width: '100%',
-                    background: enviando === meta.id ? '#9ca3af' : '#111827',
-                    color: '#fff',
-                    fontWeight: '600',
-                    padding: '12px 16px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    cursor: enviando === meta.id ? 'not-allowed' : 'pointer',
-                    fontSize: '0.875rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    transition: 'background-color 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (enviando !== meta.id) e.currentTarget.style.background = '#000000';
-                  }}
-                  onMouseLeave={(e) => {
-                    if (enviando !== meta.id) e.currentTarget.style.background = '#111827';
-                  }}
-                >
-                  {enviando === meta.id ? (
-                    <>⏳ <span>Enviando...</span></>
-                  ) : (
-                    <>📤 <span>Enviar Evidencia</span></>
-                  )}
-                </button>
-              </div>
-            )}
-
-            {/* Si ya fue aprobado, mostrar evidencia en modo lectura */}
-            {meta.estado === 'aprobado' && (
-              <div style={{
-                background: '#f0fdf4',
-                border: '1px solid #86efac',
-                borderRadius: '8px',
-                padding: '16px'
-              }}>
-                <p style={{ fontSize: '0.875rem', fontWeight: '600', color: '#166534', marginBottom: '8px', margin: 0 }}>
-                  ✅ Evidencia Aprobada
-                </p>
-                <div style={{ marginBottom: '8px' }}>
-                  <p style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', marginBottom: '4px', margin: 0 }}>Descripción:</p>
-                  <p style={{ fontSize: '0.875rem', color: '#1f2937', margin: 0 }}>{meta.evidencia_texto}</p>
-                </div>
-                {meta.evidencia_url && (
-                  <div>
-                    <p style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', marginBottom: '4px', margin: 0 }}>URL:</p>
-                    <a 
-                      href={meta.evidencia_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      style={{ fontSize: '0.875rem', color: '#111827', textDecoration: 'underline' }}
-                    >
-                      {meta.evidencia_url}
-                    </a>
-                  </div>
-                )}
-              </div>
-            )}
+      <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+            <thead>
+              <tr style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#6B7280', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>Eje / Sub-Eje</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#6B7280', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '150px' }}>Meta</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#6B7280', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '120px' }}>Acción</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: '#6B7280', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>Estado</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#6B7280', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '200px' }}>Descripción</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '600', color: '#6B7280', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', minWidth: '180px' }}>Archivo</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '600', color: '#6B7280', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {metasFiltradas.map((meta, index) => {
+                const bgColor = meta.estado === 'aprobado' ? '#F0FDF4' : meta.estado === 'rechazado' ? '#FEF2F2' : '#fff';
+                return (
+                  <tr key={meta.id} style={{ borderBottom: index < metasFiltradas.length - 1 ? '1px solid #F3F4F6' : 'none', background: bgColor }}>
+                    <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
+                      <div style={{ fontWeight: '600', color: '#111827', fontSize: '12px', marginBottom: '2px' }}>{meta.eje_nombre}</div>
+                      <div style={{ fontSize: '11px', color: '#6B7280' }}>{meta.sub_eje_nombre}</div>
+                    </td>
+                    <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
+                      <div style={{ fontSize: '12px', color: '#374151', lineHeight: '1.4' }}>{meta.meta || '-'}</div>
+                      {meta.indicador && <div style={{ fontSize: '11px', color: '#6B7280', marginTop: '4px', fontStyle: 'italic' }}>Indicador: {meta.indicador}</div>}
+                    </td>
+                    <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
+                      <div style={{ fontSize: '12px', color: '#374151' }}>{meta.accion || '-'}</div>
+                    </td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', verticalAlign: 'top' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: '600', background: meta.estado === 'aprobado' ? '#DCFCE7' : meta.estado === 'rechazado' ? '#FEE2E2' : '#FEF3C7', color: meta.estado === 'aprobado' ? '#166534' : meta.estado === 'rechazado' ? '#991B1B' : '#92400E', whiteSpace: 'nowrap' }}>
+                        {meta.estado === 'aprobado' && <><CheckCircle2 style={{ width: '12px', height: '12px' }} /> Aprobado</>}
+                        {meta.estado === 'rechazado' && <><XCircle style={{ width: '12px', height: '12px' }} /> Rechazado</>}
+                        {(!meta.estado || meta.estado === 'pendiente') && <><Clock style={{ width: '12px', height: '12px' }} /> Pendiente</>}
+                      </div>
+                      {meta.estado === 'rechazado' && meta.observaciones && (
+                        <div style={{ marginTop: '6px', padding: '6px', background: '#FFFBEB', borderRadius: '4px', fontSize: '10px', color: '#92400E', textAlign: 'left', border: '1px solid #FEF3C7' }}>
+                          <div style={{ fontWeight: '600', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <AlertCircle style={{ width: '10px', height: '10px' }} /> Obs:
+                          </div>
+                          {meta.observaciones}
+                        </div>
+                      )}
+                    </td>
+                    <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
+                      {meta.estado === 'aprobado' ? (
+                        <div style={{ fontSize: '12px', color: '#166534' }}>{meta.evidencia_texto}</div>
+                      ) : meta.estado === 'pendiente' ? (
+                        <div style={{ fontSize: '12px', color: '#92400E', padding: '6px', background: '#FEF3C7', borderRadius: '4px' }}>
+                          {meta.evidencia_texto}
+                        </div>
+                      ) : (
+                        <>
+                          {meta.estado === 'rechazado' && meta.evidencia_texto && (
+                            <div style={{ marginBottom: '8px', padding: '6px', background: '#FEF2F2', borderRadius: '4px', border: '1px solid #FEE2E2' }}>
+                              <div style={{ fontSize: '10px', fontWeight: '600', color: '#991B1B', marginBottom: '4px' }}>Descripción rechazada:</div>
+                              <div style={{ fontSize: '11px', color: '#6B7280', fontStyle: 'italic' }}>{meta.evidencia_texto}</div>
+                            </div>
+                          )}
+                          <textarea
+                            value={valores[meta.id]?.evidencia_texto || ''}
+                            onChange={(e) => setValores(prev => ({ ...prev, [meta.id]: { ...prev[meta.id], evidencia_texto: e.target.value } }))}
+                            placeholder={meta.estado === 'rechazado' ? 'Nueva descripción de la evidencia...' : 'Describe la evidencia...'}
+                            disabled={enviando === meta.id}
+                            style={{ width: '100%', border: '1px solid #D1D5DB', borderRadius: '4px', padding: '6px 8px', fontSize: '11px', fontFamily: 'inherit', resize: 'vertical', minHeight: '50px', outline: 'none', boxSizing: 'border-box' }}
+                          />
+                        </>
+                      )}
+                    </td>
+                    <td style={{ padding: '10px 12px', verticalAlign: 'top' }}>
+                      {meta.estado === 'aprobado' ? (
+                        meta.evidencia_url ? (
+                          <a href={meta.evidencia_url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#166534', textDecoration: 'underline', fontWeight: '500' }}>
+                            <FileText style={{ width: '12px', height: '12px' }} /> Ver archivo
+                          </a>
+                        ) : <span style={{ fontSize: '11px', color: '#6B7280' }}>-</span>
+                      ) : meta.estado === 'pendiente' ? (
+                        meta.evidencia_url ? (
+                          <a href={meta.evidencia_url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#92400E', textDecoration: 'underline', fontWeight: '500' }}>
+                            <FileText style={{ width: '12px', height: '12px' }} /> Ver archivo
+                          </a>
+                        ) : <span style={{ fontSize: '11px', color: '#6B7280' }}>-</span>
+                      ) : (
+                        <div style={{ minWidth: '160px' }}>
+                          {meta.estado === 'rechazado' && meta.evidencia_url && (
+                            <div style={{ marginBottom: '8px', padding: '6px', background: '#FEF2F2', borderRadius: '4px', border: '1px solid #FEE2E2' }}>
+                              <div style={{ fontSize: '10px', fontWeight: '600', color: '#991B1B', marginBottom: '4px' }}>Archivo rechazado:</div>
+                              <a href={meta.evidencia_url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#991B1B', textDecoration: 'underline' }}>
+                                <FileText style={{ width: '12px', height: '12px' }} /> Ver archivo anterior
+                              </a>
+                            </div>
+                          )}
+                          <FileUpload
+                            currentFile={archivos[meta.id] || null}
+                            onFileSelect={(file) => setArchivos(prev => ({ ...prev, [meta.id]: file }))}
+                            onFileRemove={() => setArchivos(prev => ({ ...prev, [meta.id]: null }))}
+                            acceptedTypes=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                            maxSizeMB={10}
+                            disabled={enviando === meta.id}
+                          />
+                        </div>
+                      )}
+                    </td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', verticalAlign: 'top' }}>
+                      {meta.estado === 'pendiente' ? (
+                        <div style={{ fontSize: '11px', color: '#92400E', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <Clock style={{ width: '12px', height: '12px' }} /> En revisión
+                        </div>
+                      ) : meta.estado !== 'aprobado' && (
+                        <button onClick={() => handleEnviarEvidencia(meta.id)} disabled={enviando === meta.id} style={{ background: enviando === meta.id ? '#9CA3AF' : meta.estado === 'rechazado' ? '#DC2626' : '#111827', color: '#fff', fontWeight: '600', padding: '6px 12px', borderRadius: '4px', border: 'none', cursor: enviando === meta.id ? 'not-allowed' : 'pointer', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px', transition: 'background-color 0.2s', whiteSpace: 'nowrap' }}>
+                          {enviando === meta.id ? <><Loader2 style={{ width: '12px', height: '12px' }} /> Enviando...</> : meta.estado === 'rechazado' ? <><Send style={{ width: '12px', height: '12px' }} /> Reenviar</> : <><Send style={{ width: '12px', height: '12px' }} /> Enviar</>}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <div style={{ padding: '10px 12px', borderTop: '1px solid #E5E7EB', background: '#F9FAFB', fontSize: '11px', color: '#6B7280', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>Mostrando {metasFiltradas.length} de {metas.length} evidencias</span>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <span>Asignadas: {contadores.asignados}</span>
+            <span>Pendientes: {contadores.pendiente}</span>
+            <span>Rechazadas: {contadores.rechazado}</span>
+            <span>Aprobadas: {contadores.aprobado}</span>
           </div>
         </div>
-      ))}
+      </div>
     </div>
   );
 }

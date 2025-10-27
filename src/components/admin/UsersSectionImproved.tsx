@@ -14,6 +14,8 @@ import {
   shadows
 } from '@/lib/styleUtils';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { UsersModernTable } from '@/components/admin/UsersModernTable';
 import type { Usuario, Area } from '@/types';
 
 interface UsersSectionProps {
@@ -45,6 +47,21 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
   const [approvalAreaId, setApprovalAreaId] = useState<{[key: number]: number}>({});
   const [generatedPassword, setGeneratedPassword] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
+  
+  // Estado para el modal de confirmación
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type: 'danger' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    type: 'warning'
+  });
 
   // Detectar móvil
   React.useEffect(() => {
@@ -300,34 +317,50 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
 
   const handleReject = async (userId: number) => {
     const user = usuarios.find(u => u.id === userId);
-    if (!confirm(`¿Rechazar la solicitud de ${user?.nombre}?`)) return;
     
-    try {
-      await onReject(userId);
-      toast.success('Solicitud rechazada', {
-        description: `${user?.nombre} ha sido notificado del rechazo.`
-      });
-    } catch (error) {
-      toast.error('Error al rechazar usuario', {
-        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
-      });
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Rechazar Solicitud',
+      message: `¿Estás seguro de que quieres rechazar la solicitud de ${user?.nombre}?`,
+      type: 'warning',
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+        try {
+          await onReject(userId);
+          toast.success('Solicitud rechazada', {
+            description: `${user?.nombre} ha sido notificado del rechazo.`
+          });
+        } catch (error) {
+          toast.error('Error al rechazar usuario', {
+            description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+          });
+        }
+      }
+    });
   };
 
   const handleDelete = async (userId: number) => {
     const user = usuarios.find(u => u.id === userId);
-    if (!confirm(`¿Eliminar a ${user?.nombre}? Esta acción no se puede deshacer.`)) return;
     
-    try {
-      await onDelete(userId);
-      toast.success('Usuario eliminado', {
-        description: `${user?.nombre} ha sido eliminado del sistema.`
-      });
-    } catch (error) {
-      toast.error('Error al eliminar usuario', {
-        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
-      });
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Eliminar Usuario',
+      message: `¿Eliminar a ${user?.nombre}? Esta acción no se puede deshacer.`,
+      type: 'danger',
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+        try {
+          await onDelete(userId);
+          toast.success('Usuario eliminado', {
+            description: `${user?.nombre} ha sido eliminado del sistema.`
+          });
+        } catch (error) {
+          toast.error('Error al eliminar usuario', {
+            description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+          });
+        }
+      }
+    });
   };
 
   const handleGeneratePassword = async (userId: number) => {
@@ -353,7 +386,12 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
       
       {/* Usuarios Pendientes */}
       <div style={{ marginBottom: spacing.xl }}>
-        <h3 style={sectionHeaderStyle}>
+        <h3 style={{
+          fontSize: '1.25rem',
+          fontWeight: '600',
+          color: colors.gray[900],
+          marginBottom: spacing.md
+        }}>
           Usuarios Pendientes de Aprobación ({usuariosPendientes.length})
         </h3>
         
@@ -366,98 +404,28 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
             No hay usuarios pendientes de aprobación
           </div>
         ) : (
-          <div style={tableContainerStyle}>
-            {isMobile && usuariosPendientes.length > 0 && (
-              <div style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#fffbeb',
-                borderBottom: '1px solid #fef3c7',
-                fontSize: '12px',
-                color: '#92400e',
-                textAlign: 'center',
-                marginBottom: '0.5rem'
-              }}>
-                👈 Desliza para ver más columnas
-              </div>
-            )}
-            <div style={tableWrapperStyle}>
-              <table style={tableStyle}>
-                <thead style={tableHeaderStyle}>
-                  <tr>
-                    <th style={tableHeaderCellStyle}>Usuario</th>
-                  <th style={tableHeaderCellStyle}>Email</th>
-                  <th style={tableHeaderCellStyle}>Fecha Registro</th>
-                  <th style={tableHeaderCellStyle}>Área Asignada</th>
-                  <th style={tableHeaderCellStyle}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {usuariosPendientes.map((usuario) => (
-                  <tr key={usuario.id} style={tableRowStyle}>
-                    <td style={tableCellStyle}>
-                      <div style={{ fontWeight: '600', color: colors.gray[900] }}>
-                        {usuario.nombre}
-                      </div>
-                    </td>
-                    <td style={tableCellStyle}>
-                      <div style={{ color: colors.gray[600] }}>
-                        {usuario.email}
-                      </div>
-                    </td>
-                    <td style={tableCellStyle}>
-                      <div style={{ ...stylePresets.text.small, color: colors.gray[500] }}>
-                        {new Date().toLocaleDateString('es-ES')}
-                      </div>
-                    </td>
-                    <td style={{ 
-                      ...tableCellStyle,
-                      position: 'relative',
-                      overflow: 'visible'
-                    }}>
-                      <SearchableSelect
-                        options={areasArray.map(area => ({
-                          value: area.id,
-                          label: area.nombre_area
-                        }))}
-                        value={approvalAreaId[usuario.id] || 0}
-                        onChange={(areaId) => setApprovalAreaId(prev => ({
-                          ...prev,
-                          [usuario.id]: areaId
-                        }))}
-                        placeholder="Seleccionar área"
-                        style={{
-                          fontSize: '0.75rem',
-                        }}
-                      />
-                    </td>
-                    <td style={tableCellStyle}>
-                      <div style={buttonGroupStyle}>
-                        <button
-                          onClick={() => handleApprove(usuario.id)}
-                          style={approveButtonStyle}
-                        >
-                          Aprobar
-                        </button>
-                        <button
-                          onClick={() => handleReject(usuario.id)}
-                          style={rejectButtonStyle}
-                        >
-                          Rechazar
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            </div>
-          </div>
+          <UsersModernTable
+            usuarios={usuariosPendientes}
+            areas={areasArray}
+            onEdit={() => {}}
+            onDelete={() => {}}
+            onApprove={(userId) => handleApprove(userId)}
+            onReject={handleReject}
+            onGeneratePassword={async () => {}}
+            getAreaName={getAreaName}
+            isPending={true}
+          />
         )}
       </div>
 
       {/* Usuarios Aprobados */}
       <div>
-        <h3 style={sectionHeaderStyle}>
+        <h3 style={{
+          fontSize: '1.25rem',
+          fontWeight: '600',
+          color: colors.gray[900],
+          marginBottom: spacing.md
+        }}>
           Usuarios Activos ({usuariosAprobados.length})
         </h3>
         
@@ -470,115 +438,25 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
             No hay usuarios activos
           </div>
         ) : (
-          <div style={tableContainerStyle}>
-            {isMobile && usuariosAprobados.length > 0 && (
-              <div style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#fffbeb',
-                borderBottom: '1px solid #fef3c7',
-                fontSize: '12px',
-                color: '#92400e',
-                textAlign: 'center',
-                marginBottom: '0.5rem'
-              }}>
-                👈 Desliza para ver más columnas
-              </div>
-            )}
-            <div style={tableWrapperStyle}>
-              <table style={tableStyle}>
-                <thead style={tableHeaderStyle}>
-                  <tr>
-                    <th style={tableHeaderCellStyle}>Usuario</th>
-                    <th style={tableHeaderCellStyle}>Email</th>
-                    <th style={tableHeaderCellStyle}>Área</th>
-                  <th style={tableHeaderCellStyle}>Rol</th>
-                  <th style={tableHeaderCellStyle}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedAprobados.map((usuario) => (
-                  <tr key={usuario.id} style={tableRowStyle}>
-                    <td style={tableCellStyle}>
-                      <div style={{ 
-                        fontWeight: '600', 
-                        color: usuario.rol === 'admin' ? colors.warning : colors.gray[900] 
-                      }}>
-                        {usuario.nombre}
-                        {usuario.rol === 'admin' && (
-                          <span style={{ 
-                            fontSize: '0.7rem', 
-                            color: colors.warning,
-                            marginLeft: spacing.xs 
-                          }}>
-                            (Admin)
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td style={tableCellStyle}>
-                      <div style={{ color: colors.gray[600] }}>
-                        {usuario.email}
-                      </div>
-                    </td>
-                    <td style={tableCellStyle}>
-                      <div style={{ ...stylePresets.text.small, color: colors.gray[600] }}>
-                        {getAreaName(usuario.area_id)}
-                      </div>
-                    </td>
-                    <td style={tableCellStyle}>
-                      <span style={{
-                        padding: `${spacing.xs} ${spacing.sm}`,
-                        borderRadius: borderRadius.sm,
-                        fontSize: '0.7rem',
-                        fontWeight: '500',
-                        backgroundColor: usuario.rol === 'admin' ? colors.warning : colors.gray[200],
-                        color: usuario.rol === 'admin' ? 'white' : colors.gray[700],
-                      }}>
-                        {usuario.rol === 'admin' ? 'Administrador' : 'Usuario'}
-                      </span>
-                    </td>
-                    <td style={tableCellStyle}>
-                      <div style={buttonGroupStyle}>
-                        {usuario.rol !== 'admin' && (
-                          <>
-                            <button
-                              onClick={() => handleEdit(usuario)}
-                              style={editButtonStyle}
-                            >
-                              Editar
-                            </button>
-                            <button
-                              onClick={() => handleGeneratePassword(usuario.id)}
-                              style={generateButtonStyle}
-                            >
-                              Nueva Clave
-                            </button>
-                            <button
-                              onClick={() => handleDelete(usuario.id)}
-                              style={deleteButtonStyle}
-                            >
-                              Eliminar
-                            </button>
-                          </>
-                        )}
-                        {usuario.rol === 'admin' && (
-                          <span style={{
-                            padding: `${spacing.xs} ${spacing.sm}`,
-                            fontSize: '0.7rem',
-                            color: colors.gray[500],
-                            fontStyle: 'italic'
-                          }}>
-                            Protegido
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            </div>
-          </div>
+          <UsersModernTable
+            usuarios={sortedAprobados}
+            areas={areasArray}
+            onEdit={(user) => {
+              setEditingUser(user);
+              setEditForm({
+                nombre: user.nombre,
+                email: user.email,
+                password: '',
+                area_id: user.area_id || 0
+              });
+            }}
+            onDelete={handleDelete}
+            onApprove={() => {}}
+            onReject={() => {}}
+            onGeneratePassword={handleGeneratePassword}
+            getAreaName={getAreaName}
+            isPending={false}
+          />
         )}
       </div>
 
@@ -671,6 +549,18 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
           </div>
         </div>
       )}
+
+      {/* Modal de confirmación */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        type={confirmDialog.type}
+        confirmText="Confirmar"
+        cancelText="Cancelar"
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };

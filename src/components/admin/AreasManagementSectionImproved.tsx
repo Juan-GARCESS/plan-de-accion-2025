@@ -12,6 +12,8 @@ import {
   spacing,
   borderRadius
 } from '@/lib/styleUtils';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { AreasModernTable } from '@/components/admin/AreasModernTable';
 import type { Area } from '@/types';
 
 interface AreasManagementSectionProps {
@@ -32,6 +34,21 @@ export const AreasManagementSectionImproved: React.FC<AreasManagementSectionProp
   const [createForm, setCreateForm] = useState({ nombre: '', descripcion: '' });
   const [editForm, setEditForm] = useState({ nombre: '', descripcion: '' });
   const [isMobile, setIsMobile] = React.useState(false);
+  
+  // Estado para el modal de confirmación
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    type: 'danger' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    type: 'warning'
+  });
 
   React.useEffect(() => {
     const checkMobile = () => {
@@ -220,19 +237,26 @@ export const AreasManagementSectionImproved: React.FC<AreasManagementSectionProp
 
   const handleDelete = async (areaId: number) => {
     const area = areas.find(a => a.id === areaId);
-    if (!confirm(`¿Estás seguro de que quieres eliminar "${area?.nombre_area}"? Esta acción no se puede deshacer.`)) {
-      return;
-    }
-    try {
-      await onDelete(areaId);
-      toast.success('Área eliminada', {
-        description: 'El área ha sido eliminada del sistema.'
-      });
-    } catch (error) {
-      toast.error('Error al eliminar área', {
-        description: error instanceof Error ? error.message : 'Intenta nuevamente.'
-      });
-    }
+    
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Eliminar Área',
+      message: `¿Estás seguro de que quieres eliminar "${area?.nombre_area}"? Esta acción no se puede deshacer.`,
+      type: 'danger',
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+        try {
+          await onDelete(areaId);
+          toast.success('Área eliminada', {
+            description: 'El área ha sido eliminada del sistema.'
+          });
+        } catch (error) {
+          toast.error('Error al eliminar área', {
+            description: error instanceof Error ? error.message : 'Intenta nuevamente.'
+          });
+        }
+      }
+    });
   };
 
   // =============== RENDER ===============
@@ -252,80 +276,11 @@ export const AreasManagementSectionImproved: React.FC<AreasManagementSectionProp
       </div>
 
       {/* Tabla de áreas */}
-      <div style={tableContainerStyle}>
-        {isMobile && areas.length > 0 && (
-          <div style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#fffbeb',
-            borderBottom: '1px solid #fef3c7',
-            fontSize: '12px',
-            color: '#92400e',
-            textAlign: 'center',
-            marginBottom: '0.5rem'
-          }}>
-            👈 Desliza para ver más columnas
-          </div>
-        )}
-        <table style={tableStyle}>
-          <thead style={tableHeaderStyle}>
-            <tr>
-              <th style={tableHeaderCellStyle}>Nombre del Área</th>
-              <th style={tableHeaderCellStyle}>Descripción</th>
-              <th style={tableHeaderCellStyle}>Fecha Creación</th>
-              <th style={tableHeaderCellStyle}>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {areas.length === 0 ? (
-              <tr>
-                <td colSpan={4} style={{ ...tableCellStyle, textAlign: 'center', padding: spacing.xl }}>
-                  <div style={stylePresets.text.muted}>No hay áreas creadas</div>
-                </td>
-              </tr>
-            ) : (
-              areas.map((area) => (
-                <tr key={area.id} style={tableRowStyle}>
-                  <td style={tableCellStyle}>
-                    <div style={{ fontWeight: '600', color: colors.gray[900] }}>
-                      {area.nombre_area}
-                    </div>
-                  </td>
-                  <td style={tableCellStyle}>
-                    <div style={{ ...stylePresets.text.muted, fontSize: '0.75rem' }}>
-                      {area.descripcion || 'Sin descripción'}
-                    </div>
-                  </td>
-                  <td style={tableCellStyle}>
-                    <div style={{ ...stylePresets.text.small, color: colors.gray[500] }}>
-                      {new Date().toLocaleDateString('es-ES', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: '2-digit'
-                      })}
-                    </div>
-                  </td>
-                  <td style={tableCellStyle}>
-                    <div style={buttonGroupStyle}>
-                      <button
-                        onClick={() => handleEdit(area)}
-                        style={editButtonStyle}
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => handleDelete(area.id)}
-                        style={deleteButtonStyle}
-                      >
-                        Eliminar
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <AreasModernTable
+        areas={areas}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
 
       {/* Modal para crear área */}
       {showCreateForm && (
@@ -410,6 +365,18 @@ export const AreasManagementSectionImproved: React.FC<AreasManagementSectionProp
           </div>
         </div>
       )}
+
+      {/* Modal de confirmación */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        type={confirmDialog.type}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { SessionTimer } from '@/components/SessionTimer';
 import { UserDashboardLayout } from '@/components/user/UserDashboardLayout';
+import EvidenciasAprobadas from '@/components/dashboard/EvidenciasAprobadas';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -174,6 +175,9 @@ export default function DashboardPage() {
             Plan de Acción
           </button>
         </div>
+
+        {/* Tabla de Evidencias Aprobadas del Área */}
+        <EvidenciasAprobadas areaId={user?.area_id || undefined} />
 
         {/* Sección de Trimestres - Después */}
         <div style={{ 

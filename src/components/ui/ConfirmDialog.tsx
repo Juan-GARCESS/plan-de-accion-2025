@@ -2,6 +2,7 @@
 'use client';
 
 import React from 'react';
+import { AlertTriangle, HelpCircle, Info } from 'lucide-react';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -66,10 +67,15 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          margin: '0 auto 16px',
-          fontSize: '24px'
+          margin: '0 auto 16px'
         }}>
-          {type === 'danger' ? '⚠️' : type === 'warning' ? '❓' : 'ℹ️'}
+          {type === 'danger' ? (
+            <AlertTriangle className="h-6 w-6" style={{ color: theme.button }} />
+          ) : type === 'warning' ? (
+            <HelpCircle className="h-6 w-6" style={{ color: theme.button }} />
+          ) : (
+            <Info className="h-6 w-6" style={{ color: theme.button }} />
+          )}
         </div>
         
         <h3 style={{

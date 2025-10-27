@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { Eye, EyeOff } from 'lucide-react'
 
 function LoginForm() {
   const [formData, setFormData] = useState({
@@ -350,11 +351,13 @@ function LoginForm() {
                 border: 'none',
                 cursor: 'pointer',
                 padding: '8px',
-                color: 'rgba(0, 0, 0, 0.5)',
-                fontSize: '16px'
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'rgba(0, 0, 0, 0.5)'
               }}
             >
-              {showPassword ? '👁️‍🗨️' : '👁️'}
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
             {errors.password && (
               <span style={{
@@ -405,17 +408,12 @@ function LoginForm() {
                 background: formData.remember ? '#000000' : 'rgba(0, 0, 0, 0.02)',
                 borderColor: formData.remember ? '#000000' : 'rgba(0, 0, 0, 0.2)',
                 transform: formData.remember ? 'scale(1.1)' : 'scale(1)',
-                backdropFilter: 'blur(10px)'
+                backdropFilter: 'blur(10px)',
+                fontSize: '10px',
+                color: 'white',
+                fontWeight: 'bold'
               }}>
-                {formData.remember && (
-                  <span style={{
-                    color: 'white',
-                    fontSize: '11px',
-                    fontWeight: 'bold'
-                  }}>
-                    ✓
-                  </span>
-                )}
+                {formData.remember && '✓'}
               </span>
               <span style={{
                 color: 'rgba(0, 0, 0, 0.8)',
@@ -499,77 +497,96 @@ function LoginForm() {
           </button>
         </form>
 
-        {/* Social Login - Solo Google */}
-        <div style={{
-          marginBottom: '20px'
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            margin: '20px 0',
-            color: 'rgba(0, 0, 0, 0.4)',
-            fontSize: '14px'
-          }}>
+        {/* Office 365 Login - Temporalmente deshabilitado hasta obtener credenciales de TI */}
+        {process.env.NEXT_PUBLIC_MICROSOFT_CLIENT_ID && process.env.NEXT_PUBLIC_MICROSOFT_CLIENT_ID !== 'YOUR_CLIENT_ID' ? (
+          <div style={{ marginBottom: '20px' }}>
             <div style={{
-              flex: 1,
-              height: '1px',
-              background: 'rgba(0, 0, 0, 0.1)'
-            }}></div>
-            <span style={{
-              padding: '0 16px',
-              background: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(10px)'
+              display: 'flex',
+              alignItems: 'center',
+              margin: '20px 0',
+              color: 'rgba(0, 0, 0, 0.4)',
+              fontSize: '14px'
             }}>
-              O continúa con
-            </span>
-            <div style={{
-              flex: 1,
-              height: '1px',
-              background: 'rgba(0, 0, 0, 0.1)'
-            }}></div>
+              <div style={{
+                flex: 1,
+                height: '1px',
+                background: 'rgba(0, 0, 0, 0.1)'
+              }}></div>
+              <span style={{
+                padding: '0 16px',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)'
+              }}>
+                O continúa con
+              </span>
+              <div style={{
+                flex: 1,
+                height: '1px',
+                background: 'rgba(0, 0, 0, 0.1)'
+              }}></div>
+            </div>
+            
+            <button 
+              onClick={handleOffice365Login}
+              style={{
+              width: '100%',
+              background: 'rgba(0, 0, 0, 0.02)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(0, 0, 0, 0.1)',
+              borderRadius: '12px',
+              padding: '12px 16px',
+              color: '#333333',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              fontFamily: 'inherit'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(0, 0, 0, 0.05)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(0, 0, 0, 0.02)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+            }}>
+              <span style={{
+                width: '20px',
+                height: '20px',
+                backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 23 23'%3e%3cpath fill='%23f35325' d='M1 1h10v10H1z'/%3e%3cpath fill='%2381bc06' d='M12 1h10v10H12z'/%3e%3cpath fill='%2305a6f0' d='M1 12h10v10H1z'/%3e%3cpath fill='%23ffba08' d='M12 12h10v10H12z'/%3e%3c/svg%3e")`,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center'
+              }}></span>
+              Iniciar con Office 365
+            </button>
           </div>
-          
-          <button 
-            onClick={handleOffice365Login}
-            style={{
-            width: '100%',
-            background: 'rgba(0, 0, 0, 0.02)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(0, 0, 0, 0.1)',
-            borderRadius: '12px',
+        ) : (
+          <div style={{
             padding: '12px 16px',
-            color: '#333333',
-            fontSize: '14px',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            fontFamily: 'inherit'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(0, 0, 0, 0.05)'
-            e.currentTarget.style.transform = 'translateY(-2px)'
-            e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(0, 0, 0, 0.02)'
-            e.currentTarget.style.transform = 'translateY(0)'
-            e.currentTarget.style.boxShadow = 'none'
+            background: 'rgba(59, 130, 246, 0.08)',
+            border: '1px solid rgba(59, 130, 246, 0.2)',
+            borderRadius: '12px',
+            marginBottom: '20px',
+            textAlign: 'center'
           }}>
-            <span style={{
-              width: '20px',
-              height: '20px',
-              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 23 23'%3e%3cpath fill='%23f35325' d='M1 1h10v10H1z'/%3e%3cpath fill='%2381bc06' d='M12 1h10v10H12z'/%3e%3cpath fill='%2305a6f0' d='M1 12h10v10H1z'/%3e%3cpath fill='%23ffba08' d='M12 12h10v10H12z'/%3e%3c/svg%3e")`,
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center'
-            }}></span>
-            Iniciar con Office 365
-          </button>
-        </div>
+            <p style={{ 
+              margin: 0, 
+              fontSize: '12px', 
+              color: '#1e40af',
+              lineHeight: '1.5',
+              fontWeight: '500'
+            }}>
+              <strong>Próximamente:</strong> Podrás iniciar sesión con tu cuenta institucional de Office 365
+            </p>
+          </div>
+        )}
 
         {/* Signup Link */}
         <div style={{

@@ -4,9 +4,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { PlanAccionUserTable } from '@/components/user/PlanAccionUserTable';
-import { createCardStyle, colors, spacing } from '@/lib/styleUtils';
 import { UserDashboardLayout } from '@/components/user/UserDashboardLayout';
+import { PlanAccionUserTable } from '@/components/user/PlanAccionUserTable';
 
 export default function UserPlanAccionPage() {
   const router = useRouter();
@@ -40,51 +39,64 @@ export default function UserPlanAccionPage() {
     }
   }, [user, authLoading, router, preventBackNavigation]);
 
-  // Cargar datos del área
+  // Cargar datos del area
   useEffect(() => {
-    const fetchMe = async () => {
-      try {
-        const res = await fetch('/api/me');
-        if (res.ok) {
-          const me = await res.json();
-          const id = me?.usuario?.area_id ?? null;
-          setAreaId(id);
-          setAreaName(me?.area || 'Mi área');
-          document.title = `Plan de Acción - ${me?.area || ''}`;
-        }
-      } catch (e) {
-        console.error('Error cargando /api/me:', e);
-      }
-    };
-    if (user && user.rol !== 'admin') {
-      fetchMe();
+    if (user?.area_id) {
+      setAreaId(user.area_id);
+      // Obtener nombre del area
+      fetch(`/api/admin/areas`)
+        .then(res => res.json())
+        .then(areas => {
+          const area = areas.find((a: any) => a.id === user.area_id);
+          if (area) setAreaName(area.nombre_area);
+        })
+        .catch(err => console.error('Error al cargar area:', err));
     }
   }, [user]);
 
-  if (authLoading || areaId === null) {
+  if (authLoading) {
     return (
-      <UserDashboardLayout userName={user?.nombre} areaName={areaName} onBackHome={() => router.push('/dashboard')}>
-        <div style={createCardStyle('padded')}>
-          <p style={{ textAlign: 'center', color: colors.gray[500] }}>
-            Cargando plan de acción...
-          </p>
-        </div>
-      </UserDashboardLayout>
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif'
+      }}>
+        <p style={{ color: '#9ca3af', margin: 0, fontSize: '14px', fontWeight: '400' }}>
+          Cargando...
+        </p>
+      </div>
     );
   }
 
+  if (!user) {
+    return null;
+  }
+
   return (
-    <UserDashboardLayout userName={user?.nombre} areaName={areaName} onBackHome={() => router.push('/dashboard')}>
-      <div style={{ padding: spacing.lg, borderBottom: `1px solid ${colors.gray[300]}` }}>
-        <h2 style={{ margin: 0, color: colors.gray[800], fontSize: '24px', fontWeight: 'bold' }}>
-          Plan de Acción - {areaName}
-        </h2>
-        <p style={{ margin: '0.5rem 0 0 0', color: colors.gray[600] }}>
-          Aquí puedes ver lo que el administrador definió y editar solo tus columnas de Acción y Presupuesto.
-        </p>
-      </div>
-      <div style={{ padding: spacing.lg }}>
-        <PlanAccionUserTable areaId={areaId} areaName={areaName} />
+    <UserDashboardLayout 
+      userName={user.nombre} 
+      areaName={undefined}
+      onBackHome={() => router.push('/dashboard')}
+    >
+      <div style={{ padding: '24px' }}>
+        {areaId && areaName ? (
+          <PlanAccionUserTable areaId={areaId} areaName={areaName} />
+        ) : (
+          <div style={{ 
+            padding: 60, 
+            textAlign: 'center', 
+            backgroundColor: '#f9fafb',
+            borderRadius: 12,
+            border: '1px solid #e5e7eb'
+          }}>
+            <p style={{ color: '#6b7280', margin: 0 }}>
+              No tienes un area asignada.
+            </p>
+          </div>
+        )}
       </div>
     </UserDashboardLayout>
   );

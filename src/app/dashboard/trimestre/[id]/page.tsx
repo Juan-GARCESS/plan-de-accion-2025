@@ -77,29 +77,6 @@ export default function TrimstrePage() {
       onBackHome={() => router.push('/dashboard')}
     >
       <div style={{ padding: '24px' }}>
-        {/* Header */}
-        <div style={{
-          background: '#111827',
-          borderRadius: '12px',
-          padding: '24px',
-          marginBottom: '24px',
-          color: '#fff'
-        }}>
-          <h1 style={{
-            margin: 0,
-            fontSize: '2rem',
-            fontWeight: 'bold',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px'
-          }}>
-            📊 {trimestreNombre}
-          </h1>
-          <p style={{ margin: '8px 0 0 0', opacity: 0.9 }}>
-            {trimestrePeriodo} • Gestiona tus metas, acciones y evidencias
-          </p>
-        </div>
-
         {/* Tabla de Metas */}
         <TrimestreTable 
           trimestreId={trimestreId}
