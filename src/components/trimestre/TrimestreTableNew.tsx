@@ -36,8 +36,6 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
   const [enviando, setEnviando] = useState(false);
   const [yaEnviado, setYaEnviado] = useState(false);
   const [reenviando, setReenviando] = useState<number | null>(null);
-  const [puedeEliminar, setPuedeEliminar] = useState(false);
-  const [eliminando, setEliminando] = useState(false);
 
   const cargarMetas = useCallback(async () => {
     try {
@@ -70,58 +68,6 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
   useEffect(() => {
     cargarMetas();
   }, [cargarMetas]);
-
-  // Verificar si puede eliminar el envío
-  useEffect(() => {
-    const verificarPuedeEliminar = async () => {
-      if (!yaEnviado) {
-        setPuedeEliminar(false);
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/usuario/eliminar-envio?trimestre=${trimestreId}&area_id=${areaId}`);
-        const data = await res.json();
-        setPuedeEliminar(data.puede_eliminar || false);
-      } catch {
-        setPuedeEliminar(false);
-      }
-    };
-
-    verificarPuedeEliminar();
-  }, [yaEnviado, trimestreId, areaId]);
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleEliminarEnvio = async () => {
-    if (!confirm('¿Estás seguro de eliminar este envío? Tendrás que volver a cargar todas las evidencias.')) {
-      return;
-    }
-
-    setEliminando(true);
-
-    try {
-      const res = await fetch(`/api/usuario/eliminar-envio?trimestre=${trimestreId}&area_id=${areaId}`, {
-        method: 'DELETE'
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        toast.error(data.error || data.mensaje || 'Error al eliminar envío');
-        setEliminando(false);
-        return;
-      }
-
-      toast.success(data.mensaje || 'Envío eliminado exitosamente');
-      
-      // Recargar metas
-      await cargarMetas();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Error al eliminar envío');
-    } finally {
-      setEliminando(false);
-    }
-  };
 
   const handleReenviarMeta = async (metaId: number) => {
     const meta = metas.find(m => m.id === metaId);

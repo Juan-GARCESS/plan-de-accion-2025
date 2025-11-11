@@ -57,7 +57,7 @@ export default function EvidenciasAprobadas({ areaId }: EvidenciasAprobadasProps
           const areasRes = await fetch('/api/admin/areas');
           if (areasRes.ok) {
             const areas = await areasRes.json();
-            const area = areas.find((a: any) => a.id === areaId);
+            const area = areas.find((a: { id: number; nombre_area: string }) => a.id === areaId);
             if (area) setAreaNombre(area.nombre_area);
           }
         } else {

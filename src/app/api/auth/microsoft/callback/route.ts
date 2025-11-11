@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Buscar o crear el usuario en la base de datos
-    let userResult = await db.query(
+    const userResult = await db.query(
       'SELECT * FROM usuarios WHERE email = $1',
       [email]
     );

@@ -529,7 +529,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
             gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
             gap: spacing.md
           }}>
-            {[].map((meta: any) => (
+            {[].map((meta: { meta_id: number; calificacion_total_general: number | null; meta: string; comentario_general: string }) => (
               <div
                 key={meta.meta_id}
                 style={{
@@ -599,7 +599,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                     backgroundColor: colors.gray[50],
                     borderRadius: 4
                   }}>
-                    "{meta.comentario_general}"
+                    &quot;{meta.comentario_general}&quot;
                   </div>
                 )}
 
@@ -862,7 +862,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                   fontStyle: 'italic',
                   color: colors.gray[600]
                 }}>
-                  "{calificacionTrimestre.comentario_general}"
+                  &quot;{calificacionTrimestre.comentario_general}&quot;
                 </div>
               )}
             </div>

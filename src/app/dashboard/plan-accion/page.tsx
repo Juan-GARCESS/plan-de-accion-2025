@@ -47,7 +47,7 @@ export default function UserPlanAccionPage() {
       fetch(`/api/admin/areas`)
         .then(res => res.json())
         .then(areas => {
-          const area = areas.find((a: any) => a.id === user.area_id);
+          const area = areas.find((a: { id: number; nombre_area: string }) => a.id === user.area_id);
           if (area) setAreaName(area.nombre_area);
         })
         .catch(err => console.error('Error al cargar area:', err));

@@ -599,7 +599,7 @@ export function EjesManagementCardView() {
             }}>
               <FolderTree size={48} color={colors.gray[400]} style={{ margin: '0 auto 16px' }} />
               <p style={{ color: colors.gray[600], margin: 0 }}>
-                No hay ejes creados. Haz clic en "Crear Eje" para comenzar.
+                No hay ejes creados. Haz clic en &quot;Crear Eje&quot; para comenzar.
               </p>
             </div>
           ) : (
