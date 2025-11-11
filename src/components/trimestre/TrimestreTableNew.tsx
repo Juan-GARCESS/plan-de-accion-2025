@@ -4,7 +4,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { FileUpload } from '@/components/ui/FileUpload';
-import { CheckCircle2, XCircle, Clock, AlertCircle, Send, Loader2, FileText, Package, Trash2 } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, AlertCircle, Send, Loader2, FileText, Package } from 'lucide-react';
 
 interface MetaEvidencia {
   id: number;
@@ -35,8 +35,6 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
   const [archivos, setArchivos] = useState<Record<number, File | null>>({});
   const [enviando, setEnviando] = useState(false);
   const [yaEnviado, setYaEnviado] = useState(false);
-  const [puedeEliminar, setPuedeEliminar] = useState(false);
-  const [eliminando, setEliminando] = useState(false);
   const [reenviando, setReenviando] = useState<number | null>(null);
 
   const cargarMetas = useCallback(async () => {
@@ -91,6 +89,7 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
     verificarPuedeEliminar();
   }, [yaEnviado, trimestreId, areaId]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleEliminarEnvio = async () => {
     if (!confirm('¿Estás seguro de eliminar este envío? Tendrás que volver a cargar todas las evidencias.')) {
       return;
@@ -261,7 +260,7 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
                 Trabajando en el Trimestre {trimestreId}
               </h4>
               <p style={{ margin: 0, marginTop: '4px', color: '#6B7280', fontSize: '13px' }}>
-                Completa todas las metas (descripción + archivo), luego haz click en "Enviar". Solo puedes enviar una vez.
+                Completa todas las metas (descripción + archivo), luego haz click en &quot;Enviar&quot;. Solo puedes enviar una vez.
               </p>
             </div>
           </div>

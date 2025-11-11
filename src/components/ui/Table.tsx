@@ -10,7 +10,7 @@ export interface DataTableColumn<T> {
   sortable?: boolean;
   filterable?: boolean;
   align?: 'left' | 'center' | 'right';
-  render?: (value: any, row: T) => React.ReactNode;
+  render?: (value: unknown, row: T) => React.ReactNode;
 }
 
 interface DataTableProps<T> {
@@ -22,7 +22,7 @@ interface DataTableProps<T> {
   onRowClick?: (row: T) => void;
 }
 
-export function DataTable<T extends Record<string, any>>({
+export function DataTable<T extends Record<string, unknown>>({
   data,
   columns,
   searchPlaceholder = 'Search...',

@@ -80,7 +80,6 @@ export function generateUniqueFileName(
 ): string {
   const timestamp = Date.now();
   const randomString = Math.random().toString(36).substring(2, 8);
-  const extension = originalName.split('.').pop();
   const sanitizedName = originalName.replace(/[^a-zA-Z0-9.-]/g, '_');
   
   return `evidencias/${userId}/trimestre-${trimestre}/${timestamp}_${randomString}_${sanitizedName}`;

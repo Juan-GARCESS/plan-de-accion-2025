@@ -3,7 +3,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 
 interface UserNavbarProps {
   userName?: string;
