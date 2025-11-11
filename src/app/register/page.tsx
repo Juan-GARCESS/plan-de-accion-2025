@@ -141,6 +141,17 @@ export default function RegisterPage() {
     setNotification(prev => ({ ...prev, show: false }))
   }
 
+  // Validación robusta de contraseña
+  const validatePassword = (password: string): string | null => {
+    if (!password) return 'La contraseña es requerida';
+    if (password.length < 8) return 'La contraseña debe tener al menos 8 caracteres';
+    if (!/[A-Z]/.test(password)) return 'Debe contener al menos una letra mayúscula';
+    if (!/[a-z]/.test(password)) return 'Debe contener al menos una letra minúscula';
+    if (!/[0-9]/.test(password)) return 'Debe contener al menos un número';
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) return 'Debe contener al menos un símbolo (!@#$%^&*...)';
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const newErrors: { [key: string]: string } = {}
@@ -148,8 +159,11 @@ export default function RegisterPage() {
     if (!formData.nombre.trim()) newErrors.nombre = 'El nombre es requerido'
     if (!formData.email.trim()) newErrors.email = 'El email es requerido'
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Por favor ingresa un email válido'
-    if (!formData.password) newErrors.password = 'La contraseña es requerida'
-    else if (formData.password.length < 6) newErrors.password = 'La contraseña debe tener al menos 6 caracteres'
+    
+    // Validación robusta de contraseña
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) newErrors.password = passwordError;
+    
     if (!formData.areaSolicitada.trim()) newErrors.areaSolicitada = 'El área es requerida'
     if (!formData.terms) newErrors.terms = 'Debes aceptar los términos y condiciones'
     
@@ -443,11 +457,45 @@ export default function RegisterPage() {
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
+            
+            {/* Indicador de requisitos de contraseña */}
+            {formData.password && (
+              <div style={{
+                marginTop: '8px',
+                padding: '12px',
+                backgroundColor: 'rgba(243, 244, 246, 0.8)',
+                borderRadius: '8px',
+                fontSize: '12px'
+              }}>
+                <div style={{ fontWeight: '600', marginBottom: '6px', color: '#374151' }}>
+                  Requisitos de contraseña:
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <span style={{ color: formData.password.length >= 8 ? '#10b981' : '#6b7280' }}>
+                    {formData.password.length >= 8 ? '✓' : '○'} Mínimo 8 caracteres
+                  </span>
+                  <span style={{ color: /[A-Z]/.test(formData.password) ? '#10b981' : '#6b7280' }}>
+                    {/[A-Z]/.test(formData.password) ? '✓' : '○'} Una letra mayúscula
+                  </span>
+                  <span style={{ color: /[a-z]/.test(formData.password) ? '#10b981' : '#6b7280' }}>
+                    {/[a-z]/.test(formData.password) ? '✓' : '○'} Una letra minúscula
+                  </span>
+                  <span style={{ color: /[0-9]/.test(formData.password) ? '#10b981' : '#6b7280' }}>
+                    {/[0-9]/.test(formData.password) ? '✓' : '○'} Un número
+                  </span>
+                  <span style={{ color: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(formData.password) ? '#10b981' : '#6b7280' }}>
+                    {/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(formData.password) ? '✓' : '○'} Un símbolo (!@#$%...)
+                  </span>
+                </div>
+              </div>
+            )}
+            
             {errors.password && (
               <p style={{
                 color: '#ef4444',
                 fontSize: '12px',
-                margin: '5px 0 0 0'
+                margin: '5px 0 0 0',
+                fontWeight: '500'
               }}>
                 {errors.password}
               </p>

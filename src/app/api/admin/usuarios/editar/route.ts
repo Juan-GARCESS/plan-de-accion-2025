@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { db } from "@/lib/db";
 
+// Validación robusta de contraseña
+function validatePassword(password: string): string | null {
+  if (!password) return null; // Permitir vacío (significa que no se cambia)
+  if (password.length < 8) return 'La contraseña debe tener al menos 8 caracteres';
+  if (!/[A-Z]/.test(password)) return 'La contraseña debe contener al menos una letra mayúscula';
+  if (!/[a-z]/.test(password)) return 'La contraseña debe contener al menos una letra minúscula';
+  if (!/[0-9]/.test(password)) return 'La contraseña debe contener al menos un número';
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    return 'La contraseña debe contener al menos un símbolo (!@#$%^&*...)';
+  }
+  return null;
+}
+
 export async function PUT(request: NextRequest) {
   try {
     const cookie = request.headers.get("cookie");
@@ -61,8 +74,16 @@ export async function PUT(request: NextRequest) {
     let query = "UPDATE usuarios SET nombre = $1, email = $2, area_id = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4";
     let params = [nombre, email, area_id || null, user_id];
 
-    // Si se proporciona una nueva contraseña, la encriptamos
+    // Si se proporciona una nueva contraseña, validarla y encriptarla
     if (password && password.trim() !== "") {
+      const passwordError = validatePassword(password);
+      if (passwordError) {
+        return NextResponse.json(
+          { error: passwordError },
+          { status: 400 }
+        );
+      }
+      
       const hashedPassword = await bcrypt.hash(password, 10);
       query = "UPDATE usuarios SET nombre = $1, email = $2, password = $3, area_id = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5";
       params = [nombre, email, hashedPassword, area_id || null, user_id];

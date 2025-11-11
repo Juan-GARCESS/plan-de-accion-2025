@@ -2,14 +2,29 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { db } from "@/lib/db";
 
-// Función para generar contraseña aleatoria
-function generateRandomPassword(length: number = 8): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+// Función para generar contraseña aleatoria segura
+// Cumple con: mínimo 8 caracteres, mayúscula, minúscula, número y símbolo
+function generateRandomPassword(length: number = 12): string {
+  const uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lowercase = 'abcdefghijkmnpqrstuvwxyz';
+  const numbers = '23456789';
+  const symbols = '!@#$%^&*';
+  
+  // Asegurar que tenga al menos un carácter de cada tipo
   let password = '';
-  for (let i = 0; i < length; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  password += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
+  password += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
+  password += numbers.charAt(Math.floor(Math.random() * numbers.length));
+  password += symbols.charAt(Math.floor(Math.random() * symbols.length));
+  
+  // Completar el resto con caracteres aleatorios
+  const allChars = uppercase + lowercase + numbers + symbols;
+  for (let i = password.length; i < length; i++) {
+    password += allChars.charAt(Math.floor(Math.random() * allChars.length));
   }
-  return password;
+  
+  // Mezclar la contraseña para que no siempre empiece con mayúscula
+  return password.split('').sort(() => Math.random() - 0.5).join('');
 }
 
 export async function POST(request: NextRequest) {
@@ -54,8 +69,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generar nueva contraseña
-    const newPassword = generateRandomPassword(8);
+    // Generar nueva contraseña segura (12 caracteres)
+    const newPassword = generateRandomPassword(12);
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Actualizar la contraseña en la base de datos
