@@ -29,6 +29,16 @@ export async function GET(request: NextRequest) {
     const usuarioId = searchParams.get('usuarioId');
     const busqueda = searchParams.get('busqueda');
 
+    // Primero verificar si existe la columna observaciones_admin
+    const columnCheck = await db.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'evidencias' 
+      AND column_name = 'observaciones_admin'
+    `);
+
+    const hasObservacionesColumn = columnCheck.rows.length > 0;
+
     // Query para obtener todas las evidencias aprobadas
     let query = `
       SELECT 
@@ -45,6 +55,10 @@ export async function GET(request: NextRequest) {
         pa.indicador,
         pa.accion,
         pa.presupuesto,
+        pa.t1,
+        pa.t2,
+        pa.t3,
+        pa.t4,
         ej.nombre_eje as eje,
         se.nombre_sub_eje as sub_eje,
         e.descripcion,
@@ -55,6 +69,7 @@ export async function GET(request: NextRequest) {
         e.calificacion,
         e.estado,
         e.comentario_admin,
+        ${hasObservacionesColumn ? 'e.observaciones_admin,' : 'NULL as observaciones_admin,'}
         e.fecha_envio,
         e.fecha_revision,
         admin.nombre as revisado_por_nombre
@@ -128,9 +143,24 @@ export async function GET(request: NextRequest) {
       stats.porTrimestre[row.trimestre]++;
     });
 
+    // Obtener calificaciones generales de los trimestres desde calificaciones_trimestre
+    const calificacionesQuery = `
+      SELECT 
+        ct.area_id,
+        ct.trimestre,
+        ct.calificacion_general,
+        a.nombre_area
+      FROM calificaciones_trimestre ct
+      JOIN areas a ON ct.area_id = a.id
+      WHERE ct.calificacion_general IS NOT NULL
+    `;
+    
+    const calificacionesResult = await db.query(calificacionesQuery);
+
     return NextResponse.json({ 
       evidencias: result.rows,
-      stats
+      stats,
+      calificacionesTrimestres: calificacionesResult.rows
     });
   } catch (error) {
     console.error("Error al obtener plan de acción general:", error);

@@ -27,19 +27,48 @@ export async function GET(request: NextRequest) {
     const areaId = searchParams.get('areaId');
     const trimestre = searchParams.get('trimestre');
 
-    // Construir query dinámica
+    // ============================================
+    // VERIFICAR SI EXISTE UN ENVÍO
+    // ============================================
+    if (areaId && trimestre) {
+      const anioActual = new Date().getFullYear();
+      
+      const envioCheck = await db.query(
+        `SELECT id, usuario_id, estado, fecha_envio
+         FROM envios_trimestre
+         WHERE area_id = $1 AND trimestre = $2 AND anio = $3`,
+        [parseInt(areaId), parseInt(trimestre), anioActual]
+      );
+
+      if (envioCheck.rows.length === 0) {
+        // NO HAY ENVÍO - devolver mensaje
+        return NextResponse.json({ 
+          sin_envio: true,
+          mensaje: 'Aún no se ha enviado ninguna evidencia para este trimestre'
+        });
+      }
+    }
+
+    // ============================================
+    // CONSTRUIR QUERY PARA EVIDENCIAS
+    // ============================================
     let query = `
       SELECT 
         e.id,
         e.meta_id,
+        e.usuario_id,
         u.nombre as usuario_nombre,
+        a.id as area_id,
         a.nombre_area as area_nombre,
         e.trimestre,
         e.anio,
+        e.envio_id,
         pa.meta,
         pa.indicador,
         pa.accion,
         pa.presupuesto,
+        ej.nombre_eje as eje_nombre,
+        se.nombre_sub_eje as sub_eje_nombre,
         e.descripcion,
         e.archivo_url,
         e.archivo_nombre,
@@ -53,15 +82,17 @@ export async function GET(request: NextRequest) {
       FROM evidencias e
       JOIN usuarios u ON e.usuario_id = u.id
       JOIN plan_accion pa ON e.meta_id = pa.id
-      JOIN areas a ON u.area_id = a.id
-      WHERE 1=1
+      JOIN ejes ej ON pa.eje_id = ej.id
+      LEFT JOIN sub_ejes se ON pa.sub_eje_id = se.id
+      JOIN areas a ON pa.area_id = a.id
+      WHERE e.envio_id IS NOT NULL
     `;
 
     const params: (number)[] = [];
     let paramCount = 1;
 
     if (areaId) {
-      query += ` AND u.area_id = $${paramCount}`;
+      query += ` AND a.id = $${paramCount}`;
       params.push(parseInt(areaId));
       paramCount++;
     }
@@ -72,12 +103,39 @@ export async function GET(request: NextRequest) {
       paramCount++;
     }
 
-    query += ` ORDER BY e.fecha_envio DESC`;
+    query += ` ORDER BY e.id DESC`;
 
     const result = await db.query(query, params);
 
+    // ============================================
+    // OBTENER CALIFICACIÓN DEL TRIMESTRE
+    // ============================================
+    let calificacionTrimestre = null;
+    if (areaId && trimestre && result.rows.length > 0) {
+      const anioActual = new Date().getFullYear();
+      const usuarioId = result.rows[0].usuario_id;
+
+      const calificacionResult = await db.query(
+        `SELECT 
+          calificacion_general,
+          comentario_general,
+          calcular_automatico,
+          fecha_calificacion,
+          calificado_por
+         FROM calificaciones_trimestre
+         WHERE area_id = $1 AND trimestre = $2 AND usuario_id = $3 AND anio = $4`,
+        [parseInt(areaId), parseInt(trimestre), usuarioId, anioActual]
+      );
+
+      if (calificacionResult.rows.length > 0) {
+        calificacionTrimestre = calificacionResult.rows[0];
+      }
+    }
+
     return NextResponse.json({ 
-      evidencias: result.rows
+      evidencias: result.rows,
+      sin_envio: false,
+      calificacion_trimestre: calificacionTrimestre
     });
   } catch (error) {
     console.error("Error al obtener evidencias:", error);

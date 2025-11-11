@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { AdminDashboardLayout, GestionAllSections, AreasManagementSectionImproved, EjesManagementSectionImproved } from '@/components/admin';
 import { PlanAccionAdminTable } from '@/components/admin/PlanAccionAdminTable';
-import { EvidenciasReview } from '@/components/admin/EvidenciasReview';
+import { EvidenciasReviewNew } from '@/components/admin/EvidenciasReviewNew';
 import PlanAccionGeneralPage from '@/app/admin/plan-accion-general/page';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminManagement } from '@/hooks/useAdminManagement';
@@ -197,7 +197,7 @@ function DashboardPageContent() {
               </button>
               <div>
                 <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '600' }}>
-                  📋 Calificar Evidencias - Trimestre {calificarTrimestre}
+                  Calificar Evidencias - Trimestre {calificarTrimestre}
                 </h2>
                 <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: '#6b7280' }}>
                   Área: {selectedArea.nombre_area}
@@ -205,7 +205,7 @@ function DashboardPageContent() {
               </div>
             </div>
 
-            <EvidenciasReview areaId={selectedArea.id} trimestre={calificarTrimestre} />
+            <EvidenciasReviewNew areaId={selectedArea.id} trimestre={calificarTrimestre} />
           </div>
         ) : (
           <div>

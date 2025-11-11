@@ -64,15 +64,9 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
 
   useEffect(() => {
     fetchEvidencias();
+    fetchCalificacionTrimestre();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [areaId, trimestre]);
-
-  useEffect(() => {
-    if (evidencias.length > 0) {
-      fetchCalificacionTrimestre();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [evidencias]);
 
   const fetchEvidencias = async () => {
     setLoading(true);
@@ -86,16 +80,10 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
       const res = await fetch(url);
       if (!res.ok) throw new Error('Error al cargar evidencias');
       const data = await res.json();
-      
-      // Verificar si no hay envío
-      if (data.sin_envio) {
-        setEvidencias([]);
-      } else {
-        setEvidencias(data.evidencias || []);
-      }
+      setEvidencias(data.evidencias || []);
     } catch (error) {
       console.error('Error al cargar evidencias:', error);
-      setEvidencias([]);
+      // NO mostrar toast de error - simplemente no hay evidencias aún
     } finally {
       setLoading(false);
     }
@@ -183,6 +171,9 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
             }
           : e
       ));
+
+      // Recargar calificaciones de metas
+      fetchCalificacionesMetas();
 
       // Cerrar modal
       setSelectedEvidencia(null);
@@ -376,105 +367,66 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
 
   return (
     <div>
-      {/* Mensaje cuando NO hay envío de evidencias */}
-      {evidencias.length === 0 && areaId && trimestre && (
-        <div style={{
-          background: '#F3F4F6',
-          border: '2px dashed #9CA3AF',
-          borderRadius: '12px',
-          padding: spacing.xl,
-          textAlign: 'center',
-          marginBottom: spacing.xl
-        }}>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: spacing.md
-          }}>
-            <div style={{
-              width: '64px',
-              height: '64px',
-              background: '#E5E7EB',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '28px'
-            }}>
-              📭
-            </div>
-            <div>
-              <h3 style={{
-                fontSize: '1.25rem',
-                fontWeight: '700',
-                color: '#111827',
-                marginBottom: spacing.xs
-              }}>
-                Aún no se ha enviado ninguna evidencia
-              </h3>
-              <p style={{
-                fontSize: '0.875rem',
-                color: '#6B7280',
-                marginBottom: 0
-              }}>
-                El usuario todavía no ha realizado el envío del Trimestre {trimestre}.
-              </p>
-              <p style={{
-                fontSize: '0.875rem',
-                color: '#6B7280',
-                marginTop: spacing.xs,
-                marginBottom: 0
-              }}>
-                Una vez que envíe todas las metas, aparecerán aquí para calificar.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Botones de filtro - solo mostrar si HAY evidencias */}
-      {evidencias.length > 0 && (
+      {/* Botón para mostrar/ocultar Calificaciones Generales */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: spacing.lg
+      }}>
         <div style={{
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: spacing.lg
+          gap: spacing.sm
         }}>
-          <div style={{
-            display: 'flex',
-            gap: spacing.sm
-          }}>
-            {(['todas', 'pendientes', 'aprobadas', 'rechazadas'] as const).map(f => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                style={{
-                  padding: `${spacing.sm} ${spacing.md}`,
-                  backgroundColor: filter === f ? colors.primary : colors.gray[200],
-                  color: filter === f ? 'white' : colors.gray[700],
-                  border: 'none',
-                  borderRadius: 8,
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: '600',
-                  textTransform: 'capitalize'
-                }}
-              >
-                {f} ({evidencias.filter(e => {
-                  if (f === 'pendientes') return e.estado === 'pendiente' || !e.estado;
-                  if (f === 'aprobadas') return e.estado === 'aprobado';
-                  if (f === 'rechazadas') return e.estado === 'rechazado';
-                  return true;
-                }).length})
-              </button>
-            ))}
-          </div>
+          {(['todas', 'pendientes', 'aprobadas', 'rechazadas'] as const).map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              style={{
+                padding: `${spacing.sm} ${spacing.md}`,
+                backgroundColor: filter === f ? colors.primary : colors.gray[200],
+                color: filter === f ? 'white' : colors.gray[700],
+                border: 'none',
+                borderRadius: 8,
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                textTransform: 'capitalize'
+              }}
+            >
+              {f} ({evidencias.filter(e => {
+                if (f === 'pendientes') return e.estado === 'pendiente' || !e.estado;
+                if (f === 'aprobadas') return e.estado === 'aprobado';
+                if (f === 'rechazadas') return e.estado === 'rechazado';
+                return true;
+              }).length})
+            </button>
+          ))}
         </div>
-      )}
 
-      {/* Sección eliminada - ahora se usa calificación por trimestre */}
-      {false && (
+        <button
+          onClick={() => setShowCalificacionesGenerales(!showCalificacionesGenerales)}
+          style={{
+            padding: `${spacing.sm} ${spacing.md}`,
+            backgroundColor: showCalificacionesGenerales ? colors.primary : 'white',
+            color: showCalificacionesGenerales ? 'white' : colors.gray[700],
+            border: `2px solid ${showCalificacionesGenerales ? colors.primary : colors.gray[300]}`,
+            borderRadius: 8,
+            cursor: 'pointer',
+            fontSize: '0.875rem',
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: spacing.xs
+          }}
+        >
+          <Star size={16} />
+          {showCalificacionesGenerales ? 'Ocultar' : 'Ver'} Calificaciones Generales
+        </button>
+      </div>
+
+      {/* Sección de Calificaciones Generales */}
+      {showCalificacionesGenerales && calificacionesMetas.length > 0 && (
         <div style={{
           marginBottom: spacing.xl,
           padding: spacing.lg,
@@ -529,7 +481,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
             gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
             gap: spacing.md
           }}>
-            {[].map((meta: any) => (
+            {calificacionesMetas.map((meta) => (
               <div
                 key={meta.meta_id}
                 style={{
@@ -605,7 +557,9 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
 
                 <button
                   onClick={() => {
-                    // Código viejo - no se usa
+                    setCalificacionGeneralModal(meta);
+                    setCalificacionGeneral(meta.calificacion_total_general ?? 0);
+                    setComentarioGeneral(meta.comentario_general ?? '');
                   }}
                   style={{
                     width: '100%',
@@ -808,88 +762,6 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* Calificación General del Trimestre */}
-      {evidencias.length > 0 && trimestre && (
-        <div style={{
-          marginTop: spacing.xl,
-          padding: spacing.lg,
-          backgroundColor: '#fef3c7',
-          border: '2px solid #f59e0b',
-          borderRadius: 12
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: spacing.sm,
-            marginBottom: spacing.md
-          }}>
-            <Star size={24} color="#f59e0b" fill="#f59e0b" />
-            <h3 style={{ margin: 0, color: colors.gray[900], fontSize: '1.25rem', fontWeight: '700' }}>
-              Calificación General del Trimestre {trimestre}
-            </h3>
-          </div>
-
-          <p style={{
-            margin: 0,
-            marginBottom: spacing.md,
-            color: colors.gray[700],
-            fontSize: '0.875rem'
-          }}>
-            Después de revisar todas las metas de <strong>{evidencias[0]?.usuario_nombre}</strong>, asigna una calificación general para este trimestre:
-          </p>
-
-          {calificacionTrimestre && (
-            <div style={{
-              backgroundColor: 'white',
-              padding: spacing.md,
-              borderRadius: 8,
-              marginBottom: spacing.md,
-              border: `2px solid ${colors.primary}`
-            }}>
-              <div style={{ fontSize: '0.875rem', color: colors.gray[600], marginBottom: spacing.xs }}>
-                Calificación actual:
-              </div>
-              <div style={{ fontSize: '2rem', fontWeight: '700', color: colors.primary }}>
-                {calificacionTrimestre.calificacion_general}
-              </div>
-              {calificacionTrimestre.comentario_general && (
-                <div style={{
-                  marginTop: spacing.sm,
-                  fontSize: '0.875rem',
-                  fontStyle: 'italic',
-                  color: colors.gray[600]
-                }}>
-                  "{calificacionTrimestre.comentario_general}"
-                </div>
-              )}
-            </div>
-          )}
-
-          <button
-            onClick={() => {
-              if (calificacionTrimestre) {
-                setCalificacionGeneralTrimestre(calificacionTrimestre.calificacion_general);
-                setComentarioGeneralTrimestre(calificacionTrimestre.comentario_general || '');
-              }
-              setShowCalificacionTrimestreModal(true);
-            }}
-            style={{
-              width: '100%',
-              padding: `${spacing.md} ${spacing.lg}`,
-              backgroundColor: calificacionTrimestre ? colors.gray[700] : colors.primary,
-              color: 'white',
-              border: 'none',
-              borderRadius: 8,
-              cursor: 'pointer',
-              fontSize: '1rem',
-              fontWeight: '600'
-            }}
-          >
-            {calificacionTrimestre ? 'Editar Calificación General' : 'Calificar Trimestre'}
-          </button>
         </div>
       )}
 
@@ -1293,8 +1165,8 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
         </div>
       )}
 
-      {/* Modal Calificación General del Trimestre */}
-      {showCalificacionTrimestreModal && (
+      {/* Modal de Calificación General */}
+      {calificacionGeneralModal && (
         <div style={{
           position: 'fixed',
           top: 0,
@@ -1324,8 +1196,8 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
               alignItems: 'center',
               gap: spacing.sm
             }}>
-              <Star size={24} color="#f59e0b" fill="#f59e0b" />
-              Calificación General - Trimestre {trimestre}
+              <Star size={24} color={colors.primary} fill={colors.primary} />
+              Calificación Total General
             </h2>
 
             <div style={{ marginBottom: spacing.lg }}>
@@ -1335,8 +1207,18 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                 color: colors.gray[700],
                 fontSize: '0.875rem'
               }}>
-                Esta calificación representa el desempeño general de <strong>{evidencias[0]?.usuario_nombre}</strong> en este trimestre.
+                Esta calificación representa el desempeño final de la meta y se utilizará para calcular el promedio del área.
               </p>
+
+              <div style={{
+                backgroundColor: colors.gray[50],
+                padding: spacing.sm,
+                borderRadius: 8,
+                marginBottom: spacing.md,
+                fontSize: '0.875rem'
+              }}>
+                <strong>{calificacionGeneralModal.meta}</strong>
+              </div>
 
               <div style={{ marginBottom: spacing.md }}>
                 <label style={{
@@ -1352,8 +1234,8 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                   type="number"
                   min="0"
                   max="100"
-                  value={calificacionGeneralTrimestre || ''}
-                  onChange={(e) => setCalificacionGeneralTrimestre(Number(e.target.value))}
+                  value={calificacionGeneral || ''}
+                  onChange={(e) => setCalificacionGeneral(Number(e.target.value))}
                   style={{
                     width: '100%',
                     padding: spacing.sm,
@@ -1377,8 +1259,8 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                   Comentario (opcional)
                 </label>
                 <textarea
-                  value={comentarioGeneralTrimestre}
-                  onChange={(e) => setComentarioGeneralTrimestre(e.target.value)}
+                  value={comentarioGeneral}
+                  onChange={(e) => setComentarioGeneral(e.target.value)}
                   style={{
                     width: '100%',
                     padding: spacing.sm,
@@ -1389,15 +1271,15 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                     resize: 'vertical',
                     fontFamily: 'inherit'
                   }}
-                  placeholder="Observaciones generales del trimestre..."
+                  placeholder="Observaciones sobre el desempeño general..."
                 />
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: spacing.sm }}>
               <button
-                onClick={handleGuardarCalificacionTrimestre}
-                disabled={submitting || calificacionGeneralTrimestre === 0}
+                onClick={handleGuardarCalificacionGeneral}
+                disabled={submitting || calificacionGeneral === 0}
                 style={{
                   flex: 1,
                   padding: `${spacing.sm} ${spacing.md}`,
@@ -1405,10 +1287,10 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                   color: 'white',
                   border: 'none',
                   borderRadius: 8,
-                  cursor: submitting || calificacionGeneralTrimestre === 0 ? 'not-allowed' : 'pointer',
+                  cursor: submitting || calificacionGeneral === 0 ? 'not-allowed' : 'pointer',
                   fontSize: '0.875rem',
                   fontWeight: '600',
-                  opacity: submitting || calificacionGeneralTrimestre === 0 ? 0.6 : 1
+                  opacity: submitting || calificacionGeneral === 0 ? 0.6 : 1
                 }}
               >
                 {submitting ? 'Guardando...' : 'Guardar Calificación'}
@@ -1416,9 +1298,9 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
 
               <button
                 onClick={() => {
-                  setShowCalificacionTrimestreModal(false);
-                  setCalificacionGeneralTrimestre(0);
-                  setComentarioGeneralTrimestre('');
+                  setCalificacionGeneralModal(null);
+                  setCalificacionGeneral(0);
+                  setComentarioGeneral('');
                 }}
                 disabled={submitting}
                 style={{

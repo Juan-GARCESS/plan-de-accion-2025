@@ -129,46 +129,56 @@ export const PlanAccionAdminTable: React.FC<PlanAccionAdminTableProps> = ({ area
       {/* Sección Calificar */}
       <div style={{
         marginTop: '2rem',
-        paddingTop: '1.5rem',
-        borderTop: '2px solid #e5e7eb'
+        background: '#fff',
+        border: '1px solid #E5E7EB',
+        borderRadius: '12px',
+        padding: '24px',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
       }}>
         <h3 style={{
           margin: 0,
-          marginBottom: '1rem',
-          fontSize: '1.25rem',
+          marginBottom: '1.5rem',
+          fontSize: '1.125rem',
           fontWeight: '600',
-          color: '#111827'
+          color: '#111827',
+          textAlign: 'center'
         }}>
-          Calificar
+          Calificar Evidencias por Trimestre
         </h3>
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: '1rem',
-          maxWidth: '800px'
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '16px',
+          flexWrap: 'wrap'
         }}>
           {[1, 2, 3, 4].map((trimestre) => (
             <button
               key={trimestre}
               onClick={() => handleCalificar(trimestre)}
               style={{
-                padding: '0.75rem 1.5rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                backgroundColor: '#ffffff',
-                color: '#374151',
-                fontSize: '0.875rem',
-                fontWeight: '500',
+                padding: '12px 32px',
+                border: '2px solid #1F2937',
+                borderRadius: '8px',
+                backgroundColor: '#fff',
+                color: '#1F2937',
+                fontSize: '15px',
+                fontWeight: '600',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                minWidth: '140px',
+                boxShadow: '0 2px 4px rgba(31, 41, 55, 0.1)'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f9fafb';
-                e.currentTarget.style.borderColor = '#9ca3af';
+                e.currentTarget.style.backgroundColor = '#1F2937';
+                e.currentTarget.style.color = '#fff';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 4px 8px rgba(31, 41, 55, 0.3)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#ffffff';
-                e.currentTarget.style.borderColor = '#d1d5db';
+                e.currentTarget.style.backgroundColor = '#fff';
+                e.currentTarget.style.color = '#1F2937';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(31, 41, 55, 0.1)';
               }}
             >
               Trimestre {trimestre}

@@ -43,7 +43,8 @@ export async function GET(request: NextRequest) {
         ev.estado,
         ev.comentario_admin as observaciones,
         ev.calificacion,
-        ev.fecha_envio
+        ev.fecha_envio,
+        ev.envio_id
       FROM plan_accion pa
       JOIN ejes e ON pa.eje_id = e.id
       JOIN sub_ejes se ON pa.sub_eje_id = se.id

@@ -2,12 +2,12 @@
 'use client';
 
 import React from 'react';
-import PlanAccionGeneralTable from '@/components/admin/PlanAccionGeneralTable';
+import PlanAccionGeneralExportable from '@/components/admin/PlanAccionGeneralExportable';
 
 export default function PlanAccionGeneralPage() {
   return (
     <div style={{ padding: '24px' }}>
-      <PlanAccionGeneralTable isAdmin={true} />
+      <PlanAccionGeneralExportable isAdmin={true} />
     </div>
   );
 }

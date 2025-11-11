@@ -43,7 +43,7 @@ export const UsersModernTable: React.FC<UsersModernTableProps> = ({
   return (
     <div className="space-y-4">
       {/* Barra de búsqueda */}
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', marginBottom: '20px' }}>
         <Search 
           style={{ 
             position: 'absolute', 

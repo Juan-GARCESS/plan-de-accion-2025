@@ -3,7 +3,7 @@
 import React, { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { AdminDashboardLayout } from '@/components/admin';
-import { EvidenciasReview } from '@/components/admin/EvidenciasReview';
+import { EvidenciasReviewNew } from '@/components/admin/EvidenciasReviewNew';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import type { Area } from '@/types';
@@ -105,7 +105,7 @@ export default function CalificarTrimestrePage({
           </button>
           <div>
             <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '600' }}>
-              📋 Calificar Evidencias - Trimestre {trimestre}
+              Calificar Evidencias - Trimestre {trimestre}
             </h2>
             <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: '#6b7280' }}>
               Área: {areaName}
@@ -113,7 +113,7 @@ export default function CalificarTrimestrePage({
           </div>
         </div>
 
-        <EvidenciasReview areaId={areaId} trimestre={trimestre} />
+        <EvidenciasReviewNew areaId={areaId} trimestre={trimestre} />
       </div>
     </AdminDashboardLayout>
   );

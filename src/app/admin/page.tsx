@@ -10,7 +10,7 @@ import { PageLayout } from '@/components/layout/PageLayout';
 // Versión renovada con paleta blanco/negro/gris y UX mejorada
 import { UsersSectionImproved } from '@/components/admin/UsersSectionImproved';
 import { AreasManagementSectionImproved } from '@/components/admin/AreasManagementSectionImproved';
-import { EjesManagementSectionImproved } from '@/components/admin/EjesManagementSectionImproved';
+import { EjesManagementCardView } from '@/components/admin/EjesManagementCardView';
 import { SessionTimer } from '@/components/SessionTimer';
 
 export default function AdminPage() {
@@ -194,7 +194,7 @@ export default function AdminPage() {
           margin: '3rem 0'
         }} />
 
-        <EjesManagementSectionImproved />
+        <EjesManagementCardView />
         {/* Sección TrimestreSelections removida según la versión renovada */}
       </PageLayout>
     </div>
