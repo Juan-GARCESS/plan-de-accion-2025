@@ -547,21 +547,26 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
                 placeholder="Nueva contraseña (opcional)"
                 value={editForm.password}
                 onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
-                style={{ ...inputStyle, marginBottom: spacing.md }}
+                style={{ ...inputStyle, marginBottom: editingUser.rol === 'admin' ? spacing.lg : spacing.md }}
               />
-              <SearchableSelect
-                options={[
-                  { value: 0, label: 'Sin área asignada' },
-                  ...areasArray.map(area => ({
-                    value: area.id,
-                    label: area.nombre_area
-                  }))
-                ]}
-                value={editForm.area_id}
-                onChange={(areaId) => setEditForm({ ...editForm, area_id: areaId })}
-                placeholder="Seleccionar área"
-                style={{ marginBottom: spacing.lg }}
-              />
+              
+              {/* Solo mostrar selector de área si NO es admin */}
+              {editingUser.rol !== 'admin' && (
+                <SearchableSelect
+                  options={[
+                    { value: 0, label: 'Sin área asignada' },
+                    ...areasArray.map(area => ({
+                      value: area.id,
+                      label: area.nombre_area
+                    }))
+                  ]}
+                  value={editForm.area_id}
+                  onChange={(areaId) => setEditForm({ ...editForm, area_id: areaId })}
+                  placeholder="Seleccionar área"
+                  style={{ marginBottom: spacing.lg }}
+                />
+              )}
+              
               <div style={{ display: 'flex', gap: spacing.sm, justifyContent: 'flex-end' }}>
                 <button
                   type="button"
