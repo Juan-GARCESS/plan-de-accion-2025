@@ -63,6 +63,17 @@ export function EjesManagementCardView() {
     subEjes: []
   });
 
+  // Modal de ejes asignados a un área
+  const [modalEjesArea, setModalEjesArea] = useState<{
+    isOpen: boolean;
+    area: Area | null;
+    asignaciones: AreaEje[];
+  }>({
+    isOpen: false,
+    area: null,
+    asignaciones: []
+  });
+
   // Estados para formularios
   const [showEjeForm, setShowEjeForm] = useState(false);
   const [showSubEjeForm, setShowSubEjeForm] = useState(false);
@@ -770,69 +781,252 @@ export function EjesManagementCardView() {
             </button>
           </div>
 
+          {/* Grid de tarjetas por área */}
+          {areas.length === 0 ? (
+            <div style={{
+              backgroundColor: 'white',
+              border: `1px solid ${colors.gray[200]}`,
+              borderRadius: '12px',
+              padding: '60px',
+              textAlign: 'center'
+            }}>
+              <FolderTree size={48} color={colors.gray[400]} style={{ margin: '0 auto 16px' }} />
+              <p style={{ color: colors.gray[600], margin: 0 }}>
+                No hay áreas disponibles.
+              </p>
+            </div>
+          ) : (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: '20px'
+            }}>
+              {areas.map((area) => {
+                const ejesAsignados = asignaciones.filter(asig => asig.area_id === area.id);
+                return (
+                  <div
+                    key={area.id}
+                    style={{
+                      backgroundColor: 'white',
+                      border: `1px solid ${colors.gray[200]}`,
+                      borderRadius: '12px',
+                      padding: '20px',
+                      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                      transition: 'all 0.2s',
+                      cursor: 'default',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      height: '100%'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    {/* Header de la tarjeta */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <h3 style={{
+                        fontSize: '1.125rem',
+                        fontWeight: '700',
+                        color: colors.gray[900],
+                        marginBottom: '8px',
+                        lineHeight: '1.3'
+                      }}>
+                        {area.nombre_area}
+                      </h3>
+                      <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        backgroundColor: ejesAsignados.length > 0 ? colors.gray[900] : colors.gray[100],
+                        color: ejesAsignados.length > 0 ? 'white' : colors.gray[600],
+                        padding: '4px 8px',
+                        borderRadius: '6px',
+                        fontSize: '0.75rem',
+                        fontWeight: '600'
+                      }}>
+                        <Layers size={14} />
+                        {ejesAsignados.length} Eje{ejesAsignados.length !== 1 ? 's' : ''} Asignado{ejesAsignados.length !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+
+                    {/* Espaciador */}
+                    <div style={{ flex: 1 }} />
+
+                    {/* Botón de ver ejes */}
+                    <div style={{
+                      paddingTop: '16px',
+                      borderTop: `1px solid ${colors.gray[200]}`
+                    }}>
+                      <button
+                        onClick={() => {
+                          setModalEjesArea({
+                            isOpen: true,
+                            area: area,
+                            asignaciones: ejesAsignados
+                          });
+                        }}
+                        disabled={ejesAsignados.length === 0}
+                        style={{
+                          width: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          padding: '10px',
+                          backgroundColor: ejesAsignados.length > 0 ? colors.gray[900] : colors.gray[200],
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontSize: '0.8125rem',
+                          fontWeight: '600',
+                          cursor: ejesAsignados.length > 0 ? 'pointer' : 'not-allowed',
+                          transition: 'all 0.2s',
+                          opacity: ejesAsignados.length > 0 ? 1 : 0.6
+                        }}
+                        onMouseEnter={(e) => {
+                          if (ejesAsignados.length > 0) {
+                            e.currentTarget.style.backgroundColor = colors.gray[800];
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (ejesAsignados.length > 0) {
+                            e.currentTarget.style.backgroundColor = colors.gray[900];
+                          }
+                        }}
+                      >
+                        <Eye size={16} />
+                        Ver Ejes Asignados
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Modal de Ejes Asignados a un Área */}
+      {modalEjesArea.isOpen && modalEjesArea.area && (
+        <div style={modalOverlayStyle} onClick={() => setModalEjesArea({ isOpen: false, area: null, asignaciones: [] })}>
           <div style={{
-            backgroundColor: 'white',
-            border: `1px solid ${colors.gray[200]}`,
-            borderRadius: '12px',
-            overflow: 'hidden'
-          }}>
-            {asignaciones.length === 0 ? (
-              <div style={{ padding: '60px', textAlign: 'center' }}>
+            ...modalContentStyle,
+            maxWidth: '500px'
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: '20px'
+            }}>
+              <div>
+                <h3 style={{
+                  fontSize: '1.5rem',
+                  fontWeight: '700',
+                  color: colors.gray[900],
+                  marginBottom: '8px'
+                }}>
+                  Ejes de {modalEjesArea.area.nombre_area}
+                </h3>
+                <p style={{
+                  fontSize: '0.875rem',
+                  color: colors.gray[600],
+                  margin: 0
+                }}>
+                  {modalEjesArea.asignaciones.length} eje{modalEjesArea.asignaciones.length !== 1 ? 's' : ''} asignado{modalEjesArea.asignaciones.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+              <button
+                onClick={() => setModalEjesArea({ isOpen: false, area: null, asignaciones: [] })}
+                style={{
+                  padding: '8px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: colors.gray[500]
+                }}
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {modalEjesArea.asignaciones.length === 0 ? (
+              <div style={{
+                padding: '40px',
+                textAlign: 'center',
+                backgroundColor: colors.gray[50],
+                borderRadius: '8px'
+              }}>
                 <p style={{ color: colors.gray[600], margin: 0 }}>
-                  No hay asignaciones. Haz clic en "Asignar Eje a Área" para comenzar.
+                  No hay ejes asignados a esta área
                 </p>
               </div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ backgroundColor: colors.gray[100], borderBottom: `1px solid ${colors.gray[300]}` }}>
-                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '0.75rem', fontWeight: '700', color: colors.gray[700], textTransform: 'uppercase' }}>Área</th>
-                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '0.75rem', fontWeight: '700', color: colors.gray[700], textTransform: 'uppercase' }}>Eje</th>
-                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '0.75rem', fontWeight: '700', color: colors.gray[700], textTransform: 'uppercase' }}>Descripción</th>
-                    <th style={{ padding: '16px', textAlign: 'left', fontSize: '0.75rem', fontWeight: '700', color: colors.gray[700], textTransform: 'uppercase' }}>Fecha</th>
-                    <th style={{ padding: '16px', textAlign: 'center', fontSize: '0.75rem', fontWeight: '700', color: colors.gray[700], textTransform: 'uppercase' }}>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {asignaciones.map((asig) => (
-                    <tr key={asig.id} style={{ borderBottom: `1px solid ${colors.gray[200]}` }}>
-                      <td style={{ padding: '16px', fontSize: '0.875rem', color: colors.gray[900], fontWeight: '600' }}>{asig.nombre_area}</td>
-                      <td style={{ padding: '16px', fontSize: '0.875rem', color: colors.gray[700] }}>{asig.nombre_eje}</td>
-                      <td style={{ padding: '16px', fontSize: '0.875rem', color: colors.gray[600] }}>{asig.eje_descripcion || 'Sin descripción'}</td>
-                      <td style={{ padding: '16px', fontSize: '0.875rem', color: colors.gray[600] }}>{new Date(asig.fecha_asignacion).toLocaleDateString('es-ES')}</td>
-                      <td style={{ padding: '16px', textAlign: 'center' }}>
-                        <button
-                          onClick={() => eliminarAsignacion(asig.id, asig.nombre_area, asig.nombre_eje)}
-                          style={{
-                            padding: '6px 12px',
-                            backgroundColor: 'white',
-                            color: '#ef4444',
-                            border: `1px solid ${colors.gray[300]}`,
-                            borderRadius: '6px',
-                            fontSize: '0.8125rem',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#fee2e2';
-                            e.currentTarget.style.borderColor = '#ef4444';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'white';
-                            e.currentTarget.style.borderColor = colors.gray[300];
-                          }}
-                        >
-                          Eliminar
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {modalEjesArea.asignaciones.map((asig) => (
+                  <div
+                    key={asig.id}
+                    style={{
+                      backgroundColor: 'white',
+                      border: `1px solid ${colors.gray[200]}`,
+                      borderRadius: '8px',
+                      padding: '14px 16px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <h4 style={{
+                        fontSize: '0.9375rem',
+                        fontWeight: '600',
+                        color: colors.gray[900],
+                        margin: 0
+                      }}>
+                        {asig.nombre_eje}
+                      </h4>
+                    </div>
+                    <button
+                      onClick={() => eliminarAsignacion(asig.id, asig.nombre_area, asig.nombre_eje)}
+                      style={{
+                        padding: '6px 10px',
+                        backgroundColor: 'white',
+                        color: '#ef4444',
+                        border: `1px solid ${colors.gray[300]}`,
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                      title="Eliminar asignación"
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#fee2e2';
+                        e.currentTarget.style.borderColor = '#ef4444';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'white';
+                        e.currentTarget.style.borderColor = colors.gray[300];
+                      }}
+                    >
+                      <Trash2 size={12} />
+                      Eliminar
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
-        </>
+        </div>
       )}
 
       {/* Modal de Sub-ejes */}
