@@ -20,8 +20,11 @@ export const AreasModernTable: React.FC<AreasModernTableProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Asegurar que areas sea un array
+  const safeAreas = Array.isArray(areas) ? areas : [];
+
   // Filtrar áreas
-  const filteredAreas = areas.filter(area => {
+  const filteredAreas = safeAreas.filter(area => {
     const searchLower = searchTerm.toLowerCase();
     return (
       area.nombre_area.toLowerCase().includes(searchLower) ||
