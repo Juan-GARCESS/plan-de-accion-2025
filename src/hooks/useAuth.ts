@@ -54,22 +54,21 @@ export function useAuth() {
       setUser(null);
       sessionStorage.removeItem('isAuthenticated');
       
-      // Mostrar mensaje de timeout con toast persistente
-      toast.error('Sesión expirada por inactividad', {
-        description: 'Por favor, inicia sesión nuevamente para continuar.',
-        duration: 8000,
+      // Mostrar notificación amigable
+      toast.info('⏰ Tu sesión ha expirado', {
+        description: 'Por seguridad, hemos cerrado tu sesión después de 60 minutos de inactividad.',
+        duration: 5000,
       });
       
-      // Esperar un poco para que el usuario vea el mensaje
+      // Redirigir sin parámetro de error
       setTimeout(() => {
-        window.location.replace('/?timeout=true');
+        window.location.replace('/');
       }, 1000);
     } catch (error) {
       console.error('Error during timeout logout:', error);
       setUser(null);
       sessionStorage.removeItem('isAuthenticated');
-      toast.error('Sesión expirada');
-      window.location.replace('/?timeout=true');
+      window.location.replace('/');
     }
   }, []);
 

@@ -563,8 +563,8 @@ export default function PlanAccionGeneralExportable({ isAdmin = false, userAreaI
         </div>
 
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: isAdmin ? 'repeat(2, 1fr)' : '1fr',
+          display: 'flex',
+          flexDirection: 'column',
           gap: 12
         }}>
           <div style={{ position: 'relative' }}>
@@ -577,14 +577,15 @@ export default function PlanAccionGeneralExportable({ isAdmin = false, userAreaI
                   setBusqueda(busquedaTemp);
                 }
               }}
-              placeholder="Buscar meta, usuario... (presiona Enter)"
+              placeholder="Buscar meta, usuario..."
               style={{
-                padding: '8px 12px',
+                padding: '10px 36px 10px 12px',
                 border: `1px solid ${colors.gray[300]}`,
-                borderRadius: 6,
-                fontSize: '0.875rem',
+                borderRadius: 8,
+                fontSize: '0.9375rem',
                 outline: 'none',
-                width: '100%'
+                width: '100%',
+                boxSizing: 'border-box'
               }}
             />
             {busqueda && (
@@ -604,8 +605,8 @@ export default function PlanAccionGeneralExportable({ isAdmin = false, userAreaI
                   color: colors.gray[400],
                   fontSize: '1.25rem',
                   padding: 0,
-                  width: 20,
-                  height: 20,
+                  width: 24,
+                  height: 24,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
@@ -622,12 +623,19 @@ export default function PlanAccionGeneralExportable({ isAdmin = false, userAreaI
               value={filtroArea}
               onChange={(e) => setFiltroArea(e.target.value)}
               style={{
-                padding: '8px 12px',
+                padding: '10px 12px',
                 border: `1px solid ${colors.gray[300]}`,
-                borderRadius: 6,
-                fontSize: '0.875rem',
+                borderRadius: 8,
+                fontSize: '0.9375rem',
                 outline: 'none',
-                backgroundColor: 'white'
+                backgroundColor: 'white',
+                width: '100%',
+                boxSizing: 'border-box',
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 12px center',
+                paddingRight: '36px'
               }}
             >
               <option value="">Todas las áreas</option>

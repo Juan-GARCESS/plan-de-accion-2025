@@ -77,11 +77,9 @@ function LoginForm() {
   // Manejar errores de parámetros URL
   useEffect(() => {
     const errorParam = searchParams.get('error')
-    const timeoutParam = searchParams.get('timeout')
     
-    if (timeoutParam === 'true') {
-      setErrors({ general: 'Tu sesión ha expirado por inactividad (5 minutos). Por favor, inicia sesión nuevamente.' })
-    } else if (errorParam === 'pending') {
+    // No mostrar mensaje de timeout, ya se muestra como toast
+    if (errorParam === 'pending') {
       setErrors({ general: 'Tu cuenta está pendiente de aprobación por parte del administrador.' })
     } else if (errorParam === 'no-area') {
       setErrors({ general: 'Tu cuenta aún no tiene un área asignada. Contacta al administrador.' })
