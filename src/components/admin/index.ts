@@ -12,4 +12,5 @@ export { AreaForm } from './AreaForm';
 export { UserCard } from './UserCard';
 export { EjesManagementSection } from './EjesManagementSection';
 export { EjesManagementSectionImproved } from './EjesManagementSectionImproved';
+export { EjesManagementCardView } from './EjesManagementCardView';
 export { GestionAllSections } from './GestionAllSections';

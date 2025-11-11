@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { AdminDashboardLayout, GestionAllSections, AreasManagementSectionImproved, EjesManagementSectionImproved } from '@/components/admin';
+import { AdminDashboardLayout, GestionAllSections, AreasManagementSectionImproved, EjesManagementCardView } from '@/components/admin';
 import { PlanAccionAdminTable } from '@/components/admin/PlanAccionAdminTable';
 import { EvidenciasReviewNew } from '@/components/admin/EvidenciasReviewNew';
 import PlanAccionGeneralPage from '@/app/admin/plan-accion-general/page';
@@ -175,7 +175,7 @@ function DashboardPageContent() {
           onDelete={deleteArea}
         />
       ) : showEjesManagement ? (
-        <EjesManagementSectionImproved />
+        <EjesManagementCardView />
       ) : selectedArea ? (
         calificarTrimestre !== null ? (
           <div>
