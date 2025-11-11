@@ -67,8 +67,8 @@ export function DataTable<T extends Record<string, unknown>>({
     if (!sortConfig) return filteredData;
 
     return [...filteredData].sort((a, b) => {
-      const aValue = a[sortConfig.key];
-      const bValue = b[sortConfig.key];
+      const aValue = a[sortConfig.key] as string | number | boolean;
+      const bValue = b[sortConfig.key] as string | number | boolean;
 
       if (aValue < bValue) {
         return sortConfig.direction === 'asc' ? -1 : 1;
@@ -218,7 +218,7 @@ export function DataTable<T extends Record<string, unknown>>({
                             : 'text-left'
                         }`}
                       >
-                        {column.render ? column.render(value, row) : value}
+                        {column.render ? column.render(value, row) : String(value ?? '')}
                       </td>
                     );
                   })}

@@ -36,6 +36,8 @@ export default function TrimestreTable({ trimestreId, areaId }: TrimestreTablePr
   const [enviando, setEnviando] = useState(false);
   const [yaEnviado, setYaEnviado] = useState(false);
   const [reenviando, setReenviando] = useState<number | null>(null);
+  const [puedeEliminar, setPuedeEliminar] = useState(false);
+  const [eliminando, setEliminando] = useState(false);
 
   const cargarMetas = useCallback(async () => {
     try {
