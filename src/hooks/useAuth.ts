@@ -16,8 +16,8 @@ export function useAuth() {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
 
-  // Configuración del timeout (5 minutos = 300000 ms)
-  const SESSION_TIMEOUT = 5 * 60 * 1000;
+  // Configuración del timeout (60 minutos = 3600000 ms)
+  const SESSION_TIMEOUT = 60 * 60 * 1000;
 
   const checkAuth = async () => {
     try {

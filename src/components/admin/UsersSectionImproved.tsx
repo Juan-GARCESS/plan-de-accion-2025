@@ -48,6 +48,12 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
   const [generatedPassword, setGeneratedPassword] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
   
+  // Estados para verificación de contraseña del admin
+  const [showAdminPasswordModal, setShowAdminPasswordModal] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [verifyingPassword, setVerifyingPassword] = useState(false);
+  const [pendingAdminEdit, setPendingAdminEdit] = useState<Usuario | null>(null);
+  
   // Estado para el modal de confirmación
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
@@ -257,13 +263,67 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
   // =============== FUNCIONES DE USUARIO ===============
 
   const handleEdit = (user: Usuario) => {
-    setEditingUser(user);
-    setEditForm({
-      nombre: user.nombre,
-      email: user.email,
-      password: '',
-      area_id: user.area_id || 0
-    });
+    // Si es admin, pedir contraseña primero
+    if (user.rol === 'admin') {
+      setPendingAdminEdit(user);
+      setShowAdminPasswordModal(true);
+      setAdminPassword('');
+    } else {
+      // Usuario normal, editar directamente
+      setEditingUser(user);
+      setEditForm({
+        nombre: user.nombre,
+        email: user.email,
+        password: '',
+        area_id: user.area_id || 0
+      });
+    }
+  };
+
+  const verifyAdminPassword = async () => {
+    if (!adminPassword) {
+      toast.error('Ingresa la contraseña del administrador');
+      return;
+    }
+
+    setVerifyingPassword(true);
+
+    try {
+      const response = await fetch('/api/admin/verify-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPassword })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.valid) {
+        toast.error('Contraseña incorrecta');
+        setVerifyingPassword(false);
+        return;
+      }
+
+      // Contraseña correcta, permitir edición
+      toast.success('Verificación exitosa');
+      setShowAdminPasswordModal(false);
+      setAdminPassword('');
+      
+      if (pendingAdminEdit) {
+        setEditingUser(pendingAdminEdit);
+        setEditForm({
+          nombre: pendingAdminEdit.nombre,
+          email: pendingAdminEdit.email,
+          password: '',
+          area_id: pendingAdminEdit.area_id || 0
+        });
+        setPendingAdminEdit(null);
+      }
+    } catch (error) {
+      toast.error('Error al verificar contraseña');
+      console.error(error);
+    } finally {
+      setVerifyingPassword(false);
+    }
   };
 
   const handleSaveEdit = async () => {
@@ -546,6 +606,76 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
           </div>
           <div style={{ fontSize: '0.8rem', marginTop: spacing.xs, opacity: 0.9 }}>
             Cópiala ahora, desaparecerá en 3 segundos
+          </div>
+        </div>
+      )}
+
+      {/* Modal de verificación de contraseña del admin */}
+      {showAdminPasswordModal && (
+        <div style={modalOverlayStyle}>
+          <div style={{
+            ...modalContentStyle,
+            maxWidth: '400px'
+          }}>
+            <h3 style={{
+              ...stylePresets.text.heading3,
+              marginBottom: spacing.sm
+            }}>
+              🔒 Verificación de Seguridad
+            </h3>
+            <p style={{
+              fontSize: '0.875rem',
+              color: colors.gray[600],
+              marginBottom: spacing.lg
+            }}>
+              Ingresa tu contraseña de administrador para continuar
+            </p>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              verifyAdminPassword();
+            }}>
+              <input
+                type="password"
+                placeholder="Contraseña de administrador"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                disabled={verifyingPassword}
+                autoFocus
+                style={{
+                  ...inputStyle,
+                  marginBottom: spacing.lg
+                }}
+              />
+              <div style={{
+                display: 'flex',
+                gap: spacing.sm,
+                justifyContent: 'flex-end'
+              }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAdminPasswordModal(false);
+                    setAdminPassword('');
+                    setPendingAdminEdit(null);
+                  }}
+                  disabled={verifyingPassword}
+                  style={secondaryButtonStyle}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={verifyingPassword || !adminPassword}
+                  style={{
+                    ...primaryButtonStyle,
+                    opacity: verifyingPassword || !adminPassword ? 0.6 : 1,
+                    cursor: verifyingPassword || !adminPassword ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {verifyingPassword ? 'Verificando...' : 'Verificar'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

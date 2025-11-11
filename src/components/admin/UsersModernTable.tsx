@@ -251,27 +251,29 @@ export const UsersModernTable: React.FC<UsersModernTableProps> = ({
                         >
                           <Edit2 style={{ width: '16px', height: '16px' }} />
                         </button>
-                        <button
-                          onClick={() => onGeneratePassword(user.id)}
-                          style={{
-                            padding: '10px',
-                            color: '#2563EB',
-                            backgroundColor: 'transparent',
-                            border: '1px solid #BFDBFE',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#EFF6FF';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                          }}
-                          title="Generar contraseña"
-                        >
-                          <Key style={{ width: '16px', height: '16px' }} />
-                        </button>
+                        {user.rol !== 'admin' && (
+                          <button
+                            onClick={() => onGeneratePassword(user.id)}
+                            style={{
+                              padding: '10px',
+                              color: '#2563EB',
+                              backgroundColor: 'transparent',
+                              border: '1px solid #BFDBFE',
+                              borderRadius: '8px',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#EFF6FF';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                            }}
+                            title="Generar contraseña"
+                          >
+                            <Key style={{ width: '16px', height: '16px' }} />
+                          </button>
+                        )}
                         {user.rol !== 'admin' && (
                           <button
                             onClick={() => onDelete(user.id)}

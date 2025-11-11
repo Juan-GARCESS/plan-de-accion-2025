@@ -94,7 +94,7 @@ export default function AdminPage() {
       <SessionTimer 
         isAuthenticated={!!user} 
         onTimeout={logout}
-        timeoutMinutes={5}
+        timeoutMinutes={60}
       />
       
       <div style={{

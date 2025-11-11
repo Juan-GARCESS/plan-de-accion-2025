@@ -194,8 +194,8 @@ export default function EvidenciasAprobadas({ areaId }: EvidenciasAprobadasProps
             </div>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-              gap: 16
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: 12
             }}>
               {/* Búsqueda */}
               <div>
@@ -226,7 +226,8 @@ export default function EvidenciasAprobadas({ areaId }: EvidenciasAprobadasProps
                       border: '1px solid #d1d5db',
                       borderRadius: 8,
                       fontSize: 14,
-                      outline: 'none'
+                      outline: 'none',
+                      boxSizing: 'border-box'
                     }}
                     onFocus={(e) => e.target.style.borderColor = '#6366f1'}
                     onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
@@ -256,7 +257,8 @@ export default function EvidenciasAprobadas({ areaId }: EvidenciasAprobadasProps
                     fontSize: 14,
                     outline: 'none',
                     cursor: 'pointer',
-                    backgroundColor: '#fff'
+                    backgroundColor: '#fff',
+                    boxSizing: 'border-box'
                   }}
                 >
                   <option value="">Todas las metas</option>
@@ -288,7 +290,8 @@ export default function EvidenciasAprobadas({ areaId }: EvidenciasAprobadasProps
                     fontSize: 14,
                     outline: 'none',
                     cursor: 'pointer',
-                    backgroundColor: '#fff'
+                    backgroundColor: '#fff',
+                    boxSizing: 'border-box'
                   }}
                 >
                   <option value="">Todos los trimestres</option>

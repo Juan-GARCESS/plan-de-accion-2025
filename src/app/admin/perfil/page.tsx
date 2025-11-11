@@ -361,13 +361,13 @@ export default function PerfilAdminPage() {
           paddingTop: '32px',
           borderTop: '1px solid #e5e7eb',
           display: 'flex',
-          justifyContent: 'flex-end'
+          justifyContent: 'center'
         }}>
           <button
             onClick={handleSaveProfile}
             disabled={saving}
             style={{
-              padding: '12px 24px',
+              padding: '12px 32px',
               backgroundColor: saving ? '#9ca3af' : '#111827',
               color: '#ffffff',
               border: 'none',
@@ -375,7 +375,8 @@ export default function PerfilAdminPage() {
               fontSize: '0.875rem',
               fontWeight: '600',
               cursor: saving ? 'not-allowed' : 'pointer',
-              transition: 'background-color 0.2s'
+              transition: 'background-color 0.2s',
+              minWidth: '200px'
             }}
             onMouseEnter={(e) => {
               if (!saving) e.currentTarget.style.backgroundColor = '#000000';
