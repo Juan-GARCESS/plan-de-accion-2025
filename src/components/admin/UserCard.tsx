@@ -222,11 +222,6 @@ export const UserCard: React.FC<UserCardProps> = ({
               ✏️ Editar
             </button>
             <button
-              style={combineStyles(
-                styles.button.base,
-                styles.button.secondary,
-                { flex: 1, padding: '0.25rem 0.5rem', fontSize: '0.75rem' }
-              )}
               onClick={handleGeneratePassword}
               disabled={loading}
               style={{
