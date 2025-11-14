@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useResponsive } from "@/hooks/useResponsive";
+import { Building2, LayoutDashboard, Hand, Settings, LogOut } from 'lucide-react';
 
 export default function Navbar() {
   const router = useRouter();
@@ -49,10 +50,17 @@ export default function Navbar() {
             color: '#1f2937',
             backgroundColor: 'transparent',
             border: 'none',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem'
           }}
         >
-          {user.rol === 'admin' ? '🏢 Panel Administrativo' : '👤 Mi Dashboard'}
+          {user.rol === 'admin' ? (
+            <><Building2 size={24} /> Panel Administrativo</>
+          ) : (
+            <><LayoutDashboard size={24} /> Mi Dashboard</>
+          )}
         </button>
 
         <div style={{
@@ -64,9 +72,12 @@ export default function Navbar() {
           <span style={{
             color: '#111827',
             fontSize: '0.875rem',
-            fontWeight: '500'
+            fontWeight: '500',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.375rem'
           }}>
-            👋 {user.nombre}
+            <Hand size={16} /> {user.nombre}
           </span>
           
           {user.rol === 'admin' && (
@@ -80,10 +91,13 @@ export default function Navbar() {
                 backgroundColor: '#f9fafb',
                 border: '1px solid #d1d5db',
                 borderRadius: '0.5rem',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem'
               }}
             >
-              ⚙️ Gestión
+              <Settings size={16} /> Gestión
             </button>
           )}
           
@@ -97,10 +111,13 @@ export default function Navbar() {
               backgroundColor: '#dc2626',
               border: 'none',
               borderRadius: '0.5rem',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}
           >
-            Cerrar sesión
+            <LogOut size={16} /> Cerrar sesión
           </button>
         </div>
       </div>

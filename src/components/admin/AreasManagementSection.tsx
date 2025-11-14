@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { AreaForm } from './AreaForm';
 import { AreaCard } from './AreaCard';
 import type { Area } from '@/types';
+import { Building2, ArrowLeft } from 'lucide-react';
 
 interface AreasManagementSectionProps {
   areas: Area[];
@@ -105,9 +106,12 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
               fontSize: isMobile ? '16px' : '18px',
               fontWeight: '600',
               color: '#166534',
-              margin: 0
+              margin: 0,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}>
-              🏢 Áreas Existentes ({areas.length})
+              <Building2 size={20} /> Áreas Existentes ({areas.length})
             </h3>
             <p style={{
               fontSize: isMobile ? '12px' : '14px',
@@ -127,9 +131,13 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
                 borderBottom: '1px solid #fef3c7',
                 fontSize: '12px',
                 color: '#92400e',
-                textAlign: 'center'
+                textAlign: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem'
               }}>
-                👈 Desliza para ver más columnas
+                <ArrowLeft size={16} /> Desliza para ver más columnas
               </div>
             )}
             {areas.length === 0 ? (
@@ -138,7 +146,9 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
                 textAlign: 'center',
                 color: '#64748b'
               }}>
-                <div style={{ fontSize: '48px', marginBottom: '1rem' }}>🏢</div>
+                <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
+                  <Building2 size={64} strokeWidth={1.5} />
+                </div>
                 <h4 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 0.5rem 0' }}>
                   No hay áreas creadas
                 </h4>

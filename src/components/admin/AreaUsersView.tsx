@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import type { Usuario, TrimestreEstadistica } from '@/types';
+import { Crown, User as UserIcon } from 'lucide-react';
 
 interface AreaUsersViewProps {
   areaId: number;
@@ -148,8 +149,12 @@ export const AreaUsersView: React.FC<AreaUsersViewProps> = ({ areaId, areaName }
                   <td style={cellStyle}>
                     <div style={userInfoStyle}>
                       <strong>{user.nombre}</strong>
-                      <span style={userRoleStyle}>
-                        {user.rol === 'admin' ? '👑 Admin' : '👤 Usuario'}
+                      <span style={{ ...userRoleStyle, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                        {user.rol === 'admin' ? (
+                          <><Crown size={14} /> Admin</>
+                        ) : (
+                          <><UserIcon size={14} /> Usuario</>
+                        )}
                       </span>
                     </div>
                   </td>
