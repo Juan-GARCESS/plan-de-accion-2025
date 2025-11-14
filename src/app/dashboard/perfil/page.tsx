@@ -80,6 +80,11 @@ export default function PerfilUserPage() {
     }
   };
 
+  const handleRemovePhoto = () => {
+    setFotoUrl('');
+    toast.success('Foto de perfil eliminada');
+  };
+
   const handleSaveProfile = async () => {
     if (!nombre.trim()) {
       toast.error('El nombre es obligatorio');
@@ -244,27 +249,64 @@ export default function PerfilUserPage() {
             )}
           </div>
           
-          <label style={{
-            padding: '8px 16px',
-            backgroundColor: '#ffffff',
-            color: '#111827',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-            fontSize: '0.875rem',
-            fontWeight: '600',
-            cursor: uploading ? 'not-allowed' : 'pointer',
-            opacity: uploading ? 0.6 : 1,
-            transition: 'all 0.2s'
+          <div style={{
+            display: 'flex',
+            gap: '12px',
+            alignItems: 'center'
           }}>
-            {uploading ? 'Subiendo...' : '📷 Cambiar foto'}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoUpload}
-              disabled={uploading}
-              style={{ display: 'none' }}
-            />
-          </label>
+            <label style={{
+              padding: '8px 16px',
+              backgroundColor: '#ffffff',
+              color: '#111827',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px',
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              cursor: uploading ? 'not-allowed' : 'pointer',
+              opacity: uploading ? 0.6 : 1,
+              transition: 'all 0.2s'
+            }}>
+              {uploading ? 'Subiendo...' : '📷 Cambiar foto'}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                disabled={uploading}
+                style={{ display: 'none' }}
+              />
+            </label>
+            
+            {fotoUrl && (
+              <button
+                onClick={handleRemovePhoto}
+                disabled={uploading}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#ffffff',
+                  color: '#dc2626',
+                  border: '1px solid #fecaca',
+                  borderRadius: '8px',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: uploading ? 'not-allowed' : 'pointer',
+                  opacity: uploading ? 0.6 : 1,
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  if (!uploading) {
+                    e.currentTarget.style.backgroundColor = '#fef2f2';
+                    e.currentTarget.style.borderColor = '#dc2626';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ffffff';
+                  e.currentTarget.style.borderColor = '#fecaca';
+                }}
+              >
+                🗑️ Quitar foto
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Información del perfil */}
