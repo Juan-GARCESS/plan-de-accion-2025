@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import type { Area } from '@/types';
+import { Edit2, Trash2 } from 'lucide-react';
 
 interface AreaCardProps {
   area: Area;
@@ -98,7 +99,7 @@ export const AreaCard: React.FC<AreaCardProps> = ({
               gap: '0.5rem'
             }}
           >
-            ✏️ Editar
+            <Edit2 size={16} /> Editar
           </button>
           
           <button
@@ -117,7 +118,7 @@ export const AreaCard: React.FC<AreaCardProps> = ({
               gap: '0.5rem'
             }}
           >
-            🗑️ Eliminar
+            <Trash2 size={16} /> Eliminar
           </button>
         </div>
       </td>

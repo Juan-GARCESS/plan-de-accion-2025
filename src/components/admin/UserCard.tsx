@@ -8,6 +8,7 @@ import { useResponsive } from '@/hooks/useResponsive';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { styles, combineStyles } from '@/styles/components';
 import type { Usuario, Area } from '@/types';
+import { Key, Trash2 } from 'lucide-react';
 
 interface UserCardProps {
   user: Usuario;
@@ -228,19 +229,36 @@ export const UserCard: React.FC<UserCardProps> = ({
               )}
               onClick={handleGeneratePassword}
               disabled={loading}
+              style={{
+                ...combineStyles(
+                  styles.button.base,
+                  styles.button.secondary,
+                  { flex: 1, padding: '0.25rem 0.5rem', fontSize: '0.75rem' }
+                ),
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.25rem'
+              }}
             >
-              🔑 Nueva Clave
+              <Key size={14} /> Nueva Clave
             </button>
             <button
-              style={combineStyles(
-                styles.button.base,
-                styles.button.danger,
-                { flex: 1, padding: '0.25rem 0.5rem', fontSize: '0.75rem' }
-              )}
+              style={{
+                ...combineStyles(
+                  styles.button.base,
+                  styles.button.danger,
+                  { flex: 1, padding: '0.25rem 0.5rem', fontSize: '0.75rem' }
+                ),
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.25rem'
+              }}
               onClick={handleDelete}
               disabled={loading}
             >
-              🗑️ Eliminar
+              <Trash2 size={14} /> Eliminar
             </button>
           </div>
         )}

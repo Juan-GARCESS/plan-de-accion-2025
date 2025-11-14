@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { colors, spacing } from '@/lib/styleUtils';
-import { Star, TrendingUp } from 'lucide-react';
+import { Star, TrendingUp, Trash2, Loader2 } from 'lucide-react';
 
 interface Evidencia {
   id: number;
@@ -799,11 +799,14 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                     borderRadius: 8,
                     cursor: 'pointer',
                     fontSize: '0.75rem',
-                    fontWeight: '600'
+                    fontWeight: '600',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}
                   title="Eliminar evidencia"
                 >
-                  🗑️
+                  <Trash2 size={16} />
                 </button>
               </div>
             </div>
@@ -1265,10 +1268,18 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                   cursor: submitting ? 'not-allowed' : 'pointer',
                   fontSize: '0.875rem',
                   fontWeight: '600',
-                  opacity: submitting ? 0.6 : 1
+                  opacity: submitting ? 0.6 : 1,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem'
                 }}
               >
-                {submitting ? '⏳ Eliminando...' : '🗑️ Eliminar'}
+                {submitting ? (
+                  <><Loader2 size={16} className="animate-spin" /> Eliminando...</>
+                ) : (
+                  <><Trash2 size={16} /> Eliminar</>
+                )}
               </button>
 
               <button
