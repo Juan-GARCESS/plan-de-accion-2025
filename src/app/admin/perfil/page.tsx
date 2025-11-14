@@ -1,4 +1,5 @@
 // src/app/admin/perfil/page.tsx
+// Versión sin fotos - Última actualización: 2025-01-14
 'use client';
 
 import React, { useState, useEffect } from 'react';
