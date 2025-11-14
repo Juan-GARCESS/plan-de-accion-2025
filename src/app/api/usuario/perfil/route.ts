@@ -26,11 +26,10 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'El nombre es obligatorio' }, { status: 400 });
     }
 
-    // Actualizar perfil en la base de datos
-    // Por ahora solo actualizamos el nombre ya que foto_url no existe en la tabla
+    // Actualizar perfil en la base de datos incluyendo foto_url
     await db.query(
-      'UPDATE usuarios SET nombre = $1 WHERE id = $2',
-      [nombre.trim(), userId]
+      'UPDATE usuarios SET nombre = $1, foto_url = $2 WHERE id = $3',
+      [nombre.trim(), foto_url || null, userId]
     );
 
     return NextResponse.json({

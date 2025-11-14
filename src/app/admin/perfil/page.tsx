@@ -20,8 +20,7 @@ export default function PerfilAdminPage() {
     if (user) {
       setNombre(user.nombre || '');
       setEmail(user.email || '');
-      // Por ahora no hay foto_url en la base de datos
-      setFotoUrl('');
+      setFotoUrl((user as any).foto_url || '');
     }
   }, [user]);
 
@@ -207,17 +206,29 @@ export default function PerfilAdminPage() {
             marginBottom: '16px'
           }}>
             {fotoUrl ? (
-              <Image
-                src={fotoUrl}
-                alt="Foto de perfil"
-                width={120}
-                height={120}
-                style={{
-                  borderRadius: '50%',
-                  objectFit: 'cover',
-                  border: '4px solid #e5e7eb'
-                }}
-              />
+              <div style={{
+                width: 120,
+                height: 120,
+                borderRadius: '50%',
+                overflow: 'hidden',
+                border: '4px solid #e5e7eb',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#f3f4f6'
+              }}>
+                <Image
+                  src={fotoUrl}
+                  alt="Foto de perfil"
+                  width={120}
+                  height={120}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                />
+              </div>
             ) : (
               <div style={{
                 width: 120,

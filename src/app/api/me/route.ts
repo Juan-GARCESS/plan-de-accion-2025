@@ -11,7 +11,7 @@ export async function GET(req: Request) {
     if (!userId) return NextResponse.json({ error: "No logueado" }, { status: 401 });
 
     const result = await db.query(
-      "SELECT id, nombre, email, estado, area_id, rol FROM usuarios WHERE id = $1",
+      "SELECT id, nombre, email, estado, area_id, rol, foto_url FROM usuarios WHERE id = $1",
       [userId]
     );
 
