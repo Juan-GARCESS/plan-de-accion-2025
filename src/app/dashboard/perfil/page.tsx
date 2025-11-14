@@ -5,8 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { ArrowLeft, User, Camera, Trash2, Save, Building2 } from 'lucide-react';
+import { ArrowLeft, User, Save, Building2 } from 'lucide-react';
 
 export default function PerfilUserPage() {
   const router = useRouter();
@@ -14,15 +13,12 @@ export default function PerfilUserPage() {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [area, setArea] = useState('');
-  const [fotoUrl, setFotoUrl] = useState('');
-  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (user) {
       setNombre(user.nombre || '');
       setEmail(user.email || '');
-      setFotoUrl((user as any).foto_url || '');
       fetchAreaName();
     }
   }, [user]);
@@ -41,63 +37,6 @@ export default function PerfilUserPage() {
     }
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    console.log('Archivo seleccionado:', file.name, file.type, file.size);
-
-    if (!file.type.startsWith('image/')) {
-      toast.error('Solo se permiten imágenes');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('La imagen debe pesar menos de 5MB');
-      return;
-    }
-
-    setUploading(true);
-    
-    try {
-      console.log('Iniciando subida...');
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', 'profile');
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      console.log('Response status:', response.status);
-      const data = await response.json();
-      console.log('Response data:', data);
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al subir la imagen');
-      }
-
-      if (!data.url) {
-        throw new Error('No se recibi\u00f3 URL de la imagen');
-      }
-
-      console.log('URL recibida:', data.url);
-      setFotoUrl(data.url);
-      toast.success('Foto subida correctamente. Haz clic en "Guardar cambios" para confirmar.');
-    } catch (error) {
-      console.error('Error al subir foto:', error);
-      toast.error(error instanceof Error ? error.message : 'Error al subir la foto');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleRemovePhoto = () => {
-    setFotoUrl('');
-    toast.success('Foto de perfil eliminada');
-  };
-
   const handleSaveProfile = async () => {
     if (!nombre.trim()) {
       toast.error('El nombre es obligatorio');
@@ -106,7 +45,6 @@ export default function PerfilUserPage() {
 
     console.log('Guardando perfil...');
     console.log('Nombre:', nombre);
-    console.log('Foto URL:', fotoUrl);
 
     setSaving(true);
 
@@ -118,7 +56,6 @@ export default function PerfilUserPage() {
         },
         body: JSON.stringify({
           nombre: nombre.trim(),
-          foto_url: fotoUrl || null,
         }),
       });
 
@@ -233,132 +170,6 @@ export default function PerfilUserPage() {
         borderRadius: '12px',
         padding: '32px'
       }}>
-        {/* Foto de perfil */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          marginBottom: '32px',
-          paddingBottom: '32px',
-          borderBottom: '1px solid #e5e7eb'
-        }}>
-          <div style={{
-            position: 'relative',
-            marginBottom: '16px'
-          }}>
-            {fotoUrl ? (
-              <div style={{
-                width: 120,
-                height: 120,
-                borderRadius: '50%',
-                overflow: 'hidden',
-                border: '4px solid #e5e7eb',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#f3f4f6'
-              }}>
-                <Image
-                  src={fotoUrl}
-                  alt="Foto de perfil"
-                  width={120}
-                  height={120}
-                  unoptimized
-                  onError={() => setFotoUrl('')}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover'
-                  }}
-                />
-              </div>
-            ) : (
-              <div style={{
-                width: 120,
-                height: 120,
-                borderRadius: '50%',
-                backgroundColor: '#f3f4f6',
-                border: '4px solid #e5e7eb',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '3rem',
-                color: '#111827',
-                fontWeight: '700'
-              }}>
-                {nombre ? nombre[0].toUpperCase() : 'U'}
-              </div>
-            )}
-          </div>
-          
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-            alignItems: 'center'
-          }}>
-            <label style={{
-              padding: '8px 16px',
-              backgroundColor: '#ffffff',
-              color: '#111827',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              fontSize: '0.875rem',
-              fontWeight: '600',
-              cursor: uploading ? 'not-allowed' : 'pointer',
-              opacity: uploading ? 0.6 : 1,
-              transition: 'all 0.2s',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <Camera size={16} />
-              {uploading ? 'Subiendo...' : (fotoUrl ? 'Cambiar foto' : 'Subir foto')}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoUpload}
-                disabled={uploading}
-                style={{ display: 'none' }}
-              />
-            </label>
-            
-            {fotoUrl && (
-              <button
-                onClick={handleRemovePhoto}
-                disabled={uploading}
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor: '#ffffff',
-                  color: '#dc2626',
-                  border: '1px solid #fecaca',
-                  borderRadius: '8px',
-                  fontSize: '0.875rem',
-                  fontWeight: '600',
-                  cursor: uploading ? 'not-allowed' : 'pointer',
-                  opacity: uploading ? 0.6 : 1,
-                  transition: 'all 0.2s',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-                onMouseEnter={(e) => {
-                  if (!uploading) {
-                    e.currentTarget.style.backgroundColor = '#fef2f2';
-                    e.currentTarget.style.borderColor = '#dc2626';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#ffffff';
-                  e.currentTarget.style.borderColor = '#fecaca';
-                }}
-              >
-                <Trash2 size={16} />
-                Quitar foto
-              </button>
-            )}
-          </div>
-        </div>
-
         {/* Información del perfil */}
         <div style={{
           display: 'grid',

@@ -21,7 +21,56 @@ export default function PerfilAdminPage() {
     }
   }, [user]);
 
-  const handleSaveProfile = async () => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    console.log('Archivo seleccionado:', file.name, file.type, file.size);
+
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+      toast.error('Solo se permiten imágenes');
+      return;
+    }
+
+    // Validar tamaño (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('La imagen debe pesar menos de 5MB');
+      return;
+    }
+
+    setUploading(true);
+    
+    try {
+      console.log('Iniciando subida...');
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'profile');
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      console.log('Response status:', response.status);
+      const data = await response.json();
+      console.log('Response data:', data);
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al subir la imagen');
+      }
+
+      if (!data.url) {
+        throw new Error('No se recibi\u00f3 URL de la imagen');
+      }
+
+      console.log('URL recibida:', data.url);
+      setFotoUrl(data.url);
+      toast.success('Foto subida correctamente. Haz clic en "Guardar cambios" para confirmar.');
+    } catch (error) {
+      console.error('Error al subir foto:', error);
+      toast.error(error instanceof Error ? error.message : 'Error al subir la foto');
+  const handleSaveProfile = async () {
     if (!nombre.trim()) {
       toast.error('El nombre es obligatorio');
       return;
