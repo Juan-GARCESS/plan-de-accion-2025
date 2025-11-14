@@ -469,7 +469,7 @@ export const UsersSectionImproved: React.FC<UsersSectionProps> = ({
             areas={areasArray}
             onEdit={() => {}}
             onDelete={() => {}}
-            onApprove={(userId) => handleApprove(userId)}
+            onApprove={(userId, areaId) => onApprove(userId, areaId)}
             onReject={handleReject}
             onGeneratePassword={async () => {}}
             getAreaName={getAreaName}

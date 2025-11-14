@@ -13,7 +13,7 @@ interface UsersModernTableProps {
   areas: Array<{ id: number; nombre_area: string }>;
   onEdit: (user: Usuario) => void;
   onDelete: (userId: number) => void;
-  onApprove: (userId: number) => void;
+  onApprove: (userId: number, areaId: number) => void;
   onReject: (userId: number) => void;
   onGeneratePassword: (userId: number) => void;
   getAreaName: (areaId: number | null) => string;
@@ -22,12 +22,16 @@ interface UsersModernTableProps {
 export const UsersModernTable: React.FC<UsersModernTableProps> = ({
   usuarios,
   isPending = false,
+  areas,
   onEdit,
   onDelete,
+  onApprove,
+  onReject,
   onGeneratePassword,
   getAreaName,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedArea, setSelectedArea] = useState<{[key: number]: number}>({});
 
   // Filtrar usuarios
   const filteredUsers = usuarios.filter(user => {
@@ -207,12 +211,44 @@ export const UsersModernTable: React.FC<UsersModernTableProps> = ({
 
                     {/* Área */}
                     <td style={{ padding: '16px 24px', whiteSpace: 'nowrap' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Building2 style={{ width: '16px', height: '16px', color: '#9CA3AF' }} />
-                        <span style={{ fontSize: '14px', color: '#111827' }}>
-                          {getAreaName(user.area_id)}
-                        </span>
-                      </div>
+                      {isPending ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <Building2 style={{ width: '14px', height: '14px', color: '#9CA3AF' }} />
+                            <span style={{ fontSize: '13px', color: '#6B7280', fontStyle: 'italic' }}>
+                              Solicita: {user.area_solicitada || 'No especificada'}
+                            </span>
+                          </div>
+                          <select
+                            value={selectedArea[user.id] || ''}
+                            onChange={(e) => setSelectedArea({...selectedArea, [user.id]: parseInt(e.target.value)})}
+                            style={{
+                              padding: '6px 8px',
+                              fontSize: '13px',
+                              border: '1px solid #D1D5DB',
+                              borderRadius: '6px',
+                              outline: 'none',
+                              backgroundColor: 'white',
+                              cursor: 'pointer',
+                              minWidth: '150px'
+                            }}
+                          >
+                            <option value="">Seleccionar área</option>
+                            {areas.map((area) => (
+                              <option key={area.id} value={area.id}>
+                                {area.nombre_area}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Building2 style={{ width: '16px', height: '16px', color: '#9CA3AF' }} />
+                          <span style={{ fontSize: '14px', color: '#111827' }}>
+                            {getAreaName(user.area_id)}
+                          </span>
+                        </div>
+                      )}
                     </td>
 
                     {/* Rol */}
@@ -224,80 +260,147 @@ export const UsersModernTable: React.FC<UsersModernTableProps> = ({
 
                     {/* Acciones */}
                     <td style={{ padding: '16px 24px', whiteSpace: 'nowrap' }}>
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center', 
-                        gap: '4px' 
-                      }}>
-                        <button
-                          onClick={() => onEdit(user)}
-                          style={{
-                            padding: '10px',
-                            color: '#374151',
-                            backgroundColor: 'transparent',
-                            border: '1px solid #E5E7EB',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#F3F4F6';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                          }}
-                          title="Editar"
-                        >
-                          <Edit2 style={{ width: '16px', height: '16px' }} />
-                        </button>
-                        {user.rol !== 'admin' && (
+                      {isPending ? (
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          gap: '6px' 
+                        }}>
                           <button
-                            onClick={() => onGeneratePassword(user.id)}
+                            onClick={() => {
+                              if (!selectedArea[user.id]) {
+                                alert('Por favor selecciona un área antes de aprobar');
+                                return;
+                              }
+                              onApprove(user.id, selectedArea[user.id]);
+                            }}
+                            disabled={!selectedArea[user.id]}
+                            style={{
+                              padding: '8px 16px',
+                              fontSize: '13px',
+                              fontWeight: '500',
+                              color: 'white',
+                              backgroundColor: selectedArea[user.id] ? '#10B981' : '#9CA3AF',
+                              border: 'none',
+                              borderRadius: '6px',
+                              cursor: selectedArea[user.id] ? 'pointer' : 'not-allowed',
+                              transition: 'all 0.2s',
+                            }}
+                            onMouseEnter={(e) => {
+                              if (selectedArea[user.id]) {
+                                e.currentTarget.style.backgroundColor = '#059669';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (selectedArea[user.id]) {
+                                e.currentTarget.style.backgroundColor = '#10B981';
+                              }
+                            }}
+                            title={selectedArea[user.id] ? "Aprobar usuario" : "Selecciona un área primero"}
+                          >
+                            ✓ Aprobar
+                          </button>
+                          <button
+                            onClick={() => onReject(user.id)}
+                            style={{
+                              padding: '8px 16px',
+                              fontSize: '13px',
+                              fontWeight: '500',
+                              color: 'white',
+                              backgroundColor: '#EF4444',
+                              border: 'none',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#DC2626';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = '#EF4444';
+                            }}
+                            title="Rechazar usuario"
+                          >
+                            ✕ Rechazar
+                          </button>
+                        </div>
+                      ) : (
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          gap: '4px' 
+                        }}>
+                          <button
+                            onClick={() => onEdit(user)}
                             style={{
                               padding: '10px',
-                              color: '#2563EB',
+                              color: '#374151',
                               backgroundColor: 'transparent',
-                              border: '1px solid #BFDBFE',
+                              border: '1px solid #E5E7EB',
                               borderRadius: '8px',
                               cursor: 'pointer',
                               transition: 'all 0.2s',
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#EFF6FF';
+                              e.currentTarget.style.backgroundColor = '#F3F4F6';
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.backgroundColor = 'transparent';
                             }}
-                            title="Generar contraseña"
+                            title="Editar"
                           >
-                            <Key style={{ width: '16px', height: '16px' }} />
+                            <Edit2 style={{ width: '16px', height: '16px' }} />
                           </button>
-                        )}
-                        {user.rol !== 'admin' && (
-                          <button
-                            onClick={() => onDelete(user.id)}
-                            style={{
-                              padding: '10px',
-                              color: '#DC2626',
-                              backgroundColor: 'transparent',
-                              border: '1px solid #FECACA',
-                              borderRadius: '8px',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#FEF2F2';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                            }}
-                            title="Eliminar"
-                          >
-                            <Trash2 style={{ width: '16px', height: '16px' }} />
-                          </button>
-                        )}
-                      </div>
+                          {user.rol !== 'admin' && (
+                            <button
+                              onClick={() => onGeneratePassword(user.id)}
+                              style={{
+                                padding: '10px',
+                                color: '#2563EB',
+                                backgroundColor: 'transparent',
+                                border: '1px solid #BFDBFE',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#EFF6FF';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                              }}
+                              title="Generar contraseña"
+                            >
+                              <Key style={{ width: '16px', height: '16px' }} />
+                            </button>
+                          )}
+                          {user.rol !== 'admin' && (
+                            <button
+                              onClick={() => onDelete(user.id)}
+                              style={{
+                                padding: '10px',
+                                color: '#DC2626',
+                                backgroundColor: 'transparent',
+                                border: '1px solid #FECACA',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#FEF2F2';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                              }}
+                              title="Eliminar"
+                            >
+                              <Trash2 style={{ width: '16px', height: '16px' }} />
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))
