@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { ArrowLeft, User, Camera, Trash2, Save, Building2 } from 'lucide-react';
 
 export default function PerfilUserPage() {
   const router = useRouter();
@@ -44,6 +45,8 @@ export default function PerfilUserPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    console.log('Archivo seleccionado:', file.name, file.type, file.size);
+
     if (!file.type.startsWith('image/')) {
       toast.error('Solo se permiten imágenes');
       return;
@@ -57,6 +60,7 @@ export default function PerfilUserPage() {
     setUploading(true);
     
     try {
+      console.log('Iniciando subida...');
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', 'profile');
@@ -66,16 +70,24 @@ export default function PerfilUserPage() {
         body: formData,
       });
 
+      console.log('Response status:', response.status);
+      const data = await response.json();
+      console.log('Response data:', data);
+
       if (!response.ok) {
-        throw new Error('Error al subir la imagen');
+        throw new Error(data.error || 'Error al subir la imagen');
       }
 
-      const data = await response.json();
+      if (!data.url) {
+        throw new Error('No se recibi\u00f3 URL de la imagen');
+      }
+
+      console.log('URL recibida:', data.url);
       setFotoUrl(data.url);
-      toast.success('Foto actualizada correctamente');
+      toast.success('Foto subida correctamente. Haz clic en "Guardar cambios" para confirmar.');
     } catch (error) {
       console.error('Error al subir foto:', error);
-      toast.error('Error al subir la foto');
+      toast.error(error instanceof Error ? error.message : 'Error al subir la foto');
     } finally {
       setUploading(false);
     }
@@ -92,6 +104,10 @@ export default function PerfilUserPage() {
       return;
     }
 
+    console.log('Guardando perfil...');
+    console.log('Nombre:', nombre);
+    console.log('Foto URL:', fotoUrl);
+
     setSaving(true);
 
     try {
@@ -101,14 +117,17 @@ export default function PerfilUserPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          nombre,
-          foto_url: fotoUrl,
+          nombre: nombre.trim(),
+          foto_url: fotoUrl || null,
         }),
       });
 
+      console.log('Save response status:', response.status);
+      const responseData = await response.json().catch(() => ({ error: 'Error desconocido' }));
+      console.log('Save response data:', responseData);
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Error desconocido' }));
-        throw new Error(errorData.error || 'Error al actualizar perfil');
+        throw new Error(responseData.error || 'Error al actualizar perfil');
       }
 
       toast.success('Perfil actualizado correctamente');
@@ -183,7 +202,8 @@ export default function PerfilUserPage() {
             e.currentTarget.style.borderColor = '#e5e7eb';
           }}
         >
-          ← Volver al Dashboard
+          <ArrowLeft size={16} />
+          Volver al Dashboard
         </button>
         <h1 style={{
           fontSize: '2rem',
@@ -194,7 +214,8 @@ export default function PerfilUserPage() {
           alignItems: 'center',
           gap: '12px'
         }}>
-          👤 Mi Perfil
+          <User size={32} />
+          Mi Perfil
         </h1>
         <p style={{
           fontSize: '0.875rem',
@@ -285,9 +306,13 @@ export default function PerfilUserPage() {
               fontWeight: '600',
               cursor: uploading ? 'not-allowed' : 'pointer',
               opacity: uploading ? 0.6 : 1,
-              transition: 'all 0.2s'
+              transition: 'all 0.2s',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px'
             }}>
-              {uploading ? 'Subiendo...' : (fotoUrl ? '📷 Cambiar foto' : '📷 Subir foto')}
+              <Camera size={16} />
+              {uploading ? 'Subiendo...' : (fotoUrl ? 'Cambiar foto' : 'Subir foto')}
               <input
                 type="file"
                 accept="image/*"
@@ -311,7 +336,10 @@ export default function PerfilUserPage() {
                   fontWeight: '600',
                   cursor: uploading ? 'not-allowed' : 'pointer',
                   opacity: uploading ? 0.6 : 1,
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
                 }}
                 onMouseEnter={(e) => {
                   if (!uploading) {
@@ -324,7 +352,8 @@ export default function PerfilUserPage() {
                   e.currentTarget.style.borderColor = '#fecaca';
                 }}
               >
-                🗑️ Quitar foto
+                <Trash2 size={16} />
+                Quitar foto
               </button>
             )}
           </div>
@@ -423,8 +452,12 @@ export default function PerfilUserPage() {
               borderRadius: '8px',
               fontSize: '0.875rem',
               backgroundColor: '#f9fafb',
-              color: '#6b7280'
+              color: '#6b7280',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}>
+              <Building2 size={16} />
               {area || 'Sin área asignada'}
             </div>
           </div>
@@ -451,7 +484,11 @@ export default function PerfilUserPage() {
               fontWeight: '600',
               cursor: saving ? 'not-allowed' : 'pointer',
               transition: 'background-color 0.2s',
-              minWidth: '200px'
+              minWidth: '200px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
             }}
             onMouseEnter={(e) => {
               if (!saving) e.currentTarget.style.backgroundColor = '#000000';
@@ -460,7 +497,8 @@ export default function PerfilUserPage() {
               if (!saving) e.currentTarget.style.backgroundColor = '#111827';
             }}
           >
-            {saving ? 'Guardando...' : '💾 Guardar cambios'}
+            <Save size={16} />
+            {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
         </div>
       </div>
