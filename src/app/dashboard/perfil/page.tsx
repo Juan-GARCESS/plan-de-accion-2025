@@ -107,13 +107,19 @@ export default function PerfilUserPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Error al actualizar perfil');
+        const errorData = await response.json().catch(() => ({ error: 'Error desconocido' }));
+        throw new Error(errorData.error || 'Error al actualizar perfil');
       }
 
       toast.success('Perfil actualizado correctamente');
+      
+      // Recargar la página para actualizar la sesión
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       console.error('Error al guardar perfil:', error);
-      toast.error('Error al actualizar el perfil');
+      toast.error(error instanceof Error ? error.message : 'Error al actualizar el perfil');
     } finally {
       setSaving(false);
     }
@@ -236,6 +242,8 @@ export default function PerfilUserPage() {
                   alt="Foto de perfil"
                   width={120}
                   height={120}
+                  unoptimized
+                  onError={() => setFotoUrl('')}
                   style={{
                     width: '100%',
                     height: '100%',
