@@ -266,7 +266,7 @@ export default function PerfilUserPage() {
               opacity: uploading ? 0.6 : 1,
               transition: 'all 0.2s'
             }}>
-              {uploading ? 'Subiendo...' : '📷 Cambiar foto'}
+              {uploading ? 'Subiendo...' : (fotoUrl ? '📷 Cambiar foto' : '📷 Subir foto')}
               <input
                 type="file"
                 accept="image/*"
