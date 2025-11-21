@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import type { Usuario, TrimestreEstadistica } from '@/types';
-import { Crown, User as UserIcon } from 'lucide-react';
+import { Crown, User as UserIcon, ClipboardList, CheckCircle, XCircle, Check, X, Edit2 } from 'lucide-react';
 
 interface AreaUsersViewProps {
   areaId: number;
@@ -119,7 +119,10 @@ export const AreaUsersView: React.FC<AreaUsersViewProps> = ({ areaId, areaName }
   return (
     <div style={containerStyle}>
       <div style={headerStyle}>
-        <h2 style={titleStyle}>📋 {areaName}</h2>
+        <h2 style={{ ...titleStyle, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <ClipboardList size={24} />
+          {areaName}
+        </h2>
         <p style={subtitleStyle}>
           Gestión de usuarios y metas trimestrales
         </p>
@@ -210,9 +213,15 @@ const TrimestreCell: React.FC<TrimestreCellProps> = ({
     <div style={trimestreCellStyle}>
       <div style={statusStyle}>
         {participando ? (
-          <span style={participatingStyle}>✅ Participa</span>
+          <span style={{ ...participatingStyle, display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <CheckCircle size={14} />
+            Participa
+          </span>
         ) : (
-          <span style={notParticipatingStyle}>❌ No participa</span>
+          <span style={{ ...notParticipatingStyle, display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <XCircle size={14} />
+            No participa
+          </span>
         )}
       </div>
       
@@ -227,11 +236,11 @@ const TrimestreCell: React.FC<TrimestreCellProps> = ({
                 placeholder="Ingrese la meta..."
               />
               <div style={buttonsStyle}>
-                <button onClick={handleSave} style={saveButtonStyle}>
-                  ✓
+                <button onClick={handleSave} style={{ ...saveButtonStyle, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Check size={16} />
                 </button>
-                <button onClick={handleCancel} style={cancelButtonStyle}>
-                  ✕
+                <button onClick={handleCancel} style={{ ...cancelButtonStyle, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <X size={16} />
                 </button>
               </div>
             </div>
@@ -242,9 +251,9 @@ const TrimestreCell: React.FC<TrimestreCellProps> = ({
               </p>
               <button
                 onClick={() => setIsEditing(true)}
-                style={editButtonStyle}
+                style={{ ...editButtonStyle, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
-                ✏️
+                <Edit2 size={14} />
               </button>
             </div>
           )}

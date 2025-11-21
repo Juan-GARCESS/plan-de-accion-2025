@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { AreaForm } from './AreaForm';
 import { AreaCard } from './AreaCard';
 import type { Area } from '@/types';
-import { Building2, ArrowLeft } from 'lucide-react';
+import { Building2, ArrowLeft, Edit2, Plus } from 'lucide-react';
 
 interface AreasManagementSectionProps {
   areas: Area[];
@@ -66,8 +66,11 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
               fontWeight: '600',
               color: '#0c4a6e',
               margin: 0
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
             }}>
-              {editingArea ? "✏️ Editar Área" : "➕ Crear Nueva Área"}
+              {editingArea ? <><Edit2 size={18} /> Editar Área</> : <><Plus size={18} /> Crear Nueva Área</>}
             </h3>
             <p style={{
               fontSize: isMobile ? '12px' : '14px',
