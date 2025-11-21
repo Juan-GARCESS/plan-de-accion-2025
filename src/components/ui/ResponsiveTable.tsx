@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
 
 interface ResponsiveTableProps {
   children: React.ReactNode;
@@ -46,7 +47,7 @@ export const ResponsiveTable: React.FC<ResponsiveTableProps> = ({
           alignItems: 'center',
           gap: '6px'
         }}>
-          <span>👈</span>
+          <ArrowLeft size={16} />
           <span>Desliza para ver más</span>
         </div>
       )}

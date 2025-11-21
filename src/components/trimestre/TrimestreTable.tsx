@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { colors, spacing } from '@/lib/styleUtils';
 import { EvidenciaUploader } from '@/components/evidencias/EvidenciaUploader';
+import { Lock, CheckCircle } from 'lucide-react';
 
 interface Meta {
   id: number;
@@ -164,7 +165,9 @@ export const TrimestreTable: React.FC<TrimestreTableProps> = ({
         padding: 40,
         textAlign: 'center'
       }}>
-        <span style={{ fontSize: '3rem', marginBottom: 16, display: 'block' }}>🔒</span>
+        <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center', color: colors.gray[400] }}>
+          <Lock size={48} />
+        </div>
         <h3 style={{ margin: '0 0 8px 0', color: colors.gray[800] }}>
           Trimestre no habilitado
         </h3>
@@ -199,7 +202,9 @@ export const TrimestreTable: React.FC<TrimestreTableProps> = ({
         padding: 40,
         textAlign: 'center'
       }}>
-        <span style={{ fontSize: '3rem', marginBottom: 16, display: 'block' }}>✅</span>
+        <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center', color: '#10b981' }}>
+          <CheckCircle size={48} />
+        </div>
         <h3 style={{ margin: '0 0 8px 0', color: colors.gray[800] }}>
           Trimestre {trimestreId} Habilitado
         </h3>

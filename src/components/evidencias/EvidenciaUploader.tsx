@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { colors, spacing } from '@/lib/styleUtils';
+import { Eye, RefreshCw, Loader2, Paperclip } from 'lucide-react';
 
 interface EvidenciaUploaderProps {
   metaId: number;
@@ -147,7 +148,8 @@ export const EvidenciaUploader: React.FC<EvidenciaUploaderProps> = ({
               gap: 4
             }}
           >
-            ✓ Ver evidencia
+            <Eye size={14} />
+            Ver evidencia
           </button>
           
           <label style={{ cursor: 'pointer' }}>
@@ -166,9 +168,11 @@ export const EvidenciaUploader: React.FC<EvidenciaUploaderProps> = ({
               borderRadius: 6,
               fontSize: '0.75rem',
               fontWeight: '600',
-              display: 'inline-block'
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
             }}>
-              {uploading ? '⏳ Subiendo...' : '🔄 Cambiar'}
+              {uploading ? <><Loader2 size={14} className="animate-spin" /> Subiendo...</> : <><RefreshCw size={14} /> Cambiar</>}
             </span>
           </label>
         </div>
@@ -191,9 +195,12 @@ export const EvidenciaUploader: React.FC<EvidenciaUploaderProps> = ({
             fontSize: '0.75rem',
             fontWeight: '600',
             display: 'inline-block',
-            opacity: uploading ? 0.6 : 1
+            opacity: uploading ? 0.6 : 1,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px'
           }}>
-            {uploading ? '⏳ Subiendo...' : '📎 Subir evidencia'}
+            {uploading ? <><Loader2 size={14} className="animate-spin" /> Subiendo...</> : <><Paperclip size={14} /> Subir evidencia</>}
           </span>
         </label>
       )}

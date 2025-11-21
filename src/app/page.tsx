@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Check } from 'lucide-react'
 
 function LoginForm() {
   const [formData, setFormData] = useState({
@@ -409,9 +409,12 @@ function LoginForm() {
                 backdropFilter: 'blur(10px)',
                 fontSize: '10px',
                 color: 'white',
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}>
-                {formData.remember && '✓'}
+                {formData.remember && <Check size={12} />}
               </span>
               <span style={{
                 color: 'rgba(0, 0, 0, 0.8)',

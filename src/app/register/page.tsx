@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Check, X, Info, Circle } from 'lucide-react'
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -280,7 +280,7 @@ export default function RegisterPage() {
               fontSize: '24px',
               color: 'white'
             }}>
-              {notification.type === 'success' ? '✓' : notification.type === 'error' ? '✕' : 'ℹ'}
+              {notification.type === 'success' ? <Check size={24} /> : notification.type === 'error' ? <X size={24} /> : <Info size={24} />}
             </div>
             <h3 style={{
               color: '#000000',
@@ -471,20 +471,20 @@ export default function RegisterPage() {
                   Requisitos de contraseña:
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <span style={{ color: formData.password.length >= 8 ? '#10b981' : '#6b7280' }}>
-                    {formData.password.length >= 8 ? '✓' : '○'} Mínimo 8 caracteres
+                  <span style={{ color: formData.password.length >= 8 ? '#10b981' : '#6b7280', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {formData.password.length >= 8 ? <Check size={14} /> : <Circle size={14} />} Mínimo 8 caracteres
                   </span>
-                  <span style={{ color: /[A-Z]/.test(formData.password) ? '#10b981' : '#6b7280' }}>
-                    {/[A-Z]/.test(formData.password) ? '✓' : '○'} Una letra mayúscula
+                  <span style={{ color: /[A-Z]/.test(formData.password) ? '#10b981' : '#6b7280', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {/[A-Z]/.test(formData.password) ? <Check size={14} /> : <Circle size={14} />} Una letra mayúscula
                   </span>
-                  <span style={{ color: /[a-z]/.test(formData.password) ? '#10b981' : '#6b7280' }}>
-                    {/[a-z]/.test(formData.password) ? '✓' : '○'} Una letra minúscula
+                  <span style={{ color: /[a-z]/.test(formData.password) ? '#10b981' : '#6b7280', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {/[a-z]/.test(formData.password) ? <Check size={14} /> : <Circle size={14} />} Una letra minúscula
                   </span>
-                  <span style={{ color: /[0-9]/.test(formData.password) ? '#10b981' : '#6b7280' }}>
-                    {/[0-9]/.test(formData.password) ? '✓' : '○'} Un número
+                  <span style={{ color: /[0-9]/.test(formData.password) ? '#10b981' : '#6b7280', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {/[0-9]/.test(formData.password) ? <Check size={14} /> : <Circle size={14} />} Un número
                   </span>
-                  <span style={{ color: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(formData.password) ? '#10b981' : '#6b7280' }}>
-                    {/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(formData.password) ? '✓' : '○'} Un símbolo (!@#$%...)
+                  <span style={{ color: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(formData.password) ? '#10b981' : '#6b7280', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(formData.password) ? <Check size={14} /> : <Circle size={14} />} Un símbolo (!@#$%...)
                   </span>
                 </div>
               </div>

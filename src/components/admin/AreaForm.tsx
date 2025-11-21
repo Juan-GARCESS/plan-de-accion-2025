@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import type { Area } from '@/types';
+import { FileText, ClipboardList, X, Loader2, Check, Plus } from 'lucide-react';
 
 interface AreaFormProps {
   area?: Area | null;
@@ -49,8 +50,9 @@ export const AreaForm: React.FC<AreaFormProps> = ({
     <form onSubmit={handleSubmit}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
         <div>
-          <label style={labelStyle}>
-            📝 Nombre del Área *
+          <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <FileText size={16} />
+            Nombre del Área *
           </label>
           <input
             type="text"
@@ -71,8 +73,9 @@ export const AreaForm: React.FC<AreaFormProps> = ({
         </div>
 
         <div>
-          <label style={labelStyle}>
-            📋 Descripción
+          <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <ClipboardList size={16} />
+            Descripción
           </label>
           <input
             type="text"
@@ -111,9 +114,13 @@ export const AreaForm: React.FC<AreaFormProps> = ({
             }}
             onMouseLeave={(e) => {
               if (!submitting) e.currentTarget.style.backgroundColor = '#6b7280';
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
             }}
           >
-            ❌ Cancelar
+            <X size={16} />
+            Cancelar
           </button>
         )}
         
@@ -130,9 +137,12 @@ export const AreaForm: React.FC<AreaFormProps> = ({
           }}
           onMouseLeave={(e) => {
             if (!submitting && nombre.trim()) e.currentTarget.style.backgroundColor = '#22c55e';
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
           }}
         >
-          {submitting ? '⏳ Guardando...' : (area ? '✅ Actualizar' : '➕ Crear Área')}
+          {submitting ? <><Loader2 size={16} /> Guardando...</> : area ? <><Check size={16} /> Actualizar</> : <><Plus size={16} /> Crear Área</>}
         </button>
       </div>
     </form>

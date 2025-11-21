@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { BarChart3, XCircle, Calendar, Target, Paperclip, CheckCircle, Upload, FileText, Star } from 'lucide-react';
 
 interface Informe {
   id: number;
@@ -119,15 +120,19 @@ export const UserInformesView: React.FC<UserInformesViewProps> = ({ userId }) =>
   return (
     <div style={containerStyle}>
       <div style={headerStyle}>
-        <h2 style={titleStyle}>📊 Mis Informes Trimestrales</h2>
+        <h2 style={{ ...titleStyle, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <BarChart3 size={24} />
+          Mis Informes Trimestrales
+        </h2>
         <p style={subtitleStyle}>
           Metas asignadas y estado de informes
         </p>
       </div>
 
       {error && (
-        <div style={errorStyle}>
-          ❌ {error}
+        <div style={{ ...errorStyle, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <XCircle size={18} />
+          {error}
         </div>
       )}
 
@@ -141,8 +146,9 @@ export const UserInformesView: React.FC<UserInformesViewProps> = ({ userId }) =>
           {informes.map(informe => (
             <div key={informe.id} style={informeCardStyle}>
               <div style={cardHeaderStyle}>
-                <h3 style={trimestreStyle}>
-                  🗓️ Trimestre {informe.trimestre} - {informe.año}
+                <h3 style={{ ...trimestreStyle, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Calendar size={18} />
+                  Trimestre {informe.trimestre} - {informe.año}
                 </h3>
                 <div 
                   style={{ 
@@ -157,15 +163,19 @@ export const UserInformesView: React.FC<UserInformesViewProps> = ({ userId }) =>
               <div style={cardContentStyle}>
                 {/* Meta */}
                 <div style={sectionStyle}>
-                  <h4 style={sectionTitleStyle}>🎯 Meta Asignada:</h4>
+                  <h4 style={{ ...sectionTitleStyle, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Target size={16} />
+                    Meta Asignada:
+                  </h4>
                   {informe.meta_trimestral ? (
                     <p style={metaTextStyle}>{informe.meta_trimestral}</p>
                   ) : (
                     <p style={noMetaStyle}>No hay meta asignada aún</p>
                   )}
                   {informe.fecha_meta_creada && (
-                    <p style={dateStyle}>
-                      📅 Asignada: {new Date(informe.fecha_meta_creada).toLocaleDateString()}
+                    <p style={{ ...dateStyle, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Calendar size={14} />
+                      Asignada: {new Date(informe.fecha_meta_creada).toLocaleDateString()}
                     </p>
                   )}
                 </div>
@@ -173,15 +183,20 @@ export const UserInformesView: React.FC<UserInformesViewProps> = ({ userId }) =>
                 {/* Subida de archivo */}
                 {informe.meta_trimestral && (
                   <div style={sectionStyle}>
-                    <h4 style={sectionTitleStyle}>📎 Informe:</h4>
+                    <h4 style={{ ...sectionTitleStyle, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Paperclip size={16} />
+                      Informe:
+                    </h4>
                     {informe.archivo ? (
                       <div style={fileInfoStyle}>
-                        <p style={fileNameStyle}>
-                          ✅ Archivo subido: {informe.archivo}
+                        <p style={{ ...fileNameStyle, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <CheckCircle size={16} />
+                          Archivo subido: {informe.archivo}
                         </p>
                         {informe.fecha_archivo_subido && (
-                          <p style={dateStyle}>
-                            📅 Subido: {new Date(informe.fecha_archivo_subido).toLocaleDateString()}
+                          <p style={{ ...dateStyle, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <Calendar size={14} />
+                            Subido: {new Date(informe.fecha_archivo_subido).toLocaleDateString()}
                           </p>
                         )}
                       </div>
@@ -200,7 +215,10 @@ export const UserInformesView: React.FC<UserInformesViewProps> = ({ userId }) =>
                           style={fileInputStyle}
                         />
                         {uploadingTrimestre === informe.trimestre && (
-                          <p style={uploadingStyle}>📤 Subiendo archivo...</p>
+                          <p style={{ ...uploadingStyle, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <Upload size={14} />
+                            Subiendo archivo...
+                          </p>
                         )}
                         {isUploadDisabled(informe) && (
                           <p style={disabledStyle}>
@@ -217,10 +235,14 @@ export const UserInformesView: React.FC<UserInformesViewProps> = ({ userId }) =>
                 {/* Calificación y comentarios */}
                 {(informe.calificacion || informe.comentario_admin) && (
                   <div style={sectionStyle}>
-                    <h4 style={sectionTitleStyle}>📝 Evaluación:</h4>
+                    <h4 style={{ ...sectionTitleStyle, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <FileText size={16} />
+                      Evaluación:
+                    </h4>
                     {informe.calificacion && (
-                      <p style={calificacionStyle}>
-                        ⭐ Calificación: {informe.calificacion}/100
+                      <p style={{ ...calificacionStyle, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Star size={16} />
+                        Calificación: {informe.calificacion}/100
                       </p>
                     )}
                     {informe.comentario_admin && (
@@ -234,8 +256,9 @@ export const UserInformesView: React.FC<UserInformesViewProps> = ({ userId }) =>
 
                 {/* Fechas del trimestre */}
                 <div style={periodInfoStyle}>
-                  <small style={periodTextStyle}>
-                    📅 Periodo: {new Date(informe.fecha_inicio).toLocaleDateString()} - {new Date(informe.fecha_fin).toLocaleDateString()}
+                  <small style={{ ...periodTextStyle, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Calendar size={14} />
+                    Periodo: {new Date(informe.fecha_inicio).toLocaleDateString()} - {new Date(informe.fecha_fin).toLocaleDateString()}
                   </small>
                 </div>
               </div>

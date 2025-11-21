@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { SessionTimer } from '@/components/SessionTimer';
 import { UserDashboardLayout } from '@/components/user/UserDashboardLayout';
 import EvidenciasAprobadas from '@/components/dashboard/EvidenciasAprobadas';
+import { ClipboardList, BarChart3, TrendingUp } from 'lucide-react';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -171,7 +172,7 @@ export default function DashboardPage() {
               e.currentTarget.style.boxShadow = '0 4px 12px rgba(17, 24, 39, 0.3)';
             }}
           >
-            <span style={{ fontSize: '1.5rem' }}>📋</span>
+            <ClipboardList size={24} />
             Plan de Acción
           </button>
         </div>
@@ -191,9 +192,13 @@ export default function DashboardPage() {
             marginBottom: 16,
             fontSize: isMobile ? '1.1rem' : '1.5rem',
             fontWeight: '600',
-            color: '#111827'
+            color: '#111827',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}>
-            📊 Plan de Acción por Trimestre
+            <BarChart3 size={24} />
+            Plan de Acción por Trimestre
           </h2>
           <p style={{ 
             margin: 0, 
@@ -239,7 +244,7 @@ export default function DashboardPage() {
                   e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
                 }}
               >
-                <span style={{ fontSize: '1.5rem', marginBottom: '2px' }}>📈</span>
+                <TrendingUp size={24} />
                 <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>
                   Trimestre {trimestre}
                 </span>

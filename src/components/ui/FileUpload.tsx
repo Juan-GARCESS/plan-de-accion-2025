@@ -3,6 +3,7 @@
 
 import React, { useState, useRef } from 'react';
 import { colors, spacing, borderRadius } from '@/lib/styleUtils';
+import { FileText, Sheet, ImageIcon, Paperclip, Upload, X, AlertCircle } from 'lucide-react';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -99,18 +100,18 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
 
-  const getFileIcon = (fileName: string): string => {
+  const getFileIcon = (fileName: string) => {
     const ext = fileName.split('.').pop()?.toLowerCase();
     switch (ext) {
-      case 'pdf': return '📄';
+      case 'pdf': return <FileText size={20} />;
       case 'doc':
-      case 'docx': return '📝';
+      case 'docx': return <FileText size={20} />;
       case 'xls':
-      case 'xlsx': return '📊';
+      case 'xlsx': return <Sheet size={20} />;
       case 'jpg':
       case 'jpeg':
-      case 'png': return '🖼️';
-      default: return '📎';
+      case 'png': return <ImageIcon size={20} />;
+      default: return <Paperclip size={20} />;
     }
   };
 
@@ -144,10 +145,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           }}
         >
           <div style={{
-            fontSize: '3rem',
-            marginBottom: spacing.md
+            marginBottom: spacing.md,
+            color: colors.gray[400]
           }}>
-            📤
+            <Upload size={48} />
           </div>
           <p style={{
             fontSize: '1rem',
@@ -240,7 +241,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                 }
               }}
             >
-              ✕ Quitar
+              <X size={16} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }} />
+              Quitar
             </button>
           </div>
         </div>
@@ -254,9 +256,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           borderRadius: borderRadius.md,
           border: '1px solid #fecaca',
           color: '#dc2626',
-          fontSize: '0.875rem'
+          fontSize: '0.875rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
         }}>
-          ⚠️ {error}
+          <AlertCircle size={16} />
+          {error}
         </div>
       )}
     </div>

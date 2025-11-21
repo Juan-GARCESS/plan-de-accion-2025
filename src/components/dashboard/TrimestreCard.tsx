@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import { styles, combineStyles } from '@/styles/components';
 import type { Trimestre } from '@/types';
+import { Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
 
 interface TrimestreCardProps {
   trimestre: Trimestre;
@@ -109,9 +110,13 @@ export const TrimestreCard: React.FC<TrimestreCardProps> = ({
         <p style={{
           color: '#374151',
           fontSize: '0.875rem',
-          margin: 0
+          margin: 0,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px'
         }}>
-          📅 {new Date(trimestre.fecha_inicio).toLocaleDateString()} - 
+          <Calendar size={16} />
+          {new Date(trimestre.fecha_inicio).toLocaleDateString()} - 
           {new Date(trimestre.fecha_fin).toLocaleDateString()}
         </p>
       </div>
@@ -124,9 +129,13 @@ export const TrimestreCard: React.FC<TrimestreCardProps> = ({
           padding: '0.75rem',
           borderRadius: '0.5rem',
           marginBottom: '1rem',
-          fontSize: '0.875rem'
+          fontSize: '0.875rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px'
         }}>
-          ⚠️ {trimestre.razon}
+          <AlertTriangle size={16} />
+          {trimestre.razon}
         </div>
       )}
 
@@ -238,9 +247,13 @@ export const TrimestreCard: React.FC<TrimestreCardProps> = ({
           <p style={{
             color: '#166534',
             fontSize: '0.875rem',
-            margin: 0
+            margin: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
           }}>
-            ✓ Archivo subido: {trimestre.informe.archivo}
+            <CheckCircle size={16} />
+            Archivo subido: {trimestre.informe.archivo}
           </p>
         </div>
       )}

@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { AlertTriangle } from 'lucide-react';
 
 interface SessionTimerProps {
   isAuthenticated: boolean;
@@ -89,7 +90,7 @@ export function SessionTimer({
       animation: timeLeft <= 10 ? 'pulse 1s infinite' : 'none'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span>⚠️</span>
+        <AlertTriangle size={18} />
         <span>
           Sesión expira en: {minutes}:{seconds.toString().padStart(2, '0')}
         </span>
