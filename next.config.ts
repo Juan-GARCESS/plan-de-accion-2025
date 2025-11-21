@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Force rebuild - v2.0.1
   images: {
     remotePatterns: [
       {
