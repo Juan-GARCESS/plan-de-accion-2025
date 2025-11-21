@@ -1,4 +1,5 @@
 // src/components/admin/EvidenciasReview.tsx
+// Version 2.0.1 - Búsqueda y paginación implementadas
 'use client';
 
 import React, { useState, useEffect } from 'react';
