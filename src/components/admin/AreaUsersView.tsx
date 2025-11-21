@@ -5,6 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import type { Usuario, TrimestreEstadistica } from '@/types';
 import { Crown, User as UserIcon, ClipboardList, CheckCircle, XCircle, Check, X, Edit2 } from 'lucide-react';
+import { usePagination } from '@/hooks/usePagination';
+import { Pagination } from '@/components/ui/Pagination';
 
 interface AreaUsersViewProps {
   areaId: number;
@@ -33,6 +35,12 @@ export const AreaUsersView: React.FC<AreaUsersViewProps> = ({ areaId, areaName }
   const [users, setUsers] = useState<AreaUser[]>([]);
   const [trimestres, setTrimestres] = useState<TrimestreEstadistica[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Paginación
+  const { currentPage, totalPages, currentData, goToPage, totalItems, pageSize } = usePagination({
+    data: users,
+    pageSize: 10
+  });
 
   useEffect(() => {
     const fetchAreaData = async () => {
@@ -147,7 +155,7 @@ export const AreaUsersView: React.FC<AreaUsersViewProps> = ({ areaId, areaName }
               </tr>
             </thead>
             <tbody>
-              {users.map(user => (
+              {currentData.map(user => (
                 <tr key={user.id} style={rowStyle}>
                   <td style={cellStyle}>
                     <div style={userInfoStyle}>
@@ -177,6 +185,15 @@ export const AreaUsersView: React.FC<AreaUsersViewProps> = ({ areaId, areaName }
               ))}
             </tbody>
           </table>
+
+          {/* Paginación */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={goToPage}
+            pageSize={pageSize}
+            totalItems={totalItems}
+          />
         </div>
       )}
     </div>

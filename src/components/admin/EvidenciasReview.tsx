@@ -5,6 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { colors, spacing } from '@/lib/styleUtils';
 import { Star, TrendingUp, Trash2, Loader2, ClipboardList, Check, X, Paperclip, Eye, FileText, Edit2 } from 'lucide-react';
+import { usePagination } from '@/hooks/usePagination';
+import { Pagination } from '@/components/ui/Pagination';
 
 interface Evidencia {
   id: number;
@@ -61,6 +63,25 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
   const [comentarioGeneralTrimestre, setComentarioGeneralTrimestre] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [filter, setFilter] = useState<'todas' | 'pendientes' | 'aprobadas' | 'rechazadas'>('pendientes');
+
+  // Calcular evidencias filtradas
+  const evidenciasFiltradas = evidencias.filter(e => {
+    if (filter === 'pendientes') return e.estado === 'pendiente' || !e.estado;
+    if (filter === 'aprobadas') return e.estado === 'aprobado';
+    if (filter === 'rechazadas') return e.estado === 'rechazado';
+    return true;
+  });
+
+  // Paginación
+  const { currentPage, totalPages, currentData, goToPage, totalItems, pageSize, resetPage } = usePagination({
+    data: evidenciasFiltradas,
+    pageSize: 10
+  });
+
+  // Resetear página cuando cambia el filtro
+  useEffect(() => {
+    resetPage();
+  }, [filter, resetPage]);
 
   useEffect(() => {
     fetchEvidencias();
@@ -359,13 +380,6 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
     }
   };
 
-  const evidenciasFiltradas = evidencias.filter(e => {
-    if (filter === 'pendientes') return e.estado === 'pendiente' || !e.estado;
-    if (filter === 'aprobadas') return e.estado === 'aprobado';
-    if (filter === 'rechazadas') return e.estado === 'rechazado';
-    return true;
-  });
-
   if (loading) {
     return (
       <div style={{ padding: 40, textAlign: 'center' }}>
@@ -651,7 +665,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
           gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
           gap: spacing.md
         }}>
-          {evidenciasFiltradas.map(evidencia => (
+          {currentData.map(evidencia => (
             <div
               key={evidencia.id}
               style={{
@@ -834,6 +848,17 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
             </div>
           ))}
         </div>
+        
+        {/* Paginación */}
+        {evidenciasFiltradas.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={goToPage}
+            pageSize={pageSize}
+            totalItems={totalItems}
+          />
+        )}
       )}
 
       {/* Calificación General del Trimestre */}
