@@ -105,7 +105,10 @@ export const AreaForm: React.FC<AreaFormProps> = ({
             type="button"
             style={{
               ...buttonSecondaryStyle,
-              backgroundColor: submitting ? '#9ca3af' : '#6b7280'
+              backgroundColor: submitting ? '#9ca3af' : '#6b7280',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
             }}
             onClick={onCancel}
             disabled={submitting}
@@ -114,9 +117,6 @@ export const AreaForm: React.FC<AreaFormProps> = ({
             }}
             onMouseLeave={(e) => {
               if (!submitting) e.currentTarget.style.backgroundColor = '#6b7280';
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
             }}
           >
             <X size={16} />
@@ -129,7 +129,10 @@ export const AreaForm: React.FC<AreaFormProps> = ({
           style={{
             ...buttonPrimaryStyle,
             backgroundColor: submitting || !nombre.trim() ? '#9ca3af' : '#22c55e',
-            cursor: submitting || !nombre.trim() ? 'not-allowed' : 'pointer'
+            cursor: submitting || !nombre.trim() ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
           }}
           disabled={submitting || !nombre.trim()}
           onMouseEnter={(e) => {
@@ -137,9 +140,6 @@ export const AreaForm: React.FC<AreaFormProps> = ({
           }}
           onMouseLeave={(e) => {
             if (!submitting && nombre.trim()) e.currentTarget.style.backgroundColor = '#22c55e';
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
           }}
         >
           {submitting ? <><Loader2 size={16} /> Guardando...</> : area ? <><Check size={16} /> Actualizar</> : <><Plus size={16} /> Crear Área</>}

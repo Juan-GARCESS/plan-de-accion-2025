@@ -458,15 +458,13 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
 
       {/* Botones de filtro - solo mostrar si HAY evidencias */}
       {evidencias.length > 0 && (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: spacing.lg
-        }}>
+        <div style={{ marginBottom: spacing.lg }}>
+          {/* Filtros por estado */}
           <div style={{
             display: 'flex',
-            gap: spacing.sm
+            gap: spacing.sm,
+            marginBottom: spacing.md,
+            flexWrap: 'wrap'
           }}>
             {(['todas', 'pendientes', 'aprobadas', 'rechazadas'] as const).map(f => (
               <button
@@ -494,7 +492,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
             ))}
           </div>
 
-          {/* Buscador */}
+          {/* Buscador - Ahora debajo de los filtros */}
           <SearchInput
             value={searchTerm}
             onChange={setSearchTerm}
@@ -864,17 +862,17 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
             </div>
           ))}
         </div>
+      )}
         
-        {/* Paginación */}
-        {evidenciasFiltradas.length > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={goToPage}
-            pageSize={pageSize}
-            totalItems={totalItems}
-          />
-        )}
+      {/* Paginación */}
+      {evidenciasFiltradas.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={goToPage}
+          pageSize={pageSize}
+          totalItems={totalItems}
+        />
       )}
 
       {/* Calificación General del Trimestre */}

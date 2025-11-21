@@ -20,8 +20,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   return (
     <div style={{
       position: 'relative',
-      width: '100%',
-      maxWidth: '400px'
+      width: '100%'
     }}>
       {/* Icono de búsqueda */}
       <div style={{

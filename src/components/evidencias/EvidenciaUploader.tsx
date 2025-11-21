@@ -194,7 +194,6 @@ export const EvidenciaUploader: React.FC<EvidenciaUploaderProps> = ({
             cursor: uploading ? 'not-allowed' : 'pointer',
             fontSize: '0.75rem',
             fontWeight: '600',
-            display: 'inline-block',
             opacity: uploading ? 0.6 : 1,
             display: 'inline-flex',
             alignItems: 'center',

@@ -6,6 +6,10 @@ import { AreaForm } from './AreaForm';
 import { AreaCard } from './AreaCard';
 import type { Area } from '@/types';
 import { Building2, ArrowLeft, Edit2, Plus } from 'lucide-react';
+import { SearchInput } from '@/components/ui/SearchInput';
+import { useSearch } from '@/hooks/useSearch';
+import { usePagination } from '@/hooks/usePagination';
+import { Pagination } from '@/components/ui/Pagination';
 
 interface AreasManagementSectionProps {
   areas: Area[];
@@ -22,6 +26,18 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
 }) => {
   const [editingArea, setEditingArea] = useState<Area | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  
+  // Búsqueda
+  const { searchTerm, setSearchTerm, filteredData: areasFiltradas } = useSearch({
+    data: areas,
+    searchKeys: ['nombre_area', 'descripcion']
+  });
+  
+  // Paginación
+  const { currentPage, totalPages, currentData, goToPage, totalItems, pageSize } = usePagination({
+    data: areasFiltradas,
+    pageSize: 10
+  });
 
   useEffect(() => {
     const checkMobile = () => {
@@ -65,7 +81,7 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
               fontSize: isMobile ? '16px' : '18px',
               fontWeight: '600',
               color: '#0c4a6e',
-              margin: 0
+              margin: 0,
               display: 'flex',
               alignItems: 'center',
               gap: '6px'
@@ -125,9 +141,20 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
             </p>
           </div>
 
+          {/* Buscador */}
+          {areas.length > 0 && (
+            <div style={{ marginBottom: '1.5rem' }}>
+              <SearchInput
+                value={searchTerm}
+                onChange={setSearchTerm}
+                placeholder="Buscar áreas..."
+              />
+            </div>
+          )}
+
           {/* Table */}
           <div style={{ overflowX: 'auto' }}>
-            {isMobile && areas.length > 0 && (
+            {isMobile && areasFiltradas.length > 0 && (
               <div style={{
                 padding: '0.5rem 1rem',
                 backgroundColor: '#fffbeb',
@@ -143,7 +170,29 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
                 <ArrowLeft size={16} /> Desliza para ver más columnas
               </div>
             )}
-            {areas.length === 0 ? (
+            {areasFiltradas.length === 0 ? (
+              <div style={{
+                padding: '3rem',
+                textAlign: 'center',
+                color: '#64748b'
+              }}>
+                {searchTerm ? (
+                  <p style={{ margin: 0 }}>No se encontraron áreas con &quot;{searchTerm}&quot;</p>
+                ) : (
+                  <>
+                    <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
+                      <Building2 size={64} strokeWidth={1.5} />
+                    </div>
+                    <h4 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 0.5rem 0' }}>
+                      No hay áreas creadas
+                    </h4>
+                    <p style={{ margin: 0 }}>
+                      Crea la primera área usando el formulario de arriba
+                    </p>
+                  </>
+                )}
+              </div>
+            ) : areas.length === 0 ? (
               <div style={{
                 padding: '3rem',
                 textAlign: 'center',
@@ -174,7 +223,7 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {areas.map((area) => (
+                  {currentData.map((area) => (
                     <AreaCard
                       key={area.id}
                       area={area}
@@ -186,6 +235,19 @@ export const AreasManagementSection: React.FC<AreasManagementSectionProps> = ({
               </table>
             )}
           </div>
+          
+          {/* Paginación */}
+          {areasFiltradas.length > 0 && (
+            <div style={{ marginTop: '1.5rem' }}>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+                pageSize={pageSize}
+                totalItems={totalItems}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

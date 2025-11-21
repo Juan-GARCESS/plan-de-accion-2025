@@ -409,10 +409,7 @@ function LoginForm() {
                 backdropFilter: 'blur(10px)',
                 fontSize: '10px',
                 color: 'white',
-                fontWeight: 'bold',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                fontWeight: 'bold'
               }}>
                 {formData.remember && <Check size={12} />}
               </span>
