@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { colors, spacing } from '@/lib/styleUtils';
-import { Star, TrendingUp, Trash2, Loader2 } from 'lucide-react';
+import { Star, TrendingUp, Trash2, Loader2, ClipboardList, Check, X, Paperclip, Eye, FileText, Edit2 } from 'lucide-react';
 
 interface Evidencia {
   id: number;
@@ -635,7 +635,9 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
           backgroundColor: colors.gray[50],
           borderRadius: 12
         }}>
-          <span style={{ fontSize: '3rem', marginBottom: 16, display: 'block' }}>📋</span>
+          <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center', color: colors.gray[400] }}>
+            <ClipboardList size={48} />
+          </div>
           <h3 style={{ margin: 0, color: colors.gray[800] }}>No hay evidencias</h3>
           <p style={{ margin: 0, marginTop: 8, color: colors.gray[600], fontSize: '0.875rem' }}>
             {filter === 'pendientes' 
@@ -694,9 +696,13 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                       : '#991b1b',
                     borderRadius: 12,
                     fontSize: '0.7rem',
-                    fontWeight: '600'
+                    fontWeight: '600',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
                   }}>
-                    {evidencia.estado === 'aprobado' ? '✓' : '✗'} {evidencia.calificacion}%
+                    {evidencia.estado === 'aprobado' ? <Check size={14} /> : <X size={14} />}
+                    {evidencia.calificacion}%
                   </span>
                 )}
               </div>
@@ -716,8 +722,9 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                 </div>
               </div>
 
-              <div style={{ marginBottom: spacing.sm, fontSize: '0.75rem', color: colors.gray[600] }}>
-                📎 {evidencia.archivo_nombre}
+              <div style={{ marginBottom: spacing.sm, fontSize: '0.75rem', color: colors.gray[600], display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Paperclip size={14} />
+                {evidencia.archivo_nombre}
               </div>
 
               <div style={{ display: 'flex', gap: spacing.xs, flexWrap: 'wrap' }}>
@@ -733,10 +740,15 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                     borderRadius: 8,
                     cursor: 'pointer',
                     fontSize: '0.75rem',
-                    fontWeight: '600'
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    justifyContent: 'center'
                   }}
                 >
-                  👁️ Ver
+                  <Eye size={14} />
+                  Ver
                 </button>
                 
                 {(evidencia.estado === 'pendiente' || !evidencia.estado) && (
@@ -756,10 +768,15 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                       borderRadius: 8,
                       cursor: 'pointer',
                       fontSize: '0.75rem',
-                      fontWeight: '600'
+                      fontWeight: '600',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      justifyContent: 'center'
                     }}
                   >
-                    📝 Calificar
+                    <FileText size={14} />
+                    Calificar
                   </button>
                 )}
 
@@ -781,10 +798,15 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                       borderRadius: 8,
                       cursor: 'pointer',
                       fontSize: '0.75rem',
-                      fontWeight: '600'
+                      fontWeight: '600',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      justifyContent: 'center'
                     }}
                   >
-                    ✏️ Editar
+                    <Edit2 size={14} />
+                    Editar
                   </button>
                 )}
 
