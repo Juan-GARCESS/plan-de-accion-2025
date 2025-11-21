@@ -7,6 +7,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import type { Usuario, Area } from '@/types';
 import { colors, spacing, borderRadius } from '@/lib/styleUtils';
+import { AlertTriangle, Loader2, Check, X } from 'lucide-react';
 
 interface PendingUsersCardProps {
   usuarios: Usuario[];
@@ -113,7 +114,7 @@ export const PendingUsersCard: React.FC<PendingUsersCardProps> = ({
         gap: spacing.sm,
         marginBottom: spacing.md
       }}>
-        <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+        <AlertTriangle size={24} color="#f59e0b" />
         <h3 style={{
           margin: 0,
           fontSize: '1.125rem',
@@ -232,7 +233,8 @@ export const PendingUsersCard: React.FC<PendingUsersCardProps> = ({
                     e.currentTarget.style.backgroundColor = colors.success;
                   }}
                 >
-                  {isLoading ? '⏳' : '✓'} Aprobar
+                  {isLoading ? <Loader2 size={14} style={{ display: 'inline', marginRight: 4 }} className="animate-spin" /> : <Check size={14} style={{ display: 'inline', marginRight: 4 }} />}
+                  Aprobar
                 </button>
 
                 <button
@@ -259,7 +261,8 @@ export const PendingUsersCard: React.FC<PendingUsersCardProps> = ({
                     e.currentTarget.style.backgroundColor = colors.gray[500];
                   }}
                 >
-                  {isLoading ? '⏳' : '✗'} Rechazar
+                  {isLoading ? <Loader2 size={14} style={{ display: 'inline', marginRight: 4 }} className="animate-spin" /> : <X size={14} style={{ display: 'inline', marginRight: 4 }} />}
+                  Rechazar
                 </button>
               </div>
             </div>

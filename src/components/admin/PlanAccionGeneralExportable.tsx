@@ -362,7 +362,7 @@ export default function PlanAccionGeneralExportable({ isAdmin = false, userAreaI
     link.click();
     document.body.removeChild(link);
     
-    toast.success('✅ Exportación Exitosa', {
+    toast.success('Exportación Exitosa', {
       description: `Archivo "Plan-de-Accion-General-${fecha}.csv" descargado correctamente.`
     });
   };

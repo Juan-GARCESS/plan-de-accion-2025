@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { colors, spacing } from '@/lib/styleUtils';
-import { Star, TrendingUp, Trash2, Loader2, ClipboardList, Check, X, Paperclip, Eye, FileText, Edit2 } from 'lucide-react';
+import { Star, TrendingUp, Trash2, Loader2, ClipboardList, Check, X, Paperclip, Eye, FileText, Edit2, AlertTriangle } from 'lucide-react';
 import { usePagination } from '@/hooks/usePagination';
 import { Pagination } from '@/components/ui/Pagination';
 import { useSearch } from '@/hooks/useSearch';
@@ -1069,7 +1069,8 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                   opacity: submitting ? 0.6 : 1
                 }}
               >
-                {submitting ? '⏳' : '✓'} Aprobar
+                {submitting ? <Loader2 size={14} style={{ display: 'inline', marginRight: 4 }} className="animate-spin" /> : <Check size={14} style={{ display: 'inline', marginRight: 4 }} />}
+                Aprobar
               </button>
 
               <button
@@ -1088,7 +1089,8 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                   opacity: submitting ? 0.6 : 1
                 }}
               >
-                {submitting ? '⏳' : '✗'} Rechazar
+                {submitting ? <Loader2 size={14} style={{ display: 'inline', marginRight: 4 }} className="animate-spin" /> : <X size={14} style={{ display: 'inline', marginRight: 4 }} />}
+                Rechazar
               </button>
 
               <button
@@ -1227,7 +1229,17 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                   opacity: submitting ? 0.6 : 1
                 }}
               >
-                {submitting ? '⏳ Guardando...' : '✓ Guardar Cambios'}
+                {submitting ? (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Loader2 size={14} className="animate-spin" />
+                    Guardando...
+                  </span>
+                ) : (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Check size={14} />
+                    Guardar Cambios
+                  </span>
+                )}
               </button>
 
               <button
@@ -1286,7 +1298,7 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
               alignItems: 'center',
               gap: spacing.sm
             }}>
-              <span style={{ fontSize: '2rem' }}>⚠️</span>
+              <AlertTriangle size={32} color="#dc2626" />
               Eliminar Evidencia
             </h2>
 
@@ -1301,8 +1313,9 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                 fontSize: '0.875rem'
               }}>
                 <strong>{deletingEvidencia.usuario_nombre}</strong> - {deletingEvidencia.area_nombre}
-                <div style={{ marginTop: 4, color: colors.gray[600] }}>
-                  📎 {deletingEvidencia.archivo_nombre}
+                <div style={{ marginTop: 4, color: colors.gray[600], display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Paperclip size={14} />
+                  {deletingEvidencia.archivo_nombre}
                 </div>
               </div>
               <p style={{ 
@@ -1310,9 +1323,13 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
                 marginTop: spacing.sm, 
                 color: '#dc2626',
                 fontSize: '0.875rem',
-                fontWeight: '600'
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4
               }}>
-                ⚠️ Esta acción no se puede deshacer.
+                <AlertTriangle size={14} />
+                Esta acción no se puede deshacer.
               </p>
             </div>
 

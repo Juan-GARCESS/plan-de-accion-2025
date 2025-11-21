@@ -8,6 +8,7 @@ import { useResponsive } from '@/hooks/useResponsive';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { styles, combineStyles } from '@/styles/components';
 import type { Usuario, Area } from '@/types';
+import { Edit2 } from 'lucide-react';
 import { Key, Trash2 } from 'lucide-react';
 
 interface UserCardProps {
@@ -219,7 +220,8 @@ export const UserCard: React.FC<UserCardProps> = ({
               )}
               onClick={() => onEdit(user)}
             >
-              ✏️ Editar
+              <Edit2 size={14} style={{ display: 'inline', marginRight: 4 }} />
+              Editar
             </button>
             <button
               onClick={handleGeneratePassword}
