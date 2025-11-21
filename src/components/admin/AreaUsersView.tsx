@@ -7,6 +7,8 @@ import type { Usuario, TrimestreEstadistica } from '@/types';
 import { Crown, User as UserIcon, ClipboardList, CheckCircle, XCircle, Check, X, Edit2 } from 'lucide-react';
 import { usePagination } from '@/hooks/usePagination';
 import { Pagination } from '@/components/ui/Pagination';
+import { useSearch } from '@/hooks/useSearch';
+import { SearchInput } from '@/components/ui/SearchInput';
 
 interface AreaUsersViewProps {
   areaId: number;
@@ -36,11 +38,22 @@ export const AreaUsersView: React.FC<AreaUsersViewProps> = ({ areaId, areaName }
   const [trimestres, setTrimestres] = useState<TrimestreEstadistica[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Paginación
-  const { currentPage, totalPages, currentData, goToPage, totalItems, pageSize } = usePagination({
+  // Búsqueda por nombre o email
+  const { searchTerm, setSearchTerm, filteredData: filteredUsers } = useSearch({
     data: users,
+    searchKeys: ['nombre', 'email']
+  });
+
+  // Paginación
+  const { currentPage, totalPages, currentData, goToPage, totalItems, pageSize, resetPage } = usePagination({
+    data: filteredUsers,
     pageSize: 10
   });
+
+  // Resetear página cuando cambia la búsqueda
+  useEffect(() => {
+    resetPage();
+  }, [searchTerm, resetPage]);
 
   useEffect(() => {
     const fetchAreaData = async () => {
@@ -141,7 +154,17 @@ export const AreaUsersView: React.FC<AreaUsersViewProps> = ({ areaId, areaName }
           <p>No hay usuarios asignados a esta área</p>
         </div>
       ) : (
-        <div style={tableContainerStyle}>
+        <>
+          {/* Buscador */}
+          <div style={{ marginBottom: '20px' }}>
+            <SearchInput
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Buscar por nombre o email..."
+            />
+          </div>
+
+          <div style={tableContainerStyle}>
           <table style={tableStyle}>
             <thead>
               <tr style={headerRowStyle}>
@@ -194,7 +217,8 @@ export const AreaUsersView: React.FC<AreaUsersViewProps> = ({ areaId, areaName }
             pageSize={pageSize}
             totalItems={totalItems}
           />
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

@@ -7,6 +7,8 @@ import { colors, spacing } from '@/lib/styleUtils';
 import { Star, TrendingUp, Trash2, Loader2, ClipboardList, Check, X, Paperclip, Eye, FileText, Edit2 } from 'lucide-react';
 import { usePagination } from '@/hooks/usePagination';
 import { Pagination } from '@/components/ui/Pagination';
+import { useSearch } from '@/hooks/useSearch';
+import { SearchInput } from '@/components/ui/SearchInput';
 
 interface Evidencia {
   id: number;
@@ -64,12 +66,18 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
   const [submitting, setSubmitting] = useState(false);
   const [filter, setFilter] = useState<'todas' | 'pendientes' | 'aprobadas' | 'rechazadas'>('pendientes');
 
-  // Calcular evidencias filtradas
-  const evidenciasFiltradas = evidencias.filter(e => {
+  // Calcular evidencias filtradas por estado
+  const evidenciasPorEstado = evidencias.filter(e => {
     if (filter === 'pendientes') return e.estado === 'pendiente' || !e.estado;
     if (filter === 'aprobadas') return e.estado === 'aprobado';
     if (filter === 'rechazadas') return e.estado === 'rechazado';
     return true;
+  });
+
+  // Búsqueda por nombre de meta, usuario o área
+  const { searchTerm, setSearchTerm, filteredData: evidenciasFiltradas } = useSearch({
+    data: evidenciasPorEstado,
+    searchKeys: ['meta', 'usuario_nombre', 'area_nombre']
   });
 
   // Paginación
@@ -78,10 +86,10 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
     pageSize: 10
   });
 
-  // Resetear página cuando cambia el filtro
+  // Resetear página cuando cambia el filtro o búsqueda
   useEffect(() => {
     resetPage();
-  }, [filter, resetPage]);
+  }, [filter, searchTerm, resetPage]);
 
   useEffect(() => {
     fetchEvidencias();
@@ -484,6 +492,13 @@ export const EvidenciasReview: React.FC<EvidenciasReviewProps> = ({ areaId, trim
               </button>
             ))}
           </div>
+
+          {/* Buscador */}
+          <SearchInput
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Buscar por meta, usuario o área..."
+          />
         </div>
       )}
 
